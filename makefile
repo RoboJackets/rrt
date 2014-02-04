@@ -15,7 +15,8 @@ gtest: gtest/make/gtest_main.a
 	cd gtest/make && make
 
 build/%.o: %.cpp
-	mkdir -p build/{./%$(dir $^)}
+	mkdir -p build
+	mkdir -p build/test
 	$(CXX) $(CXX_FLAGS) -o $@ -c $^
 
 test: $(OBJ) $(TEST_OBJ) gtest
