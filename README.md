@@ -15,3 +15,10 @@ Testing
 -------
 
 There are google-test unit tests setup in the test/ directory.  Run `make test` from the main directory to compile and run them.
+
+
+## Resources
+
+Here are some good resources for learning more about RRTs:
+
+* http://msl.cs.uiuc.edu/rrt/
