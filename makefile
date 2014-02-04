@@ -11,15 +11,16 @@ TEST_OBJ=$(patsubst %.cpp, build/%.o, $(TEST_SRC))
 
 all: $(OBJ)
 
-gtest: gtest/make/gtest_main.o
+gtest: gtest/make/gtest_main.a
 	cd gtest/make && make
 
 build/%.o: %.cpp
+	mkdir -p build/$(dir $^)
 	$(CXX) $(CXX_FLAGS) -o $@ -c $^
 
 test: $(OBJ) $(TEST_OBJ) gtest
-	$(CXX) $(CXX_FLAGS) $(TEST_OBJ) $(OBJ) gtest/make/gtest_main.o -o build/test
-	build/test
+	$(CXX) $(CXX_FLAGS) $(TEST_OBJ) $(OBJ) gtest/make/gtest_main.a -o build/test_prg
+	build/test_prg
 
 clean:
-	rm -rf build/*
+	rm -rf build
