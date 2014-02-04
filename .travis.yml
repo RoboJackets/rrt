@@ -1,0 +1,7 @@
+language: cpp
+compiler: clang
+
+script: make test
+
+notifications:
+  email: false
