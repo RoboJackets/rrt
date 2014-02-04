@@ -11,7 +11,7 @@ TEST_OBJ=$(patsubst %.cpp, build/%.o, $(TEST_SRC))
 
 all: $(OBJ)
 
-gtest: gtest/make/gtest_main.a
+gtest/make/gtest_main.a:
 	cd gtest/make && make
 
 build/%.o: %.cpp
@@ -19,7 +19,7 @@ build/%.o: %.cpp
 	mkdir -p build/test
 	$(CXX) $(CXX_FLAGS) -o $@ -c $^
 
-test: $(OBJ) $(TEST_OBJ) gtest
+test: $(OBJ) $(TEST_OBJ) gtest/make/gtest_main.a
 	$(CXX) $(CXX_FLAGS) $(TEST_OBJ) $(OBJ) gtest/make/gtest_main.a -o build/test_prg
 	build/test_prg
 
