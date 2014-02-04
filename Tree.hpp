@@ -72,12 +72,11 @@ namespace RRT
 		Tree();
 		virtual ~Tree();
 
-
 		/**
 		 * Removes all Nodes from the tree so it can be run() again.
 		 */
 		void reset();
-		
+
 		/**
 		 * Executes the RRT algorithm with the given start state.  The run()
 		 * method calls reset() automatically before doing anything.
@@ -96,12 +95,12 @@ namespace RRT
 		void setMaxIterations(int itr) {
 			_maxIterations = itr;
 		}
-		
+
 		/**
 		 * Find the point of the tree closest to @state
 		 */
 		Node<T> *nearest(T state);
-		
+
 		/**
 		 * Grow the tree in the direction of @pt
 		 *
@@ -110,7 +109,7 @@ namespace RRT
 		 *             the closest tree point is used
 		 */
 		virtual Node<T> *extend(T state, Node<T> *base = NULL) = 0;
-		
+
 		/**
 		 * Attempts to connect @state into the tree by repeatedly calling extend()
 		 * to connect a series of new Nodes in series from the closest point already
@@ -120,7 +119,7 @@ namespace RRT
 		 * @return true if the connection was successfully made, false otherwise
 		 */
 		virtual bool connect(const T &state);
-		
+
 		/**
 		 * Get the path from the receiver's root point to the dest point
 		 *
@@ -129,12 +128,12 @@ namespace RRT
 		 */
 		//	FIXME: remove dependency on Path
 		void getPath(Planning::Path &path, Node<T> *dest, const bool reverse = false);
-		
+
 		/**
 		 * @return The first point (the one passed to init()) or NULL if none
 		 */
 		Node<T> *rootNode() const;
-		
+
 		/**
 		 * @return The most recent Node added to the tree
 		 */
@@ -166,7 +165,6 @@ namespace RRT
 		/**
 		 * Callback to see if a given Node is at or near enough to the goal.  Note
 		 * that the Tree never asks where the goal is, only if a given Node is near
-		 * 
 		 */
 		bool [](Node<T> *pt) pointNearGoalCallback;
 
