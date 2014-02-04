@@ -20,7 +20,7 @@ build/%.o: %.cpp
 	$(CXX) $(CXX_FLAGS) -o $@ -c $^
 
 test: $(OBJ) $(TEST_OBJ) gtest/make/gtest_main.a
-	$(CXX) $(CXX_FLAGS) $(TEST_OBJ) $(OBJ) gtest/make/gtest_main.a -o build/test_prg
+	$(CXX) $(CXX_FLAGS) $(TEST_OBJ) $(OBJ) gtest/make/gtest_main.a -lpthread -o build/test_prg
 	build/test_prg
 
 clean:
