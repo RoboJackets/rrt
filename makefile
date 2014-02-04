@@ -1,6 +1,6 @@
 
 CXX=clang++
-CXX_FLAGS="-Igtest/include"
+CXX_FLAGS=-Igtest/include -std=c++11
 
 SRC=$(wildcard *.cpp)
 OBJ=$(patsubst %.cpp, build/%.o, $(SRC))
@@ -15,7 +15,7 @@ gtest: gtest/make/gtest_main.a
 	cd gtest/make && make
 
 build/%.o: %.cpp
-	mkdir -p build/$(dir $^)
+	mkdir -p build/{./%$(dir $^)}
 	$(CXX) $(CXX_FLAGS) -o $@ -c $^
 
 test: $(OBJ) $(TEST_OBJ) gtest
