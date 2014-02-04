@@ -1,1 +1,6 @@
+# compiled things
+*.o
+*.a
+gtest/make
+
 *.sublime-workspace
