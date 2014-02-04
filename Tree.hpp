@@ -2,8 +2,6 @@
 
 #include <list>
 
-#include <Geometry2d/Segment.hpp>
-#include <planning/Path.hpp>
 
 namespace RRT
 {
