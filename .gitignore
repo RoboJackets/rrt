@@ -2,5 +2,6 @@
 *.o
 *.a
 gtest/make
+build/
 
 *.sublime-workspace
