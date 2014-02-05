@@ -4,6 +4,8 @@
 
 C++ RRT (Rapidly-exploring Random Tree) implementation
 
+![RRT Animation from Wikipedia](http://upload.wikimedia.org/wikipedia/commons/6/62/Rapidly-exploring_Random_Tree_%28RRT%29_500x373.gif)
+
 
 Status
 ------
