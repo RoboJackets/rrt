@@ -26,3 +26,4 @@ There are google-test unit tests setup in the test/ directory.  Run `make test` 
 Here are some good resources for learning more about RRTs:
 
 * http://msl.cs.uiuc.edu/rrt/
+* [Wikipedia](http://en.wikipedia.org/wiki/Rapidly_exploring_random_tree)
