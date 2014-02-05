@@ -1,9 +1,9 @@
 
 CXX=clang++
-CXX_FLAGS=-Igtest/include -std=c++11
+CXX_FLAGS=-std=c++11 -Igtest/include -Isrc
 
-SRC=$(wildcard *.cpp)
-OBJ=$(patsubst %.cpp, build/%.o, $(SRC))
+SRC=$(wildcard src/**.cpp)
+OBJ=$(patsubst src/%.cpp, %.o, $(SRC))
 
 TEST_SRC=$(wildcard test/*.cpp)
 TEST_OBJ=$(patsubst %.cpp, build/%.o, $(TEST_SRC))

@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "../Tree.hpp"
+#include <Tree.hpp>
 
 using namespace RRT;
 
