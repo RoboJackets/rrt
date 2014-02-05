@@ -104,6 +104,26 @@ namespace RRT
 		 * @return a bool indicating whether or not it found a path to the goal
 		 */
 		bool run(const T &start) {
+			setup(start);
+
+			for (int i = 0; i < _maxIterations; i++) {
+				Node<T> *newNode = grow();
+
+				if (newNode) {
+					if (goalProximityChecker(newNode)) return true;
+				}
+			}
+
+			//	we hit our iteration limit and didn't reach the goal :(
+			return false;
+		}
+
+		/**
+		 * Prepares the Tree to be run with the given start state.  The run()
+		 * method calls setup() automatically, so there's no need for you to
+		 * call it directly unless you want to implement run() in your own way.
+		 */
+		void setup(const T &start) {
 			reset();
 
 			//	FIXME: assert that all callbacks are provided
@@ -111,23 +131,19 @@ namespace RRT
 			//	create root node from provided start state
 			Node<T> *root = new Node<T>(start, NULL);
 			_nodes.push_back(root);
+		}
 
-			for (int i = 0; i < _maxIterations; i++) {
-				//	pick a random state
-				T randState = randomStateGenerator();
+		/**
+		 * Picks a random state and attempts to extend the tree towards it.
+		 * This is called at each iteration of the run() method.
+		 */
+		void grow() {
+			//	pick a random state
+			T randState = randomStateGenerator();
 
-				//	attempt and add a new node to the tree in the direction of
-				//	@randState
-				Node<T> *newNode = extend(randState);
-				if (newNode) {
-					if (goalProximityChecker(newNode)) {
-						return true;
-					}
-				}
-			}
-
-			//	we hit our iteration limit and didn't reach the goal :(
-			return false;
+			//	attempt and add a new node to the tree in the direction of
+			//	@randState
+			return extend(randState);
 		}
 
 		/**
