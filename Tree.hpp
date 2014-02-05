@@ -193,36 +193,6 @@ namespace RRT
 		}
 
 		/**
-		 * Attempts to connect @state into the tree by repeatedly calling
-		 * extend() to connect a series of new Nodes in series from the closest
-		 * point already in the tree towards @state.
-		 *
-		 * @param state The state to try to connect into the tree
-		 * @return true if the connection was successfully made, false otherwise
-		 */
-		virtual bool connect(const T &state, const unsigned int maxAttempts = 50) {			
-			Node<T> *from = NULL;
-			for (unsigned int i = 0; i < maxAttempts; ++i) {
-				Node<T> *newNode = extend(state, from);
-				
-				//	there's not a direct path from @from to @state; abort
-				if (!newNode) return false;
-				
-				//	we found a connection
-				if (newNode->state() == state)
-				{
-					return true;
-				}
-				
-				//	we found a waypoint to use, but we're not there yet
-				from = newNode;
-			}
-			
-			//	we used all of our attempts and didn't find a connection; abort
-			return false;
-		}
-
-		/**
 		 * Get the path from the receiver's root point to the dest point
 		 *
 		 * @param callback The lambda to call for each state in the path
