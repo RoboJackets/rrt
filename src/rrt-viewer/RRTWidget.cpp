@@ -75,6 +75,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
 
 	const float r = 1;
 
+	int closestDist = INT_MAX;
 	const Node<Vector2f> *closeNode = NULL;
 
 	//	draw all the nodes and connections
@@ -91,8 +92,9 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
 		}
 
 		//	see if this node has reached the goal
-		if (_tree->goalProximityChecker(node->state())) {
+		if (_tree->goalProximityChecker(node->state()) && node->depth() < closestDist) {
 			closeNode = node;
+			closestDist = node->depth();
 		}
 	}
 

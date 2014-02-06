@@ -33,7 +33,7 @@ namespace RRT
 		 * the node has.
 		 * Returns 0 if it doesn't have a parent.
 		 */
-		int depth()  {
+		int depth() const {
 			int n = 0;
 			for (Node<T> *ancestor = _parent; ancestor != NULL; ancestor = ancestor->_parent) {
 				n++;
