@@ -1,6 +1,7 @@
 # compiled things
 *.o
 *.a
+*.pyc
 gtest/make
 build/
 .sconsign.dblite

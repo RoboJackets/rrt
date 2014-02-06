@@ -14,5 +14,5 @@ Export('env');
 SConscript('src/rrt-viewer/SConscript')
 
 
-gtest = env.Command('gtest/make/gtest_main.a', 'gtest/make/makefile', 'make -C gtest/make/makefile')
+gtest = env.Command('gtest/make/gtest_main.a', 'gtest/make/Makefile', 'make -C gtest/make')
 Alias('gtest', gtest)
