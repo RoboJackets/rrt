@@ -31,10 +31,7 @@ void RRTWidget::setupTree(Vector2f start) {
 	if (_tree) delete _tree;
 	const float stepSize = 10;
 	_tree = TreeFor2dPlane(width(), height(), _goalState, stepSize);
-	// _tree->goalProximityChecker = [=](const Vector2f &state) {
-	// 	Vector2f delta = state - _goalState;
-	// 	return magnitude(delta) < stepSize;
-	// };
+	setGoalState(_goalState);
 
 	_tree->setup(start);
 }
