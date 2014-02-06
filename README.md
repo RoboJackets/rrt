@@ -9,6 +9,14 @@ Here's a gif of an RRT from wikipedia:
 ![RRT Animation from Wikipedia](http://upload.wikimedia.org/wikipedia/commons/6/62/Rapidly-exploring_Random_Tree_%28RRT%29_500x373.gif)
 
 
+Interactive RRT Viewer
+----------------------
+
+This project contains an interactive RRT viewer.  The source and destination points can be dragged with a mouse.  Here's a screenshot:
+
+![Interactive RRT](doc/images/rrt-viewer-screenshot.png)
+
+
 Status
 ------
 
