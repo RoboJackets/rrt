@@ -24,7 +24,7 @@ namespace RRT
 			}
 		}
 		
-		Node<T> *parent() const {
+		const Node<T> *parent() const {
 			return _parent;
 		}
 
@@ -249,6 +249,13 @@ namespace RRT
 			if (_nodes.empty()) return NULL;
 			
 			return _nodes.back();
+		}
+
+		/**
+		 * All the nodes
+		 */
+		const std::list<Node<T> *> allNodes() const {
+			return _nodes;
 		}
 
 
