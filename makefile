@@ -1,6 +1,6 @@
 
 CXX=clang++
-CXX_FLAGS=-std=c++11 -Igtest/include -Isrc
+CXX_FLAGS=-std=c++11 -Igtest/include -Isrc -I/usr/local/Cellar/eigen/3.2.0/include/eigen3/
 
 SRC=$(shell find src -type f -name '*.cpp')
 OBJ=$(patsubst src/%.cpp, build/%.o, $(SRC))
@@ -21,6 +21,9 @@ build/%.o: src/%.cpp
 test: $(OBJ) $(TEST_OBJ) gtest/make/gtest_main.a
 	$(CXX) $(CXX_FLAGS) $(TEST_OBJ) $(OBJ) gtest/make/gtest_main.a -lpthread -o build/test_prg
 	build/test_prg
+
+build/2d: build/2dplane/2dplane.o
+	$(CXX) $(CXX_FLAGS) -o build/2d $^ -o build/2d
 
 clean:
 	rm -rf build
