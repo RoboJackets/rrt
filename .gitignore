@@ -3,5 +3,6 @@
 *.a
 gtest/make
 build/
+.sconsign.dblite
 
 *.sublime-workspace
