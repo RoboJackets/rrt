@@ -15,7 +15,7 @@ namespace RRT
 	template<typename T>
 	class Node {
 	public:
-		Node(T &state, Node<T> *parent = NULL) {
+		Node(const T &state, Node<T> *parent = NULL) {
 			_parent = parent;
 			_state = state;
 			
@@ -110,7 +110,7 @@ namespace RRT
 				Node<T> *newNode = grow();
 
 				if (newNode) {
-					if (goalProximityChecker(newNode)) return true;
+					if (goalProximityChecker(newNode->state())) return true;
 				}
 			}
 
@@ -137,7 +137,7 @@ namespace RRT
 		 * Picks a random state and attempts to extend the tree towards it.
 		 * This is called at each iteration of the run() method.
 		 */
-		void grow() {
+		Node<T> *grow() {
 			//	pick a random state
 			T randState = randomStateGenerator();
 
@@ -194,11 +194,11 @@ namespace RRT
 			//	Get a state that's in the direction of @target from @source.
 			//	This should take a step in that direction, but not go all the
 			//	way unless the they're really close together.
-			T intermediateState = intermediateStateGenerator(source, target);
+			T intermediateState = intermediateStateGenerator(source->state(), target);
 
 			//	Make sure there's actually a direct path from @source to
 			//	@intermediateState.  If not, abort
-			if (!transitionValidator(source, intermediateState)) {
+			if (!transitionValidator(source->state(), intermediateState)) {
 				return NULL;
 			}
 
@@ -261,7 +261,7 @@ namespace RRT
 		/**
 		 * This callback determines if a given transition is valid.
 		 */
-		std::function<bool (const Node<T> *start, const T &newState)> transitionValidator;
+		std::function<bool (const T &start, const T &newState)> transitionValidator;
 
 		/**
 		 * Override this to provide a way for the Tree to generate random states.
@@ -281,7 +281,7 @@ namespace RRT
 		 * Note that the Tree never asks where the goal is, only if a given Node
 		 * is near.
 		 */
-		std::function<bool (const Node<T> *node)> goalProximityChecker;
+		std::function<bool (const T &state)> goalProximityChecker;
 
 		/**
 		 * Finds a state in the direction of @target from @source.state().
@@ -289,7 +289,7 @@ namespace RRT
 		 * any validation on the state before returning, the tree will handle
 		 * that.
 		 */
-		std::function<T (const Node<T> *source, const T &target)> intermediateStateGenerator;
+		std::function<T (const T &source, const T &target)> intermediateStateGenerator;
 
 
 	protected:
