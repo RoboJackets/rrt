@@ -11,6 +11,10 @@ INCLUDE_DIRECTORIES(/usr/local/include/eigen3)
 FIND_PACKAGE(Qt4 REQUIRED)
 INCLUDE(${QT_USE_FILE})
 
+
+# rrt-viewer
+################################################################################
+
 # rrt-viewer srcs
 FILE(GLOB rrt_viewer_SRC
 	"src/2dplane/*.cpp"
@@ -24,3 +28,21 @@ QT4_WRAP_CPP(rrt_viewer_headers_MOC ${rrt_viewer_HEADERS})
 # rrt-viewer
 ADD_EXECUTABLE("rrt-viewer" ${rrt_viewer_SRC} ${rrt_viewer_headers_MOC})
 TARGET_LINK_LIBRARIES("rrt-viewer" ${QT_LIBRARIES})
+
+
+# test-runner
+################################################################################
+
+# test srcs
+FILE(GLOB tests_SRC
+	"test/*.cpp"
+)
+
+# stup gtest
+ADD_SUBDIRECTORY(gtest)
+ENABLE_TESTING()
+INCLUDE_DIRECTORIES(gtest/include)
+
+# test-runner
+ADD_EXECUTABLE("test-runner" ${tests_SRC})
+TARGET_LINK_LIBRARIES("test-runner" gtest gtest_main)
