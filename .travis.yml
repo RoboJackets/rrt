@@ -1,6 +1,8 @@
 language: cpp
 compiler: clang
 
+install: sudo apt-get install libeigen3-dev
+
 script: ./build.sh && build/test-runner
 
 notifications:
