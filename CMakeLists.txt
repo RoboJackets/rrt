@@ -34,19 +34,19 @@ ADD_EXECUTABLE("rrt-viewer" ${rrt_viewer_SRC})
 QT5_USE_MODULES("rrt-viewer" Widgets)
 
 
-# # test-runner
-# ################################################################################
+# test-runner
+################################################################################
 
-# # test srcs
-# FILE(GLOB tests_SRC
-# 	"test/*.cpp"
-# )
+# test srcs
+FILE(GLOB tests_SRC
+	"test/*.cpp"
+)
 
-# # stup gtest
-# ADD_SUBDIRECTORY(gtest)
-# ENABLE_TESTING()
-# INCLUDE_DIRECTORIES(gtest/include)
+# stup gtest
+ADD_SUBDIRECTORY(gtest)
+ENABLE_TESTING()
+INCLUDE_DIRECTORIES(gtest/include)
 
-# # test-runner
-# ADD_EXECUTABLE("test-runner" ${tests_SRC})
-# TARGET_LINK_LIBRARIES("test-runner" gtest gtest_main)
+# test-runner
+ADD_EXECUTABLE("test-runner" ${tests_SRC})
+TARGET_LINK_LIBRARIES("test-runner" gtest gtest_main)
