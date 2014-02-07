@@ -1,7 +1,10 @@
 language: cpp
 compiler: clang
 
-install: sudo apt-get install libeigen3-dev
+install:
+  - sudo apt-get update
+  - sudo apt-get -y install libeigen3-dev
+  - sudo apt-get -y upgrade cmake
 
 script: ./build.sh && build/test-runner
 
