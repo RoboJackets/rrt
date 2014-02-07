@@ -3,7 +3,6 @@
 #include <list>
 #include <functional>
 
-
 namespace RRT
 {
 	/**
@@ -15,7 +14,7 @@ namespace RRT
 	template<typename T>
 	class Node {
 	public:
-		Node(const T &state, Node<T> *parent = NULL) {
+        Node(const T &state, Node<T> *parent = nullptr) {
 			_parent = parent;
 			_state = state;
 			
@@ -35,7 +34,7 @@ namespace RRT
 		 */
 		int depth() const {
 			int n = 0;
-			for (Node<T> *ancestor = _parent; ancestor != NULL; ancestor = ancestor->_parent) {
+            for (Node<T> *ancestor = _parent; ancestor != nullptr; ancestor = ancestor->_parent) {
 				n++;
 			}
 			return n;
@@ -81,7 +80,7 @@ namespace RRT
 		Tree() {
 			setMaxIterations(100);
 
-			//	FIXME: set callback stuff to NULL
+            //	FIXME: set callback stuff to nullptr
 		}
 
 		virtual ~Tree() {
@@ -127,7 +126,7 @@ namespace RRT
 			//	FIXME: assert that all callbacks are provided
 			
 			//	create root node from provided start state
-			Node<T> *root = new Node<T>(start, NULL);
+            Node<T> *root = new Node<T>(start, nullptr);
 			_nodes.push_back(root);
 		}
 
@@ -160,7 +159,7 @@ namespace RRT
 		 */
 		Node<T> *nearest(const T &state) {
 			float bestDistance = -1;
-		    Node<T> *best = NULL;
+            Node<T> *best = nullptr;
 		    
 		    for (Node<T> *other : _nodes) {
 		    	float dist = distanceCalculator(other->state(), state);
@@ -176,16 +175,16 @@ namespace RRT
 		/**
 		 * Grow the tree in the direction of @state
 		 *
-		 * @return the new tree Node (may be NULL if we hit Obstacles)
-		 * @param source The Node to connect from.  If source == NULL, then
+         * @return the new tree Node (may be nullptr if we hit Obstacles)
+         * @param source The Node to connect from.  If source == nullptr, then
 		 *             the closest tree point is used
 		 */
-		virtual Node<T> *extend(const T &target, Node<T> *source = NULL) {
+        virtual Node<T> *extend(const T &target, Node<T> *source = nullptr) {
 			//	if we weren't given a source point, try to find a close node
 			if (!source) {
 				source = nearest(target);
 				if (!source) {
-					return NULL;
+                    return nullptr;
 				}
 			}
 			
@@ -197,7 +196,7 @@ namespace RRT
 			//	Make sure there's actually a direct path from @source to
 			//	@intermediateState.  If not, abort
 			if (!transitionValidator(source->state(), intermediateState)) {
-				return NULL;
+                return nullptr;
 			}
 
 			// Add a node to the tree for this state
@@ -234,10 +233,10 @@ namespace RRT
 		}
 
 		/**
-		 * @return The first node or NULL if none
+         * @return The first node or nullptr if none
 		 */
 		Node<T> *rootNode() const {
-			if (_nodes.empty()) return NULL;
+            if (_nodes.empty()) return nullptr;
 			
 			return _nodes.front();
 		}
@@ -246,7 +245,7 @@ namespace RRT
 		 * @return The most recent Node added to the tree
 		 */
 		Node<T> *lastNode() const {
-			if (_nodes.empty()) return NULL;
+            if (_nodes.empty()) return nullptr;
 			
 			return _nodes.back();
 		}

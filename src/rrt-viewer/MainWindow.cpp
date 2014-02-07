@@ -26,6 +26,8 @@ MainWindow::MainWindow() {
 	centralWidget->setLayout(layout);
 	this->setCentralWidget(centralWidget);
 
+    setFixedSize(sizeHint());
+
 	connect(step, SIGNAL(released()), _rrtWidget, SLOT(slot_step()));
 	connect(reset, SIGNAL(released()), _rrtWidget, SLOT(slot_reset()));
 	connect(stepBig, SIGNAL(released()), _rrtWidget, SLOT(slot_stepBig()));

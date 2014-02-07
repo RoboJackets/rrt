@@ -107,9 +107,9 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
 	painter.setPen(QPen(Qt::green, 6));
 	painter.drawEllipse(goalLoc, r*2, r*2);
 
-	//	draw the solution in green
+    //	draw the solution in red
 	if (closeNode) {
-		painter.setPen(QPen (Qt::blue, 2));
+        painter.setPen(QPen (Qt::red, 2));
 
 		const Node<Vector2f> *node = closeNode, *parent = closeNode->parent();
 		while (parent) {
