@@ -17,16 +17,10 @@ This project contains an interactive RRT viewer.  The source and destination poi
 ![Interactive RRT](doc/images/rrt-viewer-screenshot.png)
 
 
-Status
-------
+Building
+--------
 
-This isn't fully implemented yet, but is underway.  Feel free to contribute!, but realize that it's not ready for use.
-
-
-Testing
--------
-
-There are google-test unit tests setup in the test/ directory.  Run `make test` from the main directory to compile and run them.
+Run `./build.sh` in the main directory to build the `rrt-viewer` program and the `test-runner` program, which are placed in the `build/` folder.
 
 
 ## Resources
