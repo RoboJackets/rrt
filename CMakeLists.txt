@@ -1,15 +1,23 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
 PROJECT(rrt)
 
-ADD_DEFINITIONS(-std=c++11)
 
-#include
+SET(CMAKE_CXX_COMPILER clang++)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+# includes
 INCLUDE_DIRECTORIES(src)
-INCLUDE_DIRECTORIES(/usr/local/include/eigen3)
+
+
+# Eigen3
+INCLUDE_DIRECTORIES("/usr/include/eigen3")
+# FIND_PACKAGE(Eigen)
+
 
 # Qt
-FIND_PACKAGE(Qt4 REQUIRED)
-INCLUDE(${QT_USE_FILE})
+SET(CMAKE_AUTOMOC ON)
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+FIND_PACKAGE(Qt5Widgets REQUIRED)
 
 
 # rrt-viewer
@@ -21,28 +29,24 @@ FILE(GLOB rrt_viewer_SRC
 	"src/rrt-viewer/*.cpp"
 )
 
-# qt-compiled rrt-viewer headers
-FILE(GLOB rrt_viewer_HEADERS "src/rrt-viewer/*.hpp")
-QT4_WRAP_CPP(rrt_viewer_headers_MOC ${rrt_viewer_HEADERS})
-
 # rrt-viewer
-ADD_EXECUTABLE("rrt-viewer" ${rrt_viewer_SRC} ${rrt_viewer_headers_MOC})
-TARGET_LINK_LIBRARIES("rrt-viewer" ${QT_LIBRARIES})
+ADD_EXECUTABLE("rrt-viewer" ${rrt_viewer_SRC})
+QT5_USE_MODULES("rrt-viewer" Widgets)
 
 
-# test-runner
-################################################################################
+# # test-runner
+# ################################################################################
 
-# test srcs
-FILE(GLOB tests_SRC
-	"test/*.cpp"
-)
+# # test srcs
+# FILE(GLOB tests_SRC
+# 	"test/*.cpp"
+# )
 
-# stup gtest
-ADD_SUBDIRECTORY(gtest)
-ENABLE_TESTING()
-INCLUDE_DIRECTORIES(gtest/include)
+# # stup gtest
+# ADD_SUBDIRECTORY(gtest)
+# ENABLE_TESTING()
+# INCLUDE_DIRECTORIES(gtest/include)
 
-# test-runner
-ADD_EXECUTABLE("test-runner" ${tests_SRC})
-TARGET_LINK_LIBRARIES("test-runner" gtest gtest_main)
+# # test-runner
+# ADD_EXECUTABLE("test-runner" ${tests_SRC})
+# TARGET_LINK_LIBRARIES("test-runner" gtest gtest_main)

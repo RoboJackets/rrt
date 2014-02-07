@@ -1,5 +1,6 @@
+#pragma once
 
-#include <QtGui>
+#include <QtWidgets>
 #include <Tree.hpp>
 #include <Eigen/Dense>
 
