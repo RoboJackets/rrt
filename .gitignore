@@ -6,4 +6,6 @@ gtest/make
 build/
 .sconsign.dblite
 
+.DS_Store
+
 *.sublime-workspace
