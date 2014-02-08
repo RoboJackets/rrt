@@ -5,6 +5,7 @@ install:
   - sudo apt-get update
   - sudo apt-get -y install libeigen3-dev
   - sudo apt-get -y upgrade cmake
+  - sudo apt-get -y install qt5-default
 
 script: ./build.sh && build/test-runner
 
