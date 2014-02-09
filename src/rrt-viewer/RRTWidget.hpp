@@ -31,8 +31,23 @@ protected:
 
 	static bool mouseInGrabbingRange(QMouseEvent *event, const Eigen::Vector2f &pt);
 
+	template<typename P>
+	void getIntCoordsForPt(P pt, int &xOut, int &yOut) {
+		xOut = pt.x() * GridWidth / rect().width();
+		yOut = pt.y() * GridHeight / rect().height();
+	}
+
 private:
 	RRT::Tree<Eigen::Vector2f> *_tree;
 	Eigen::Vector2f _goalState;
 	bool _draggingStart, _draggingGoal;
+
+	///	the viewing area is divided up into rectangles
+	///	@_blocked tracks whether or not they are obstacles.
+	static const int GridWidth = 40, GridHeight = 30;
+	bool _blocked[GridWidth][GridHeight];
+
+	//	if you click down on an obstacle, you enter erase mode
+	//	if you click down where there's no obstacle, you enter draw mode
+	bool _editingObstacles, _erasingObstacles;
 };

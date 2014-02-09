@@ -35,6 +35,17 @@ void RRTWidget::setupTree(Vector2f start) {
 		return magnitude(delta) < 12;
 	};
 
+	//	note: the obstacle detection here isn't perfect, but it's good enough
+	_tree->transitionValidator = [&](const Vector2f &from, const Vector2f &to) {
+		int x, y; getIntCoordsForPt<Vector2f>(from, x, y);
+		if (_blocked[x][y]) return false;
+
+		getIntCoordsForPt<Vector2f>(to, x, y);
+		if (_blocked[x][y]) return false;
+
+		return true;
+	};
+
 	_tree->setup(start);
 }
 
@@ -114,6 +125,17 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
 			parent = parent->parent();
 		}
 	}
+
+	//	draw obstacles
+	int rectW = rect().width() / GridWidth, rectH = rect().height() / GridHeight;
+	painter.setPen(QPen(Qt::black, 2));
+	for (int x = 0; x < GridWidth; x++) {
+		for (int y = 0; y < GridHeight; y++) {
+			if (_blocked[x][y]) {
+				painter.fillRect(x * rectW, y * rectH, rectW, rectH, Qt::SolidPattern);
+			}
+		}
+	}
 }
 
 
@@ -130,6 +152,14 @@ void RRTWidget::mousePressEvent(QMouseEvent *event) {
 		_draggingStart = true;
 	} else if (mouseInGrabbingRange(event, _goalState)) {
 		_draggingGoal = true;
+	} else {
+		_editingObstacles = true;
+		int x, y; getIntCoordsForPt<QPointF>(event->pos(), x, y);
+		_erasingObstacles = _blocked[x][y];
+
+		//	toggle the blocked state of clicked square
+		_blocked[x][y] = !_erasingObstacles;
+		update();
 	}
 }
 
@@ -144,10 +174,15 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
 		//	set the new goal point
 		_goalState = Vector2f(point);
 		update();
+	} else if (_editingObstacles) {
+		int x, y; getIntCoordsForPt<QPointF>(event->pos(), x, y);
+		_blocked[x][y] = !_erasingObstacles;
+		update();
 	}
 }
 
 void RRTWidget::mouseReleaseEvent(QMouseEvent *event) {
 	_draggingGoal = false;
 	_draggingStart = false;
+	_editingObstacles = false;
 }
