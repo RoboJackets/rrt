@@ -8,7 +8,7 @@ using namespace Eigen;
 
 
 RRTWidget::RRTWidget() {
-	setFixedSize(400, 300);
+	setFixedSize(600, 450);
 
 	//	default to bidirectional
 	_bidirectional = true;
