@@ -10,9 +10,16 @@ using namespace Eigen;
 RRTWidget::RRTWidget() {
 	setFixedSize(400, 300);
 
-	_tree = NULL;
-	setupTree();
-	_goalState = Vector2f(width() / 2.0, height() / 2.0);
+	//	default to bidirectional
+	_bidirectional = true;
+
+	//	setup @_startTree
+	_startTree = NULL;
+	setupTree(&_startTree, Vector2f(50, 50));
+
+	//	setup @_goalTree
+	_goalTree = NULL;
+	setupTree(&_goalTree, Vector2f(width() / 2.0, height() / 2.0));
 
 	//	register for mouse events
 	setMouseTracking(true);
@@ -21,22 +28,19 @@ RRTWidget::RRTWidget() {
 }
 
 void RRTWidget::slot_reset() {
-	//	begin a fresh tree with the same starting point as before
-	setupTree(_tree->rootNode()->state());
+	//	begin fresh trees with the same starting points as before
+	setupTree(&_startTree, _startTree->rootNode()->state());
+	setupTree(&_goalTree, _goalTree->rootNode()->state());
 	update();
 }
 
-void RRTWidget::setupTree(Vector2f start) {
-	if (_tree) delete _tree;
+void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
+	if (*treePP) delete *treePP;
 	const float stepSize = 10;
-	_tree = TreeFor2dPlane(width(), height(), _goalState, stepSize);
-	_tree->goalProximityChecker = [&](const Vector2f &state) {
-		Vector2f delta = state - this->_goalState;
-		return magnitude(delta) < 12;
-	};
+	*treePP = TreeFor2dPlane(width(), height(), Vector2f(0,0), stepSize);
 
 	//	note: the obstacle detection here isn't perfect, but it's good enough
-	_tree->transitionValidator = [&](const Vector2f &from, const Vector2f &to) {
+	(*treePP)->transitionValidator = [&](const Vector2f &from, const Vector2f &to) {
 		int x, y; getIntCoordsForPt<Vector2f>(from, x, y);
 		if (_blocked[x][y]) return false;
 
@@ -46,19 +50,66 @@ void RRTWidget::setupTree(Vector2f start) {
 		return true;
 	};
 
-	_tree->setup(start);
+	(*treePP)->setup(start);
+}
+
+void RRTWidget::resetSolution() {
+	_startSolutionNode = nullptr;
+	_goalSolutionNode = nullptr;
+	_solutionLength = INT_MAX;
 }
 
 void RRTWidget::slot_step() {
-	_tree->grow();
-	update();
+	step(1);
 }
 
 void RRTWidget::slot_stepBig() {
-	for (int i = 0; i < 100; i++) {
-		_tree->grow();
+	step(100);
+}
+
+void RRTWidget::step(int numTimes) {
+	for (int i = 0; i < numTimes; i++) {
+		Node<Vector2f> *newNode = _startTree->grow();
+		int depth;
+
+		Node<Vector2f> *otherNode = findBestPath(newNode->state(), _goalTree, &depth);
+		if (otherNode && depth + newNode->depth() < _solutionLength) {
+			_startSolutionNode = newNode;
+			_goalSolutionNode = otherNode;
+			_solutionLength = newNode->depth() + depth;
+		}
+
+		if (_bidirectional) {
+			newNode = _goalTree->grow();
+
+			otherNode = findBestPath(newNode->state(), _startTree, &depth);
+			if (otherNode && depth + newNode->depth() < _solutionLength) {
+				_startSolutionNode = otherNode;
+				_goalSolutionNode = newNode;
+				_solutionLength = newNode->depth() + depth;
+			}
+		}
 	}
 	update();
+}
+
+Node<Vector2f> *RRTWidget::findBestPath(Vector2f targetState, Tree<Vector2f> *treeToSearch, int *depthOut) {
+	Node<Vector2f> *bestNode = nullptr;
+	int depth = INT_MAX;
+
+	const float maxDist = 12;
+
+	for (Node<Vector2f> *other : treeToSearch->allNodes()) {
+		Vector2f delta = other->state() - targetState;
+		if (magnitude(delta) < maxDist && other->depth() < depth) {
+			bestNode = other;
+			depth = other->depth();
+		}
+	}
+
+	if (depthOut) *depthOut = depth;
+
+	return bestNode;
 }
 
 QPointF RRTWidget::pointFromNode(const Node<Vector2f> *n) {
@@ -83,25 +134,27 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
 		}
 	}
 
-	//	get solution
-	float solutionDist;
-	const Node<Vector2f> *solutionNode = _tree->nearest(_goalState, &solutionDist);
-	if (solutionNode && solutionDist > 12) solutionNode = nullptr;
+	//	draw @_startTree
+	drawTree(painter, _startTree, _startSolutionNode);
 
-	//	draw rrt tree
-	drawTree(painter, _tree, solutionNode);
+	//	draw @_goalTree
+	if (_bidirectional) {
+		drawTree(painter, _goalTree, _goalSolutionNode);
+	}
 
 	//	draw root as a red dot
-	if (_tree->rootNode()) {
+	if (_startTree->rootNode()) {
 		painter.setPen(QPen (Qt::red, 6));
-		QPointF rootLoc = pointFromNode(_tree->rootNode());
+		QPointF rootLoc = pointFromNode(_startTree->rootNode());
 		painter.drawEllipse(rootLoc, 2, 2);
 	}
 
 	//	draw goal as a green dot
-	QPointF goalLoc = QPointF(_goalState.x(), _goalState.y());
-	painter.setPen(QPen(Qt::green, 6));
-	painter.drawEllipse(goalLoc, 2, 2);
+	if (_goalTree->rootNode()) {
+		QPointF goalLoc = pointFromNode(_goalTree->rootNode());
+		painter.setPen(QPen(Qt::green, 6));
+		painter.drawEllipse(goalLoc, 2, 2);
+	}
 }
 
 void RRTWidget::drawTree(QPainter &painter,
@@ -155,9 +208,9 @@ bool RRTWidget::mouseInGrabbingRange(QMouseEvent *event, const Vector2f &pt) {
 }
 
 void RRTWidget::mousePressEvent(QMouseEvent *event) {
-	if (mouseInGrabbingRange(event, _tree->rootNode()->state())) {
+	if (mouseInGrabbingRange(event, _startTree->rootNode()->state())) {
 		_draggingStart = true;
-	} else if (mouseInGrabbingRange(event, _goalState)) {
+	} else if (mouseInGrabbingRange(event, _goalTree->rootNode()->state())) {
 		_draggingGoal = true;
 	} else {
 		_editingObstacles = true;
@@ -175,11 +228,11 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
 
 	if (_draggingStart) {
 		//	reset the tree with the new start pos
-		setupTree(point);
+		setupTree(&_startTree, point);
 		update();
 	} else if (_draggingGoal) {
 		//	set the new goal point
-		_goalState = Vector2f(point);
+		setupTree(&_goalTree, point);
 		update();
 	} else if (_editingObstacles) {
 		int x, y; getIntCoordsForPt<QPointF>(event->pos(), x, y);
