@@ -62,69 +62,15 @@ void RRTWidget::slot_stepBig() {
 }
 
 QPointF RRTWidget::pointFromNode(const Node<Vector2f> *n) {
-	// float x = n->state().x() / (float)rect().width();
-	// float y = n->state().y() / (float)rect().height();
 	return QPointF(n->state().x(), n->state().y());
 }
 
 void RRTWidget::paintEvent(QPaintEvent *p) {
 	QPainter painter(this);
+
+	//	draw black border around widget
 	painter.setPen(QPen (Qt::black, 3));
 	painter.drawRect(rect());
-
-	const float r = 1;
-
-	int closestDist = INT_MAX;
-	const Node<Vector2f> *closeNode = NULL;
-
-	//	draw all the nodes and connections
-	for (const Node<Vector2f> *node : _tree->allNodes()) {
-		painter.setPen(QPen (Qt::blue, 1));
-		QPointF loc = pointFromNode(node);
-		painter.drawEllipse(loc, r, r);
-
-		if (node->parent()) {
-			//	draw edge
-			painter.setPen(QPen (Qt::blue, 1));
-			QPointF parentLoc = pointFromNode(node->parent());
-			painter.drawLine(loc, parentLoc);
-		}
-
-		//	see if this node has reached the goal
-		if (_tree->goalProximityChecker(node->state()) && node->depth() < closestDist) {
-			closeNode = node;
-			closestDist = node->depth();
-		}
-	}
-
-	//	draw root as a red dot
-	if (_tree->rootNode()) {
-		painter.setPen(QPen (Qt::red, 6));
-		QPointF rootLoc = pointFromNode(_tree->rootNode());
-		painter.drawEllipse(rootLoc, r*2, r*2);
-	}
-
-	//	draw goal as a green dot
-	QPointF goalLoc = QPointF(_goalState.x(), _goalState.y());
-	painter.setPen(QPen(Qt::green, 6));
-	painter.drawEllipse(goalLoc, r*2, r*2);
-
-    //	draw the solution in red
-	if (closeNode) {
-        painter.setPen(QPen (Qt::red, 2));
-
-		const Node<Vector2f> *node = closeNode, *parent = closeNode->parent();
-		while (parent) {
-			//	draw the edge
-			QPointF from = pointFromNode(node);
-			QPointF to = pointFromNode(parent);
-			painter.drawLine(from, to);
-
-			//	scooch
-			node = parent;
-			parent = parent->parent();
-		}
-	}
 
 	//	draw obstacles
 	int rectW = rect().width() / GridWidth, rectH = rect().height() / GridHeight;
@@ -134,6 +80,67 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
 			if (_blocked[x][y]) {
 				painter.fillRect(x * rectW, y * rectH, rectW, rectH, Qt::SolidPattern);
 			}
+		}
+	}
+
+	//	get solution
+	float solutionDist;
+	const Node<Vector2f> *solutionNode = _tree->nearest(_goalState, &solutionDist);
+	if (solutionNode && solutionDist > 12) solutionNode = nullptr;
+
+	//	draw rrt tree
+	drawTree(painter, _tree, solutionNode);
+
+	//	draw root as a red dot
+	if (_tree->rootNode()) {
+		painter.setPen(QPen (Qt::red, 6));
+		QPointF rootLoc = pointFromNode(_tree->rootNode());
+		painter.drawEllipse(rootLoc, 2, 2);
+	}
+
+	//	draw goal as a green dot
+	QPointF goalLoc = QPointF(_goalState.x(), _goalState.y());
+	painter.setPen(QPen(Qt::green, 6));
+	painter.drawEllipse(goalLoc, 2, 2);
+}
+
+void RRTWidget::drawTree(QPainter &painter,
+	const Tree<Vector2f> *rrt,
+	const Node<Vector2f> *solutionNode,
+	QColor treeColor,
+	QColor solutionColor)
+{
+	//	node drawing radius
+	const float r = 1;
+
+	//	draw all the nodes and connections
+	for (const Node<Vector2f> *node : rrt->allNodes()) {
+		painter.setPen(QPen (treeColor, 1));
+		QPointF loc = pointFromNode(node);
+		painter.drawEllipse(loc, r, r);
+
+		if (node->parent()) {
+			//	draw edge
+			painter.setPen(QPen (Qt::blue, 1));
+			QPointF parentLoc = pointFromNode(node->parent());
+			painter.drawLine(loc, parentLoc);
+		}
+	}
+
+	//	draw solution
+	if (solutionNode) {
+        painter.setPen(QPen(solutionColor, 2));
+
+		const Node<Vector2f> *node = solutionNode, *parent = solutionNode->parent();
+		while (parent) {
+			//	draw the edge
+			QPointF from = pointFromNode(node);
+			QPointF to = pointFromNode(parent);
+			painter.drawLine(from, to);
+
+			//	scooch
+			node = parent;
+			parent = parent->parent();
 		}
 	}
 }

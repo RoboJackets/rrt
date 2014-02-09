@@ -22,6 +22,12 @@ private slots:
 
 protected:
 	void paintEvent(QPaintEvent *p);
+	void drawTree(QPainter &painter,
+		const RRT::Tree<Eigen::Vector2f> *rrt,
+		const RRT::Node<Eigen::Vector2f> *solutionNode = NULL,
+		QColor treeColor = Qt::blue,
+		QColor solutionColor = Qt::red);
+
 	void setupTree(Eigen::Vector2f source = Eigen::Vector2f(50, 50));
 	QPointF pointFromNode(const RRT::Node<Eigen::Vector2f> *n);
 
