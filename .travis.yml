@@ -13,4 +13,4 @@ script:
   - build/test-runner
 
 notifications:
-  email: false
+  email: justbuchanan@gmail.com
