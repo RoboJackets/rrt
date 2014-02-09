@@ -2,6 +2,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
 PROJECT(rrt)
 
 # c++11
+# note: the -fPIC flag is for building with Qt...
+#       it complains about position-independent code otherwise
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
 # includes
@@ -17,7 +19,6 @@ INCLUDE_DIRECTORIES("/usr/include/eigen3")
 SET(CMAKE_AUTOMOC ON)
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 FIND_PACKAGE(Qt5Widgets REQUIRED)
-# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5_Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 
 # rrt-viewer
