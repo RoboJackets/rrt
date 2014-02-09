@@ -13,12 +13,15 @@ RRTWidget::RRTWidget() {
 	//	default to bidirectional
 	_bidirectional = true;
 
+	//	reset
+	resetSolution();
+
 	//	setup @_startTree
-	_startTree = NULL;
+	_startTree = nullptr;
 	setupTree(&_startTree, Vector2f(50, 50));
 
 	//	setup @_goalTree
-	_goalTree = NULL;
+	_goalTree = nullptr;
 	setupTree(&_goalTree, Vector2f(width() / 2.0, height() / 2.0));
 
 	//	register for mouse events
@@ -35,6 +38,8 @@ void RRTWidget::slot_reset() {
 }
 
 void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
+	resetSolution();
+
 	if (*treePP) delete *treePP;
 	const float stepSize = 10;
 	*treePP = TreeFor2dPlane(width(), height(), Vector2f(0,0), stepSize);
@@ -70,23 +75,29 @@ void RRTWidget::slot_stepBig() {
 void RRTWidget::step(int numTimes) {
 	for (int i = 0; i < numTimes; i++) {
 		Node<Vector2f> *newNode = _startTree->grow();
+		
 		int depth;
+		Node<Vector2f> *otherNode;
 
-		Node<Vector2f> *otherNode = findBestPath(newNode->state(), _goalTree, &depth);
-		if (otherNode && depth + newNode->depth() < _solutionLength) {
-			_startSolutionNode = newNode;
-			_goalSolutionNode = otherNode;
-			_solutionLength = newNode->depth() + depth;
+		if (newNode) {
+			otherNode = findBestPath(newNode->state(), _goalTree, &depth);
+			if (otherNode && depth + newNode->depth() < _solutionLength) {
+				_startSolutionNode = newNode;
+				_goalSolutionNode = otherNode;
+				_solutionLength = newNode->depth() + depth;
+			}
 		}
 
 		if (_bidirectional) {
 			newNode = _goalTree->grow();
 
-			otherNode = findBestPath(newNode->state(), _startTree, &depth);
-			if (otherNode && depth + newNode->depth() < _solutionLength) {
-				_startSolutionNode = otherNode;
-				_goalSolutionNode = newNode;
-				_solutionLength = newNode->depth() + depth;
+			if (newNode) {
+				otherNode = findBestPath(newNode->state(), _startTree, &depth);
+				if (otherNode && depth + newNode->depth() < _solutionLength) {
+					_startSolutionNode = otherNode;
+					_goalSolutionNode = newNode;
+					_solutionLength = newNode->depth() + depth;
+				}
 			}
 		}
 	}
