@@ -155,9 +155,11 @@ namespace RRT
 		}
 
 		/**
-		 * Find the point of the tree closest to @state
+		 * Find the node int the tree closest to @state.  Pass in a float pointer
+		 * as the second argument to get the distance that the node is away from
+		 * @state.
 		 */
-		Node<T> *nearest(const T &state) {
+		Node<T> *nearest(const T &state, float *distanceOut = nullptr) {
 			float bestDistance = -1;
             Node<T> *best = nullptr;
 		    
@@ -168,6 +170,8 @@ namespace RRT
 		            best = other;
 		        }
 		    }
+
+		    if (distanceOut) *distanceOut = bestDistance;
 
 		    return best;
 		}
