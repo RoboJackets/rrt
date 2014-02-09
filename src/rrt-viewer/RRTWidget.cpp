@@ -12,8 +12,7 @@ RRTWidget::RRTWidget() {
 
 	_tree = NULL;
 	setupTree();
-	Vector2f goal = Vector2f(width() / 2.0, height() / 2.0);
-	setGoalState(goal);
+	_goalState = Vector2f(width() / 2.0, height() / 2.0);
 
 	//	register for mouse events
 	setMouseTracking(true);
@@ -31,7 +30,10 @@ void RRTWidget::setupTree(Vector2f start) {
 	if (_tree) delete _tree;
 	const float stepSize = 10;
 	_tree = TreeFor2dPlane(width(), height(), _goalState, stepSize);
-	setGoalState(_goalState);
+	_tree->goalProximityChecker = [&](const Vector2f &state) {
+		Vector2f delta = state - this->_goalState;
+		return magnitude(delta) < 12;
+	};
 
 	_tree->setup(start);
 }
@@ -45,17 +47,6 @@ void RRTWidget::slot_stepBig() {
 	for (int i = 0; i < 100; i++) {
 		_tree->grow();
 	}
-	update();
-}
-
-void RRTWidget::setGoalState(const Vector2f &pt) {
-	_goalState = pt;
-
-	_tree->goalProximityChecker = [=](const Vector2f &state) {
-		Vector2f delta = state - _goalState;
-		return magnitude(delta) < 12;
-	};
-
 	update();
 }
 
@@ -151,7 +142,7 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
 		update();
 	} else if (_draggingGoal) {
 		//	set the new goal point
-		setGoalState(point);
+		_goalState = Vector2f(point);
 		update();
 	}
 }

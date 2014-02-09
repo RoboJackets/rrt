@@ -31,8 +31,6 @@ protected:
 
 	static bool mouseInGrabbingRange(QMouseEvent *event, const Eigen::Vector2f &pt);
 
-	void setGoalState(const Eigen::Vector2f &pt);
-
 private:
 	RRT::Tree<Eigen::Vector2f> *_tree;
 	Eigen::Vector2f _goalState;
