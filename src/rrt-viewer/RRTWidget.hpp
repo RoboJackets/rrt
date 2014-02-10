@@ -16,11 +16,18 @@ class RRTWidget : public QWidget {
 public:
 	RRTWidget();
 
+	/**
+	 * If true, the widget will grow a tree from the start and from the
+	 * goal point.  When the trees intersect, a solution has been found.
+	 */
+	bool bidirectional() const;
+
 private slots:
 	void slot_reset();
 	void slot_clearObstacles();
 	void slot_step();
 	void slot_stepBig();
+	void slot_setBidirectional(int bidirectional);
 
 protected:
 	void paintEvent(QPaintEvent *p);
@@ -40,6 +47,8 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event);
 
 	static bool mouseInGrabbingRange(QMouseEvent *event, const Eigen::Vector2f &pt);
+
+	void resetTrees();
 
 	/**
 	 * The viewing area is divided up in to rectangles which can be blocked

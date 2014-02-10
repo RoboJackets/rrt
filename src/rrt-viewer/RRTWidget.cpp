@@ -30,11 +30,19 @@ RRTWidget::RRTWidget() {
 	_draggingGoal = false;
 }
 
+bool RRTWidget::bidirectional() const {
+	return _bidirectional;
+}
+
 void RRTWidget::slot_reset() {
+	resetTrees();
+	update();
+}
+
+void RRTWidget::resetTrees() {
 	//	begin fresh trees with the same starting points as before
 	setupTree(&_startTree, _startTree->rootNode()->state());
 	setupTree(&_goalTree, _goalTree->rootNode()->state());
-	update();
 }
 
 void RRTWidget::slot_clearObstacles() {
@@ -44,6 +52,14 @@ void RRTWidget::slot_clearObstacles() {
 		}
 	}
 	update();
+}
+
+void RRTWidget::slot_setBidirectional(int bidirectional) {
+	if ((bool)bidirectional != _bidirectional) {
+		_bidirectional = (bool)bidirectional;
+		resetTrees();
+		update();
+	}
 }
 
 void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {

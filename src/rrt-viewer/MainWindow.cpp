@@ -3,6 +3,8 @@
 
 
 MainWindow::MainWindow() {
+	_rrtWidget = new RRTWidget();
+
 	setWindowTitle("Interactive RRT");
 
 	QPushButton *step = new QPushButton(this);
@@ -17,14 +19,16 @@ MainWindow::MainWindow() {
 	QPushButton *clearObstacles = new QPushButton(this);
 	clearObstacles->setText("Clear Obstacles");
 
-	_rrtWidget = new RRTWidget();
+	QCheckBox *bidirectional = new QCheckBox("Bidirectional");
+	bidirectional->setChecked(_rrtWidget->bidirectional());
 
 	QGridLayout *layout = new QGridLayout();
 	layout->addWidget(step, 0, 0);
 	layout->addWidget(stepBig, 0, 1);
 	layout->addWidget(reset, 0, 2);
 	layout->addWidget(clearObstacles, 0, 3);
-	layout->addWidget(_rrtWidget, 1, 0, 1, 4);
+	layout->addWidget(bidirectional, 0, 4);
+	layout->addWidget(_rrtWidget, 1, 0, 1, 5);
 
 	QWidget *centralWidget = new QWidget(this);
 	centralWidget->setLayout(layout);
@@ -38,4 +42,5 @@ MainWindow::MainWindow() {
 	connect(stepBig, SIGNAL(released()), _rrtWidget, SLOT(slot_stepBig()));
 	connect(reset, SIGNAL(released()), _rrtWidget, SLOT(slot_reset()));
 	connect(clearObstacles, SIGNAL(released()), _rrtWidget, SLOT(slot_clearObstacles()));
+	connect(bidirectional, SIGNAL(stateChanged(int)), _rrtWidget, SLOT(slot_setBidirectional(int)));
 }
