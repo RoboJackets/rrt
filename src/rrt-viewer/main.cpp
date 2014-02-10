@@ -4,11 +4,9 @@
 
 
 int main(int argc, char **argv) {
-	// Q_INIT_RESOURCE(application);
-
 	QApplication app(argc, argv);
 	app.setOrganizationName("RoboJackets");
-	app.setApplicationName("RRT Viewer");
+	app.setApplicationName("Interactive RRT");
 	MainWindow mainWin;
 	mainWin.show();
 

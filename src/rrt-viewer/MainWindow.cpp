@@ -30,8 +30,10 @@ MainWindow::MainWindow() {
 	centralWidget->setLayout(layout);
 	this->setCentralWidget(centralWidget);
 
+	//	prevent the window from being resized
     setFixedSize(sizeHint());
 
+    //	make the buttons do things
 	connect(step, SIGNAL(released()), _rrtWidget, SLOT(slot_step()));
 	connect(stepBig, SIGNAL(released()), _rrtWidget, SLOT(slot_stepBig()));
 	connect(reset, SIGNAL(released()), _rrtWidget, SLOT(slot_reset()));

@@ -8,6 +8,7 @@
 /**
  * This widget creates an RRT tree for searching a 2d space and draws it.
  * It has methods (slots) for stepping and resetting tree growth.
+ * You can also draw and erase obstacles for by clicking and dragging.
  */
 class RRTWidget : public QWidget {
 	Q_OBJECT
@@ -40,6 +41,12 @@ protected:
 
 	static bool mouseInGrabbingRange(QMouseEvent *event, const Eigen::Vector2f &pt);
 
+	/**
+	 * The viewing area is divided up in to rectangles which can be blocked
+	 * or open, which is how we keep track of obstacles.  This method simply
+	 * converts a QPoint or Vector2f to integer coordinates represenging a
+	 * particular rectangle in the grid.
+	 */
 	template<typename P>
 	void getIntCoordsForPt(P pt, int &xOut, int &yOut) {
 		xOut = pt.x() * GridWidth / rect().width();
