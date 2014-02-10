@@ -159,7 +159,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
 
 	//	draw @_goalTree
 	if (_bidirectional) {
-		drawTree(painter, _goalTree, _goalSolutionNode);
+		drawTree(painter, _goalTree, _goalSolutionNode, Qt::darkGreen);
 	}
 
 	//	draw root as a red dot
@@ -194,7 +194,7 @@ void RRTWidget::drawTree(QPainter &painter,
 
 		if (node->parent()) {
 			//	draw edge
-			painter.setPen(QPen (Qt::blue, 1));
+			painter.setPen(QPen(treeColor, 1));
 			QPointF parentLoc = pointFromNode(node->parent());
 			painter.drawLine(loc, parentLoc);
 		}
