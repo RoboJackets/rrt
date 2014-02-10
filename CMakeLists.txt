@@ -41,6 +41,7 @@ QT5_USE_MODULES("rrt-viewer" Widgets)
 # test srcs
 FILE(GLOB tests_SRC
 	"test/*.cpp"
+	"src/2dplane/*.cpp"
 )
 
 # stup gtest
