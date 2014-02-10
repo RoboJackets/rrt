@@ -37,6 +37,15 @@ void RRTWidget::slot_reset() {
 	update();
 }
 
+void RRTWidget::slot_clearObstacles() {
+	for (int x = 0; x < GridWidth; x++) {
+		for (int y = 0; y < GridHeight; y++) {
+			_blocked[x][y] = false;
+		}
+	}
+	update();
+}
+
 void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
 	resetSolution();
 

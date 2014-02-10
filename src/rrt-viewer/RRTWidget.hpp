@@ -17,6 +17,7 @@ public:
 
 private slots:
 	void slot_reset();
+	void slot_clearObstacles();
 	void slot_step();
 	void slot_stepBig();
 
