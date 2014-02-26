@@ -9,8 +9,8 @@ namespace RRT
 	/**
 	 * Base class for an rrt tree node
 	 *
-	 * The template parameter T is for storing the state that the Node
-	 * represents.
+	 * @param T The datatype representing the state in the space the RRT
+	 * will be searching.
 	 */
 	template<typename T>
 	class Node {
