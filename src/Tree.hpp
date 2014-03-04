@@ -276,22 +276,22 @@ namespace RRT
 		 *                tree's root
 		 */
 		void getPath(std::function<void(const T &stateI)> callback, Node<T> *dest, const bool reverse = false) {
-			Node<T> *node = dest;
+			const Node<T> *node = dest;
 			if (reverse) {
 				while (node) {
-					call(node->state());
+					callback(node->state());
 					node = node->parent();
 				}
 			} else {
 				//	order them correctly in a list
-				std::list<Node<T> *> nodes;
+				std::list<const Node<T> *> nodes;
 				while (node) {
 					nodes.push_front(node);
 					node = node->parent();
 				}
 
 				//	then pass them one-by-one to the callback
-				for (Node<T> *n : nodes) callback(node->state());
+				for (const Node<T> *n : nodes) callback(n->state());
 			}
 		}
 
