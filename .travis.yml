@@ -9,7 +9,7 @@ install:
   - sudo apt-get -y install qt5-default
 
 script:
-  - ./build.sh
+  - make
   - build/test-runner
 
 notifications:

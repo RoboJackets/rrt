@@ -23,7 +23,7 @@ The following are required in order to build this project:
 
 ## Building
 
-Run `./build.sh` in the main directory to build the `rrt-viewer` program and the `test-runner` program, which are placed in the `build/` folder.
+Run `make` in the main directory to build the `rrt-viewer` program and the `test-runner` program, which are placed in the `build/` folder.
 
 
 ## Resources
