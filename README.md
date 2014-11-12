@@ -1,6 +1,4 @@
-# RRT
-
-[![Build Status](https://travis-ci.org/RoboJackets/rrt.png?branch=master)](https://travis-ci.org/RoboJackets/rrt)
+# RRT [![Build Status](https://travis-ci.org/RoboJackets/rrt.png?branch=master)](https://travis-ci.org/RoboJackets/rrt)
 
 C++ RRT (Rapidly-exploring Random Tree) implementation
 
