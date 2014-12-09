@@ -30,3 +30,4 @@ Here are some good resources for learning more about RRTs:
 
 * http://msl.cs.uiuc.edu/rrt/
 * [Wikipedia](http://en.wikipedia.org/wiki/Rapidly_exploring_random_tree)
+* http://www.cs.cmu.edu/~15780/readings/02iros-errt.pdf
