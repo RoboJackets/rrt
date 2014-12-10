@@ -28,7 +28,7 @@ float magnitude(Eigen::Vector2f &vec);
  * if your 2d plane has any obstacles.
  */
 RRT::Tree<Eigen::Vector2f> *TreeFor2dPlane(
-	float w,
-	float h,
-	Eigen::Vector2f goal,
-	float step);
+    float w,
+    float h,
+    Eigen::Vector2f goal,
+    float step);

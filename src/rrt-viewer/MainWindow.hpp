@@ -8,11 +8,11 @@
  * buttons for interacting with the RRT.
  */
 class MainWindow : public QMainWindow {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	MainWindow();
+    MainWindow();
 
 private:
-	RRTWidget *_rrtWidget;
+    RRTWidget *_rrtWidget;
 };
