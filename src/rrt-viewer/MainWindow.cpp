@@ -30,6 +30,13 @@ MainWindow::MainWindow() {
 
     _goalBiasLabel = new QLabel("Goal Bias: 0", this);
 
+    QDoubleSpinBox *stepSizeBox = new QDoubleSpinBox(this);
+    stepSizeBox->setMinimum(0.1);
+    stepSizeBox->setMaximum(100);
+    stepSizeBox->setValue(10);
+
+    QLabel *stepSizeLabel = new QLabel("Step Size:");
+
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(step, 1, 0);
     layout->addWidget(stepBig, 1, 1);
@@ -38,7 +45,9 @@ MainWindow::MainWindow() {
     layout->addWidget(bidirectional, 1, 4);
     layout->addWidget(goalBias, 1, 5);
     layout->addWidget(_goalBiasLabel, 0, 5);
-    layout->addWidget(_rrtWidget, 2, 0, 1, 6);
+    layout->addWidget(stepSizeBox, 1, 6);
+    layout->addWidget(stepSizeLabel, 0, 6);
+    layout->addWidget(_rrtWidget, 2, 0, 1, 7);
 
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
@@ -55,6 +64,7 @@ MainWindow::MainWindow() {
     connect(bidirectional, SIGNAL(stateChanged(int)), _rrtWidget, SLOT(slot_setBidirectional(int)));
     connect(goalBias, SIGNAL(valueChanged(int)), _rrtWidget, SLOT(slot_setGoalBias(int)));
     connect(goalBias, SIGNAL(valueChanged(int)), this, SLOT(slot_updateGoalBiasLabel(int)));
+    connect(stepSizeBox, SIGNAL(valueChanged(double)), _rrtWidget, SLOT(slot_setStepSize(double)));
 }
 
 void MainWindow::slot_updateGoalBiasLabel(int value) {

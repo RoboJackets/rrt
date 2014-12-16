@@ -15,6 +15,8 @@ RRTWidget::RRTWidget() {
     //  goal bias defaults to zero
     _goalBias = 0.0;
 
+    _stepSize = 10;
+
     //  reset
     resetSolution();
 
@@ -75,7 +77,7 @@ void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
 
     if (*treePP) delete *treePP;
     const float stepSize = 10;
-    *treePP = TreeFor2dPlane(width(), height(), Vector2f(0,0), stepSize);
+    *treePP = TreeFor2dPlane(width(), height(), Vector2f(0,0), _stepSize);
 
     //  note: the obstacle detection here isn't perfect, but it's good enough
     (*treePP)->transitionValidator = [&](const Vector2f &from, const Vector2f &to) {
@@ -102,6 +104,11 @@ void RRTWidget::updateTreeGoals() {
     }
 }
 
+void RRTWidget::updateStepSizes() {
+    if (_startTree) _startTree->setStepSize(_stepSize);
+    if (_goalTree) _goalTree->setStepSize(_stepSize);
+}
+
 void RRTWidget::resetSolution() {
     _startSolutionNode = nullptr;
     _goalSolutionNode = nullptr;
@@ -114,6 +121,11 @@ void RRTWidget::slot_step() {
 
 void RRTWidget::slot_stepBig() {
     step(100);
+}
+
+void RRTWidget::slot_setStepSize(double step) {
+    _stepSize = step;
+    updateStepSizes();
 }
 
 void RRTWidget::step(int numTimes) {

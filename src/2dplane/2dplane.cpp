@@ -19,6 +19,8 @@ float magnitude(Vector2f &vec) {
 Tree<Vector2f> *TreeFor2dPlane(float w, float h, Vector2f goal, float step) {
     Tree<Vector2f> *rrt = new Tree<Vector2f>();
 
+    rrt->setStepSize(step);
+
     //  pick a random point within the plane
     rrt->randomStateGenerator = [=]() {
         return Vector2f(drand48() * w, drand48() * h);
@@ -34,7 +36,7 @@ Tree<Vector2f> *TreeFor2dPlane(float w, float h, Vector2f goal, float step) {
         return true;
     };
 
-    rrt->intermediateStateGenerator = [=](const Vector2f &source, const Vector2f &target) {
+    rrt->intermediateStateGenerator = [=](const Vector2f &source, const Vector2f &target, float step) {
         Vector2f delta = target - source;
         delta = delta / magnitude(delta);   //  unit vector
 

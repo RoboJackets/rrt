@@ -29,6 +29,7 @@ private slots:
     void slot_stepBig();
     void slot_setBidirectional(int bidirectional);
     void slot_setGoalBias(int bias);    //  bias is from 0 to 100
+    void slot_setStepSize(double step);
 
 protected:
     void paintEvent(QPaintEvent *p);
@@ -87,6 +88,9 @@ private:
     bool _bidirectional;
 
     float _goalBias;
+
+    void updateStepSizes();
+    float _stepSize;
 
     //  sets the goal state for both trees (note that the goal of @_goalTree is the start point)
     void updateTreeGoals();

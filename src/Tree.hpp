@@ -99,13 +99,10 @@ namespace RRT
     class Tree {
     public:
         Tree() {
-            //  default max iterations
+            //  default values
+            setStepSize(0.1);
             setMaxIterations(1000);
-
-            //  default goal bias = 0
             setGoalBias(0);
-
-            //  default distance to goal
             setGoalMaxDist(0.1);
 
             //  null out all callbacks - they must be set by the user of the class
@@ -148,7 +145,7 @@ namespace RRT
          * any validation on the state before returning, the tree will handle
          * that.
          */
-        std::function<T (const T &source, const T &target)> intermediateStateGenerator;
+        std::function<T (const T &source, const T &target, float stepSize)> intermediateStateGenerator;
 
 
         /**
@@ -178,6 +175,14 @@ namespace RRT
             }
 
             _goalBias = goalBias;
+        }
+
+
+        float stepSize() const {
+            return _stepSize;
+        }
+        void setStepSize(float stepSize) {
+            _stepSize = stepSize;
         }
 
 
@@ -292,7 +297,7 @@ namespace RRT
             //  Get a state that's in the direction of @target from @source.
             //  This should take a step in that direction, but not go all the
             //  way unless the they're really close together.
-            T intermediateState = intermediateStateGenerator(source->state(), target);
+            T intermediateState = intermediateStateGenerator(source->state(), target, stepSize());
 
             //  Make sure there's actually a direct path from @source to
             //  @intermediateState.  If not, abort
@@ -403,5 +408,7 @@ namespace RRT
         float _goalBias;
 
         float _goalMaxDist;
+
+        float _stepSize;
     };
 }
