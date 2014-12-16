@@ -14,6 +14,9 @@ INCLUDE_DIRECTORIES(src)
 INCLUDE_DIRECTORIES("/usr/include/eigen3")
 # FIND_PACKAGE(Eigen)
 
+# debug
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+
 
 # Qt
 SET(CMAKE_AUTOMOC ON)
