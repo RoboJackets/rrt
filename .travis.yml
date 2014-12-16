@@ -13,8 +13,7 @@ install:
   - export CXX=g++-4.7
 
 script:
-  - make
-  - build/test-runner
+  - make tests
 
 notifications:
   email: justbuchanan@gmail.com

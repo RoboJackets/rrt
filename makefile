@@ -9,6 +9,9 @@ run: all
 debug: all
 	gdb build/rrt-viewer
 
+tests: all
+	build/test-runner
+
 clean:
 	rm -rf build
 
