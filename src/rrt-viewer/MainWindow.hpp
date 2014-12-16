@@ -13,6 +13,10 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow();
 
+protected slots:
+    void slot_updateGoalBiasLabel(int value);
+
 private:
     RRTWidget *_rrtWidget;
+    QLabel *_goalBiasLabel;
 };

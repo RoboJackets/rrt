@@ -357,6 +357,11 @@ namespace RRT
             return _nodes.front();
         }
 
+        const T &startState() const {
+            if (_nodes.empty()) throw logic_error("No start state specified for RRT::Tree");
+            else return rootNode()->state();
+        }
+
         /**
          * @return The most recent Node added to the tree
          */

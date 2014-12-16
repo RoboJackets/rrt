@@ -1,7 +1,6 @@
 
 #include "RRTWidget.hpp"
 #include <2dplane/2dplane.hpp>
-#include <stdio.h>
 
 using namespace RRT;
 using namespace Eigen;
@@ -13,21 +12,24 @@ RRTWidget::RRTWidget() {
     //  default to bidirectional
     _bidirectional = true;
 
+    //  goal bias defaults to zero
+    _goalBias = 0.0;
+
     //  reset
     resetSolution();
 
-    //  setup @_startTree
+    //  setup trees
     _startTree = nullptr;
-    setupTree(&_startTree, Vector2f(50, 50));
-
-    //  setup @_goalTree
     _goalTree = nullptr;
+    setupTree(&_startTree, Vector2f(50, 50));
     setupTree(&_goalTree, Vector2f(width() / 2.0, height() / 2.0));
 
     //  register for mouse events
     setMouseTracking(true);
     _draggingStart = false;
     _draggingGoal = false;
+
+    slot_clearObstacles();
 }
 
 bool RRTWidget::bidirectional() const {
@@ -62,6 +64,12 @@ void RRTWidget::slot_setBidirectional(int bidirectional) {
     }
 }
 
+void RRTWidget::slot_setGoalBias(int bias) {
+    _goalBias = (float)bias / 100.0f;
+    if (_startTree) _startTree->setGoalBias(_goalBias);
+    if (_goalTree) _goalTree->setGoalBias(_goalBias);
+}
+
 void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
     resetSolution();
 
@@ -81,6 +89,17 @@ void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
     };
 
     (*treePP)->setup(start);
+
+    (*treePP)->setGoalBias(_goalBias);
+
+    updateTreeGoals();
+}
+
+void RRTWidget::updateTreeGoals() {
+    if (_goalTree && _startTree && _goalTree->rootNode() && _startTree->rootNode()) {
+        _startTree->setGoalState(_goalTree->startState());
+        _goalTree->setGoalState(_startTree->startState());
+    }
 }
 
 void RRTWidget::resetSolution() {
@@ -265,10 +284,12 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
     if (_draggingStart) {
         //  reset the tree with the new start pos
         setupTree(&_startTree, point);
+        updateTreeGoals();
         update();
     } else if (_draggingGoal) {
         //  set the new goal point
         setupTree(&_goalTree, point);
+        updateTreeGoals();
         update();
     } else if (_editingObstacles) {
         int x, y; getIntCoordsForPt<QPointF>(event->pos(), x, y);
