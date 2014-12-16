@@ -42,10 +42,7 @@ Tree<Vector2f> *TreeFor2dPlane(float w, float h, Vector2f goal, float step) {
         return val;
     };
 
-    rrt->goalProximityChecker = [=](const Vector2f &state) {
-        Vector2f delta = state - goal;
-        return magnitude(delta) < step;
-    };
+    rrt->setGoalState(goal);
 
     return rrt;
 }

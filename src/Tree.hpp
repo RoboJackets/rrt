@@ -3,6 +3,10 @@
 #include <list>
 #include <vector>
 #include <functional>
+#include <stdexcept>
+
+using namespace std;
+
 
 namespace RRT
 {
@@ -71,9 +75,12 @@ namespace RRT
      * 1) Create a new Tree
      *    RRT::Tree<My2dPoint> tree();
      *
-     * 2) Implement all callbacks
+     * 2) Set the goal state
+     *    tree->setGoalState(g);
      *
-     * 3) Run the RRT algorithm!  This can be done in one of two ways:
+     * 3) Implement all callbacks
+     *
+     * 4) Run the RRT algorithm!  This can be done in one of two ways:
      *    Option 1) Call the run() method - it will grow the tree
      *              until it finds a solution or runs out of iterations.
      *
@@ -82,7 +89,7 @@ namespace RRT
      *    Either way works fine, just choose whatever works best for your
      *    application.
      *
-     * 4) Use getPath() to get the series of states that make up the solution
+     * 5) Use getPath() to get the series of states that make up the solution
      *
      * @param T The type that represents a state within the state-space that
      * the tree is searching.  This could be a 2D Point or something else,
@@ -94,6 +101,12 @@ namespace RRT
         Tree() {
             //  default max iterations
             setMaxIterations(1000);
+
+            //  default goal bias = 0
+            setGoalBias(0);
+
+            //  default distance to goal
+            setGoalMaxDist(0.1);
 
             //  null out all callbacks - they must be set by the user of the class
             transitionValidator = nullptr;
@@ -130,13 +143,6 @@ namespace RRT
         std::function<float (const T &stateA, const T &stateB)> distanceCalculator;
 
         /**
-         * Callback to see if a given Node is at or near enough to the goal.
-         * Note that the Tree never asks where the goal is, only if a given Node
-         * is near.
-         */
-        std::function<bool (const T &state)> goalProximityChecker;
-
-        /**
          * Finds a state in the direction of @target from @source.state().
          * This new state will potentially be added to the tree.  No need to do
          * any validation on the state before returning, the tree will handle
@@ -156,6 +162,37 @@ namespace RRT
             _maxIterations = itr;
         }
 
+
+        /**
+         * @brief The chance we extend towards the goal rather than a random point.
+         * @details At each iteration of the RRT algorithm, we extend() towards a particular state.  The goalBias
+         * is a number in the range [0, 1] that determines what proportion of the time we extend() towards the goal.
+         * The rest of the time, we extend() towards a random state.
+         */
+        float goalBias() const {
+            return _goalBias;
+        }
+        void setGoalBias(float goalBias) {
+            if (goalBias < 0 || goalBias > 1) {
+                throw invalid_argument("The goal bias must be a number between 0.0 and 1.0");
+            }
+
+            _goalBias = goalBias;
+        }
+
+
+        /**
+         * @brief How close we have to get to the goal in order to consider it reached.
+         * @details The RRT will continue to run unti we're within @goalMaxDist of the goal state.
+         */
+        float goalMaxDist() const {
+            return _goalMaxDist;
+        }
+        void setGoalMaxDist(float maxDist) {
+            _goalMaxDist = maxDist;
+        }
+
+
         /**
          * Executes the RRT algorithm with the given start state.  The run()
          * method calls reset() automatically before doing anything.
@@ -169,7 +206,7 @@ namespace RRT
             for (int i = 0; i < _maxIterations; i++) {
                 Node<T> *newNode = grow();
 
-                if (newNode && goalProximityChecker(newNode->state())) return true;
+                if (newNode && distanceCalculator(newNode->state(), _goalState)) return true;
             }
 
             //  we hit our iteration limit and didn't reach the goal :(
@@ -205,12 +242,13 @@ namespace RRT
          * This is called at each iteration of the run() method.
          */
         Node<T> *grow() {
-            //  pick a random state
-            T randState = randomStateGenerator();
-
-            //  attempt and add a new node to the tree in the direction of
-            //  @randState
-            return extend(randState);
+            //  extend towards goal or random state depending on the goalBias() and a random number
+            float r = rand() / (float)RAND_MAX;
+            if (r < goalBias()) {
+                return extend(goalState());
+            } else {
+                return extend(randomStateGenerator());
+            }
         }
 
         /**
@@ -336,12 +374,29 @@ namespace RRT
         }
 
 
+        /**
+         * @brief The goal this tree is trying to reach.
+         */
+        const T &goalState() const {
+            return _goalState;
+        }
+        void setGoalState(const T &goalState) {
+            _goalState = goalState;
+        }
+
+
     protected:
         /**
          * A list of all Node objects in the tree.
          */
         std::list<Node<T> *> _nodes;
 
+        T _goalState;
+
         int _maxIterations;
+
+        float _goalBias;
+
+        float _goalMaxDist;
     };
 }
