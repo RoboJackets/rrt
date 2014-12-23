@@ -303,7 +303,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     //  draw goal as a green dot
     if (_goalTree->rootNode()) {
         QPointF goalLoc = pointFromNode(_goalTree->rootNode());
-        painter.setPen(QPen(Qt::green, 6));
+        painter.setPen(QPen(Qt::darkGreen, 6));
         painter.drawEllipse(goalLoc, 2, 2);
     }
 }
