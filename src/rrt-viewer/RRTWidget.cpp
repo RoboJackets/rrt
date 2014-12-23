@@ -72,6 +72,18 @@ void RRTWidget::slot_setGoalBias(int bias) {
     if (_goalTree) _goalTree->setGoalBias(_goalBias);
 }
 
+template<typename T>
+bool inRange(T n, T min, T max) {
+    return (n >= min) && (n <= max);
+}
+
+template<typename T>
+void mySwap(T &a, T &b) {
+    T tmp = a;
+    a = b;
+    b = tmp;
+}
+
 void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
     resetSolution();
 
@@ -79,13 +91,85 @@ void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
     const float stepSize = 10;
     *treePP = TreeFor2dPlane(width(), height(), Vector2f(0,0), _stepSize);
 
-    //  note: the obstacle detection here isn't perfect, but it's good enough
-    (*treePP)->transitionValidator = [&](const Vector2f &from, const Vector2f &to) {
-        int x, y; getIntCoordsForPt<Vector2f>(from, x, y);
-        if (_blocked[x][y]) return false;
 
-        getIntCoordsForPt<Vector2f>(to, x, y);
-        if (_blocked[x][y]) return false;
+    //  setup the callback to do collision checking for the new leg to be added to the tree
+    (*treePP)->transitionValidator = [&](const Vector2f &from, const Vector2f &to) {
+        Vector2f delta = to - from;
+
+        //  get the corners of this segment in integer coordinates.  This limits our intersection test to only the boxes in that square
+        int x1, y1; getIntCoordsForPt<Vector2f>(from, x1, y1);
+        int x2, y2; getIntCoordsForPt<Vector2f>(to, x2, y2);
+
+
+        //  order ascending
+        if (x1 > x2) mySwap<int>(x1, x2);
+        if (y1 > y2) mySwap<int>(y1, y2);
+
+        QSizeF blockSize(rect().width() / GridWidth, rect().height() / GridHeight);
+
+        //  check all squares from (x1, y1) to (x2, y2)
+        for (int x = x1; x <= x2; x++) {
+            for (int y = y1; y <= y2; y++) {
+                if (_blocked[x][y]) {
+                    //  there's an obstacle here, so check for intersection
+
+
+                    //  the corners of this obstacle square
+                    Vector2f ulCorner(x * blockSize.width(), y * blockSize.height());
+                    Vector2f brCorner(ulCorner.x() + blockSize.width(), ulCorner.y() + blockSize.height());
+
+                    if (delta.x() != 0) {
+                        /**
+                         * Find slope and y-intercept of the line passing through @from and @to.
+                         * y1 = m*x1+b
+                         * b = y1-m*x1
+                         */
+                        float slope = delta.y() / delta.x();
+                        float b = to.y() - to.x()*slope;
+
+                        /*
+                         * First check intersection with the vertical segments of the box.  Use y=mx+b for the from-to line and plug in the x value for each wall
+                         * If the corresponding y-value is within the y-bounds of the vertical segment, it's an intersection.
+                         */
+                        float yInt = slope*ulCorner.x() + b;
+                        if (inRange<float>(yInt, ulCorner.y(), brCorner.y())) return false;
+                        yInt = slope*brCorner.x() + b;
+                        if (inRange<float>(yInt, ulCorner.y(), brCorner.y())) return false;
+
+                        /*
+                         * Check intersection with horizontal sides of box
+                         * y = k;
+                         * y = mx+b;
+                         * mx+b = k;
+                         * mx = k - b;
+                         * (k - b) / m = x;  is x within the horizontal range of the box?
+                         */
+                        if (slope == 0) return false;
+                        float xInt = (ulCorner.y() - b) / slope;
+                        if (inRange<float>(xInt, ulCorner.x(), brCorner.x())) return false;
+                        xInt = (brCorner.y() - b) / slope;
+                        if (inRange<float>(xInt, ulCorner.x(), brCorner.x())) return false;
+                    } else {
+                        //  vertical line - slope undefined
+
+                        //  see if it's within the x-axis bounds of this obstacle box
+                        if (inRange<float>(from.x(), ulCorner.x(), brCorner.x())) {
+                            //  order by y-value
+                            //  note: @lower has a smaller value of y, but will appear higher visually on the screen due to qt's coordinate layout
+                            Vector2f lower(from);
+                            Vector2f higher(to);
+                            if (higher.y() < lower.y()) swap<Vector2f>(lower, higher);
+
+                            //  check for intersection based on y-values
+                            if (lower.y() < ulCorner.y() && higher.y() > ulCorner.y()) return false;
+                            if (lower.y() < brCorner.y() && higher.y() > brCorner.y()) return false;
+                        }
+                    }
+
+                }
+            }
+        }
+
 
         return true;
     };
