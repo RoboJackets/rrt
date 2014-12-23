@@ -18,6 +18,7 @@ MainWindow::MainWindow() {
 
     QPushButton *clearObstacles = new QPushButton(this);
     clearObstacles->setText("Clear Obstacles");
+    clearObstacles->setStyleSheet("background-color: red;");
 
     QCheckBox *bidirectional = new QCheckBox("Bidirectional");
     bidirectional->setChecked(_rrtWidget->bidirectional());
