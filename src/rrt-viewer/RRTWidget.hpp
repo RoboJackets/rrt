@@ -65,6 +65,10 @@ protected:
         yOut = pt.y() * GridHeight / rect().height();
     }
 
+
+    void getSolution(vector<Eigen::Vector2f> &solutionOut);
+
+
 private:
     RRT::Tree<Eigen::Vector2f> *_startTree;
     RRT::Tree<Eigen::Vector2f> *_goalTree;
@@ -94,6 +98,8 @@ private:
 
     void updateStepSizes();
     float _stepSize;
+
+    vector<Eigen::Vector2f> _previousSolution;
 
     //  sets the goal state for both trees (note that the goal of @_goalTree is the start point)
     void updateTreeGoals();

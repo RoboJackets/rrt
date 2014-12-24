@@ -62,23 +62,39 @@ void downSampleVector(vector<T> &pts, size_t maxSize) {
     }
 }
 
-void RRTWidget::slot_reset() {
+//  attempts to remove points from @pts, but still have the path avoid any collisions
+void smoothPath(vector<Vector2f> &pts, std::function<bool (const Vector2f &start, const Vector2f &newState)> transitionValidator) {
+    for (int span = 2; span < pts.size(); span++) {
+        for (int i = 0; i+span < pts.size(); i++) {
+            if (transitionValidator(pts[i], pts[i+span])) {
+                for (int x = 1; x < span; x++) {
+                    pts.erase(pts.begin() + i + 1);
+                }
+            }
+        }
+    }
+}
 
-    vector<Vector2f> waypoints;
-
-    //  if we have a solution now, save it into the waypoint cache for the next iteration
+void RRTWidget::getSolution(vector<Vector2f> &solutionOut) {
     if (_startSolutionNode && _goalSolutionNode) {
         //  add nodes from start tree starting at the end, then working back to the root
         //  reverse at the end to get them in the right order (so the root is index 0)
         for (const RRT::Node<Eigen::Vector2f> *n = _startSolutionNode; n != nullptr; n = n->parent()) {
-            waypoints.push_back(n->state());
+            solutionOut.push_back(n->state());
         }
-        reverse(waypoints.begin(), waypoints.end());
+        reverse(solutionOut.begin(), solutionOut.end());
 
         for (const RRT::Node<Eigen::Vector2f> *n = _goalSolutionNode; n != nullptr; n = n->parent()) {
-            waypoints.push_back(n->state());
+            solutionOut.push_back(n->state());
         }
+    }
+}
 
+void RRTWidget::slot_reset() {
+    //  store waypoint cache
+    vector<Vector2f> waypoints;
+    getSolution(waypoints);
+    if (waypoints.size() > 0) {
         //  don't keep the start or end states
         waypoints.erase(waypoints.begin());
         waypoints.erase(waypoints.end());
@@ -304,6 +320,15 @@ void RRTWidget::step(int numTimes) {
             }
         }
     }
+
+
+    //  store solution
+    _previousSolution.clear();
+    if (_solutionLength != INT_MAX) {
+        getSolution(_previousSolution);
+        smoothPath(_previousSolution, _startTree->transitionValidator);
+    }
+
     update();
 }
 
@@ -345,6 +370,22 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
             if (_blocked[x][y]) {
                 painter.fillRect(x * rectW, y * rectH, rectW, rectH, Qt::SolidPattern);
             }
+        }
+    }
+
+
+    //  draw previous solution
+    if (_previousSolution.size() > 0) {
+        painter.setPen(QPen(Qt::yellow, 3));
+        Vector2f prev;
+        bool first = true;
+        for (const Vector2f &curr : _previousSolution) {
+            if (first) {
+                first = false;
+            } else {
+                painter.drawLine(QPointF(prev.x(), prev.y()), QPointF(curr.x(), curr.y()));
+            }
+            prev = curr;
         }
     }
 
