@@ -40,6 +40,28 @@ bool RRTWidget::bidirectional() const {
     return _bidirectional;
 }
 
+/**
+ * @brief Reduce the vector to @maxSize length
+ * @details We do this by sampling to evenly distribute deletions
+ * 
+ * @param pts The vector of T values to sample
+ * @param maxSize Max length of the resulting vector
+ */
+template<typename T>
+void downSampleVector(vector<T> &pts, size_t maxSize) {
+    //  limit waypoint cache size
+    if (pts.size() > maxSize) {
+        int toDelete = pts.size() - maxSize;
+        float spacing = (float)pts.size() / (float)toDelete;
+        float i = 0.0;
+        while (toDelete) {
+            toDelete--;
+            pts.erase(pts.begin() + (int)(i+0.5));
+            i += spacing - 1.0;
+        }
+    }
+}
+
 void RRTWidget::slot_reset() {
 
     vector<Vector2f> waypoints;
@@ -61,19 +83,8 @@ void RRTWidget::slot_reset() {
         waypoints.erase(waypoints.begin());
         waypoints.erase(waypoints.end());
 
-
-        //  limit waypoint cache size
-        if (waypoints.size() > _waypointCacheMaxSize) {
-            int toDelete = waypoints.size() - _waypointCacheMaxSize;
-            float spacing = (float)waypoints.size() / (float)toDelete;
-            float i = 0.0;
-            while (toDelete) {
-                toDelete--;
-                waypoints.erase(waypoints.begin() + (int)(i+0.5));
-                i += spacing - 1.0;
-            }
-        }
-
+        //  down-sample
+        downSampleVector<Vector2f>(waypoints, _waypointCacheMaxSize);
     }
 
     resetTrees();
