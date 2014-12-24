@@ -58,10 +58,10 @@ MainWindow::MainWindow() {
     setFixedSize(sizeHint());
 
     //  make the buttons do things
-    connect(step, SIGNAL(released()), _rrtWidget, SLOT(slot_step()));
-    connect(stepBig, SIGNAL(released()), _rrtWidget, SLOT(slot_stepBig()));
-    connect(reset, SIGNAL(released()), _rrtWidget, SLOT(slot_reset()));
-    connect(clearObstacles, SIGNAL(released()), _rrtWidget, SLOT(slot_clearObstacles()));
+    connect(step, SIGNAL(clicked()), _rrtWidget, SLOT(slot_step()));
+    connect(stepBig, SIGNAL(clicked()), _rrtWidget, SLOT(slot_stepBig()));
+    connect(reset, SIGNAL(clicked()), _rrtWidget, SLOT(slot_reset()));
+    connect(clearObstacles, SIGNAL(clicked()), _rrtWidget, SLOT(slot_clearObstacles()));
     connect(bidirectional, SIGNAL(stateChanged(int)), _rrtWidget, SLOT(slot_setBidirectional(int)));
     connect(goalBias, SIGNAL(valueChanged(int)), _rrtWidget, SLOT(slot_setGoalBias(int)));
     connect(goalBias, SIGNAL(valueChanged(int)), this, SLOT(slot_updateGoalBiasLabel(int)));
