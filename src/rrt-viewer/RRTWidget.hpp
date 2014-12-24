@@ -90,6 +90,7 @@ private:
 
     float _goalBias;
     float _waypointBias;
+    int _waypointCacheMaxSize;
 
     void updateStepSizes();
     float _stepSize;

@@ -15,6 +15,7 @@ RRTWidget::RRTWidget() {
     //  biases default to zero
     _goalBias = 0.0;
     _waypointBias = 0.0;
+    _waypointCacheMaxSize = 15;
 
     _stepSize = 10;
 
@@ -55,6 +56,24 @@ void RRTWidget::slot_reset() {
         for (const RRT::Node<Eigen::Vector2f> *n = _goalSolutionNode; n != nullptr; n = n->parent()) {
             waypoints.push_back(n->state());
         }
+
+        //  don't keep the start or end states
+        waypoints.erase(waypoints.begin());
+        waypoints.erase(waypoints.end());
+
+
+        //  limit waypoint cache size
+        if (waypoints.size() > _waypointCacheMaxSize) {
+            int toDelete = waypoints.size() - _waypointCacheMaxSize;
+            float spacing = (float)waypoints.size() / (float)toDelete;
+            float i = 0.0;
+            while (toDelete) {
+                toDelete--;
+                waypoints.erase(waypoints.begin() + (int)(i+0.5));
+                i += spacing - 1.0;
+            }
+        }
+
     }
 
     resetTrees();
