@@ -92,15 +92,20 @@ void RRTWidget::getSolution(vector<Vector2f> &solutionOut) {
 
 void RRTWidget::slot_reset() {
     //  store waypoint cache
-    vector<Vector2f> waypoints;
-    getSolution(waypoints);
-    if (waypoints.size() > 0) {
-        //  don't keep the start or end states
-        waypoints.erase(waypoints.begin());
-        waypoints.erase(waypoints.end());
 
-        //  down-sample
-        downSampleVector<Vector2f>(waypoints, _waypointCacheMaxSize);
+    vector<Vector2f> waypoints;
+    if (_startSolutionNode && _goalSolutionNode) {
+        waypoints = _previousSolution;
+        if (waypoints.size() > 0) {
+            //  don't keep the start or end states
+            waypoints.erase(waypoints.begin());
+            waypoints.erase(waypoints.end());
+
+            //  down-sample
+            downSampleVector<Vector2f>(waypoints, _waypointCacheMaxSize);
+        }
+    } else {
+        _previousSolution.clear();
     }
 
     resetTrees();
@@ -394,20 +399,9 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     if (_startTree->waypoints().size() > 0) {
         float r = 2;    //  radius to draw waypoint dots
 
-        Vector2f prev;
-        bool first = true;
+        painter.setPen(QPen(Qt::lightGray, 3));
         for (const Vector2f &waypoint : _startTree->waypoints()) {
-            painter.setPen(QPen(Qt::lightGray, 3));
             painter.drawEllipse(QPointF(waypoint.x(), waypoint.y()), r, r);
-
-            if (!first) {
-                painter.setPen(QPen(Qt::lightGray, 1));
-                painter.drawLine(QPointF(prev.x(), prev.y()), QPointF(waypoint.x(), waypoint.y()));
-            }
-
-            prev = waypoint;
-
-            first = false;
         }
     }
 
