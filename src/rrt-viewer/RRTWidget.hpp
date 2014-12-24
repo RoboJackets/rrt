@@ -28,7 +28,8 @@ private slots:
     void slot_step();
     void slot_stepBig();
     void slot_setBidirectional(int bidirectional);
-    void slot_setGoalBias(int bias);    //  bias is from 0 to 100
+    void slot_setGoalBias(int bias);        //  bias is from 0 to 100
+    void slot_setWaypointBias(int bias);    //  bias is from 0 to 100
     void slot_setStepSize(double step);
 
 protected:
@@ -88,6 +89,7 @@ private:
     bool _bidirectional;
 
     float _goalBias;
+    float _waypointBias;
 
     void updateStepSizes();
     float _stepSize;

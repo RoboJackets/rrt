@@ -7,13 +7,14 @@ using namespace Eigen;
 
 
 RRTWidget::RRTWidget() {
-    setFixedSize(600, 450);
+    setFixedSize(800, 600);
 
     //  default to bidirectional
     _bidirectional = true;
 
-    //  goal bias defaults to zero
+    //  biases default to zero
     _goalBias = 0.0;
+    _waypointBias = 0.0;
 
     _stepSize = 10;
 
@@ -39,7 +40,28 @@ bool RRTWidget::bidirectional() const {
 }
 
 void RRTWidget::slot_reset() {
+
+    vector<Vector2f> waypoints;
+
+    //  if we have a solution now, save it into the waypoint cache for the next iteration
+    if (_startSolutionNode && _goalSolutionNode) {
+        //  add nodes from start tree starting at the end, then working back to the root
+        //  reverse at the end to get them in the right order (so the root is index 0)
+        for (const RRT::Node<Eigen::Vector2f> *n = _startSolutionNode; n != nullptr; n = n->parent()) {
+            waypoints.push_back(n->state());
+        }
+        reverse(waypoints.begin(), waypoints.end());
+
+        for (const RRT::Node<Eigen::Vector2f> *n = _goalSolutionNode; n != nullptr; n = n->parent()) {
+            waypoints.push_back(n->state());
+        }
+    }
+
     resetTrees();
+
+    _startTree->setWaypoints(waypoints);
+    _goalTree->setWaypoints(waypoints);
+
     update();
 }
 
@@ -72,6 +94,12 @@ void RRTWidget::slot_setGoalBias(int bias) {
     if (_goalTree) _goalTree->setGoalBias(_goalBias);
 }
 
+void RRTWidget::slot_setWaypointBias(int bias) {
+    _waypointBias = (float)bias / 100.0f;
+    if (_startTree) _startTree->setWaypointBias(_waypointBias);
+    if (_goalTree) _goalTree->setWaypointBias(_waypointBias);
+}
+
 template<typename T>
 bool inRange(T n, T min, T max) {
     return (n >= min) && (n <= max);
@@ -94,6 +122,10 @@ void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
 
     //  setup the callback to do collision checking for the new leg to be added to the tree
     (*treePP)->transitionValidator = [&](const Vector2f &from, const Vector2f &to) {
+
+        //  make sure we're within bounds
+        if (!rect().contains(to.x(), to.y())) return false;
+
         Vector2f delta = to - from;
 
         //  get the corners of this segment in integer coordinates.  This limits our intersection test to only the boxes in that square
@@ -177,6 +209,7 @@ void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
     (*treePP)->setup(start);
 
     (*treePP)->setGoalBias(_goalBias);
+    (*treePP)->setWaypointBias(_waypointBias);
 
     updateTreeGoals();
 }
@@ -282,6 +315,28 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
             if (_blocked[x][y]) {
                 painter.fillRect(x * rectW, y * rectH, rectW, rectH, Qt::SolidPattern);
             }
+        }
+    }
+
+
+    //  draw waypoint cache
+    if (_startTree->waypoints().size() > 0) {
+        float r = 2;    //  radius to draw waypoint dots
+
+        Vector2f prev;
+        bool first = true;
+        for (const Vector2f &waypoint : _startTree->waypoints()) {
+            painter.setPen(QPen(Qt::lightGray, 3));
+            painter.drawEllipse(QPointF(waypoint.x(), waypoint.y()), r, r);
+
+            if (!first) {
+                painter.setPen(QPen(Qt::lightGray, 1));
+                painter.drawLine(QPointF(prev.x(), prev.y()), QPointF(waypoint.x(), waypoint.y()));
+            }
+
+            prev = waypoint;
+
+            first = false;
         }
     }
 

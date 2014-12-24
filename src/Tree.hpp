@@ -103,6 +103,7 @@ namespace RRT
             setStepSize(0.1);
             setMaxIterations(1000);
             setGoalBias(0);
+            setWaypointBias(0);
             setGoalMaxDist(0.1);
 
             //  null out all callbacks - they must be set by the user of the class
@@ -173,8 +174,36 @@ namespace RRT
             if (goalBias < 0 || goalBias > 1) {
                 throw invalid_argument("The goal bias must be a number between 0.0 and 1.0");
             }
-
             _goalBias = goalBias;
+        }
+
+
+        /**
+         * @brief The chance that we extend towards a randomly-chosen point from the @waypoints vector
+         */
+        float waypointBias() const {
+            return _waypointBias;
+        }
+        void setWaypointBias(float waypointBias) {
+            if (waypointBias < 0 || waypointBias > 1) {
+                throw invalid_argument("The waypoint bias must be a number between 0.0 and 1.0");
+            }
+            _waypointBias = waypointBias;
+        }
+
+
+        /**
+         * The waypoints vector holds a series of states that were a part of a previously-generated successful path.
+         * Setting these here and setting @waypointBias > 0 will bias tree growth towards these
+         */
+        const vector<T> waypoints() const {
+            return _waypoints;
+        }
+        void setWaypoints(const vector<T> &waypoints) {
+            _waypoints = waypoints;
+        }
+        void clearWaypoints() {
+            _waypoints.clear();
         }
 
 
@@ -247,10 +276,13 @@ namespace RRT
          * This is called at each iteration of the run() method.
          */
         Node<T> *grow() {
-            //  extend towards goal or random state depending on the goalBias() and a random number
-            float r = rand() / (float)RAND_MAX;
+            //  extend towards goal, waypoint, or random state depending on the biases and a random number
+            float r = rand() / (float)RAND_MAX; //  r is between 0 and one since we normalize it
             if (r < goalBias()) {
                 return extend(goalState());
+            } else if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
+                const T &waypoint = _waypoints[rand() % _waypoints.size()];
+                return extend(waypoint);
             } else {
                 return extend(randomStateGenerator());
             }
@@ -406,6 +438,10 @@ namespace RRT
         int _maxIterations;
 
         float _goalBias;
+
+        /// used for Extended RRTs where growth is biased towards waypoints from previously grown tree
+        float _waypointBias;
+        std::vector<T> _waypoints;
 
         float _goalMaxDist;
 

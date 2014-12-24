@@ -31,6 +31,14 @@ MainWindow::MainWindow() {
 
     _goalBiasLabel = new QLabel("Goal Bias: 0", this);
 
+    QSlider *waypointBias = new QSlider(Qt::Horizontal, this);
+    waypointBias->setTickPosition(QSlider::TicksBelow);
+    waypointBias->setMinimum(0);
+    waypointBias->setMaximum(100);
+    waypointBias->setTickInterval(10);
+
+    _waypointBiasLabel = new QLabel("Waypoint Bias: 0", this);
+
     QDoubleSpinBox *stepSizeBox = new QDoubleSpinBox(this);
     stepSizeBox->setMinimum(0.1);
     stepSizeBox->setMaximum(100);
@@ -46,9 +54,11 @@ MainWindow::MainWindow() {
     layout->addWidget(bidirectional, 1, 4);
     layout->addWidget(goalBias, 1, 5);
     layout->addWidget(_goalBiasLabel, 0, 5);
-    layout->addWidget(stepSizeBox, 1, 6);
-    layout->addWidget(stepSizeLabel, 0, 6);
-    layout->addWidget(_rrtWidget, 2, 0, 1, 7);
+    layout->addWidget(waypointBias, 1, 6);
+    layout->addWidget(_waypointBiasLabel, 0, 6);
+    layout->addWidget(stepSizeBox, 1, 7);
+    layout->addWidget(stepSizeLabel, 0, 7);
+    layout->addWidget(_rrtWidget, 2, 0, 1, 8);
 
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
@@ -65,9 +75,15 @@ MainWindow::MainWindow() {
     connect(bidirectional, SIGNAL(stateChanged(int)), _rrtWidget, SLOT(slot_setBidirectional(int)));
     connect(goalBias, SIGNAL(valueChanged(int)), _rrtWidget, SLOT(slot_setGoalBias(int)));
     connect(goalBias, SIGNAL(valueChanged(int)), this, SLOT(slot_updateGoalBiasLabel(int)));
+    connect(waypointBias, SIGNAL(valueChanged(int)), _rrtWidget, SLOT(slot_setWaypointBias(int)));
+    connect(waypointBias, SIGNAL(valueChanged(int)), this, SLOT(slot_updateWaypointBiasLabel(int)));
     connect(stepSizeBox, SIGNAL(valueChanged(double)), _rrtWidget, SLOT(slot_setStepSize(double)));
 }
 
 void MainWindow::slot_updateGoalBiasLabel(int value) {
     _goalBiasLabel->setText(QString("Goal Bias: %1").arg(value / 100.0f));
+}
+
+void MainWindow::slot_updateWaypointBiasLabel(int value) {
+    _waypointBiasLabel->setText(QString("Waypoint Bias: %1").arg(value / 100.0f));
 }
