@@ -16,4 +16,4 @@ script:
   - make tests
 
 notifications:
-  email: justbuchanan@gmail.com
+  email: false
