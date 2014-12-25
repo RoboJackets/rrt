@@ -64,14 +64,19 @@ void downSampleVector(vector<T> &pts, size_t maxSize) {
 
 //  attempts to remove points from @pts, but still have the path avoid any collisions
 void smoothPath(vector<Vector2f> &pts, std::function<bool (const Vector2f &start, const Vector2f &newState)> transitionValidator) {
-    for (int span = 2; span < pts.size(); span++) {
+    int span = 2;
+    while (span < pts.size()) {
+        bool changed = false;
         for (int i = 0; i+span < pts.size(); i++) {
             if (transitionValidator(pts[i], pts[i+span])) {
                 for (int x = 1; x < span; x++) {
                     pts.erase(pts.begin() + i + 1);
                 }
+                changed = true;
             }
         }
+
+        if (!changed) span++;
     }
 }
 
