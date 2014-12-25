@@ -60,6 +60,18 @@ namespace RRT
     };
 
 
+
+    /// callback types
+    template<typename T>
+    using TransitionValidator = std::function<bool (const T &start, const T &newState)>;
+    template<typename T>
+    using RandomStateGenerator = std::function<T (void)>;
+    template<typename T>
+    using DistanceCalculator = std::function<float (const T &stateA, const T &stateB)>;
+    template<typename T>
+    using IntermediateStateGenerator = std::function<T (const T &source, const T &target, float stepSize)>;
+
+
     /**
      * An RRT tree searches a state space by randomly filling it in and
      * connecting points to form a branching tree.  Once a branch of the tree
@@ -125,20 +137,20 @@ namespace RRT
         /**
          * This callback determines if a given transition is valid.
          */
-        std::function<bool (const T &start, const T &newState)> transitionValidator;
+        TransitionValidator<T> transitionValidator;
 
         /**
          * Override this to provide a way for the Tree to generate random states.
          *
          * @return a state that is randomly chosen from the state-space
          */
-        std::function<T (void)> randomStateGenerator;
+        RandomStateGenerator<T> randomStateGenerator;
 
         /**
          * This callback accepts two states and returns the 'distance' between
          * them.
          */
-        std::function<float (const T &stateA, const T &stateB)> distanceCalculator;
+        DistanceCalculator<T> distanceCalculator;
 
         /**
          * Finds a state in the direction of @target from @source.state().
@@ -146,7 +158,7 @@ namespace RRT
          * any validation on the state before returning, the tree will handle
          * that.
          */
-        std::function<T (const T &source, const T &target, float stepSize)> intermediateStateGenerator;
+        IntermediateStateGenerator<T> intermediateStateGenerator;
 
 
         /**
@@ -196,7 +208,7 @@ namespace RRT
          * The waypoints vector holds a series of states that were a part of a previously-generated successful path.
          * Setting these here and setting @waypointBias > 0 will bias tree growth towards these
          */
-        const vector<T> waypoints() const {
+        const vector<T> &waypoints() const {
             return _waypoints;
         }
         void setWaypoints(const vector<T> &waypoints) {
@@ -234,8 +246,6 @@ namespace RRT
          * @return a bool indicating whether or not it found a path to the goal
          */
         bool run(const T &start) {
-            setup(start);
-
             //  grow the tree until we find the goal or run out of iterations
             for (int i = 0; i < _maxIterations; i++) {
                 Node<T> *newNode = grow();
@@ -250,25 +260,19 @@ namespace RRT
         /**
          * Removes all Nodes from the tree so it can be run() again.
          */
-        void reset() {
-            // Delete all _nodes
-            for (Node<T> *pt : _nodes) delete pt;
+        void reset(bool eraseRoot = false) {
+            Node<T> *root = _nodes.front();
+
+            if (!_nodes.empty()) _nodes.erase(_nodes.begin());
+
+            for (Node<T> *n : _nodes) delete n;
             _nodes.clear();
-        }
 
-        /**
-         * Prepares the Tree to be run with the given start state.  The run()
-         * method calls setup() automatically, so there's no need for you to
-         * call it directly unless you want to implement run() in your own way.
-         */
-        void setup(const T &start) {
-            reset();
-
-            //  FIXME: assert that all callbacks are provided
-            
-            //  create root node from provided start state
-            Node<T> *root = new Node<T>(start, nullptr);
-            _nodes.push_back(root);
+            if (eraseRoot) {
+                if (root) delete root;
+            } else {
+                _nodes.emplace_front(root);
+            }
         }
 
         /**
@@ -394,11 +398,6 @@ namespace RRT
             return _nodes.front();
         }
 
-        const T &startState() const {
-            if (_nodes.empty()) throw logic_error("No start state specified for RRT::Tree");
-            else return rootNode()->state();
-        }
-
         /**
          * @return The most recent Node added to the tree
          */
@@ -413,6 +412,22 @@ namespace RRT
          */
         const std::list<Node<T> *> allNodes() const {
             return _nodes;
+        }
+
+
+        /**
+         * @brief The start state for this tree
+         */
+        const T &startState() const {
+            if (_nodes.empty()) throw logic_error("No start state specified for RRT::Tree");
+            else return rootNode()->state();
+        }
+        void setStartState(const T &startState) {
+            reset(true);
+
+            //  create root node from provided start state
+            Node<T> *root = new Node<T>(startState, nullptr);
+            _nodes.push_back(root);
         }
 
 

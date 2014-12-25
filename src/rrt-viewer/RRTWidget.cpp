@@ -262,7 +262,7 @@ void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
         return true;
     };
 
-    (*treePP)->setup(start);
+    (*treePP)->setStartState(start);
 
     (*treePP)->setGoalBias(_goalBias);
     (*treePP)->setWaypointBias(_waypointBias);
