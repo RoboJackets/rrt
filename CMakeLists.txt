@@ -29,8 +29,10 @@ FIND_PACKAGE(Qt5Widgets REQUIRED)
 
 # rrt-viewer srcs
 FILE(GLOB rrt_viewer_SRC
-	"src/2dplane/*.cpp"
-	"src/rrt-viewer/*.cpp"
+    "src/*.cpp"
+    "src/planning/*.cpp"
+    "src/2dplane/*.cpp"
+    "src/rrt-viewer/*.cpp"
 )
 
 # rrt-viewer
@@ -43,8 +45,10 @@ QT5_USE_MODULES("rrt-viewer" Widgets)
 
 # test srcs
 FILE(GLOB tests_SRC
-	"test/*.cpp"
-	"src/2dplane/*.cpp"
+    "test/*.cpp"
+    "src/*.cpp"
+    "src/planning/*.cpp"
+    "src/2dplane/*.cpp"
 )
 
 # stup gtest

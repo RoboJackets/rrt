@@ -1,7 +1,9 @@
 #pragma once
 
+#include <StateSpace.hpp>
 #include <list>
 #include <vector>
+#include <memory>
 #include <functional>
 #include <stdexcept>
 
@@ -60,18 +62,6 @@ namespace RRT
     };
 
 
-
-    /// callback types
-    template<typename T>
-    using TransitionValidator = std::function<bool (const T &start, const T &newState)>;
-    template<typename T>
-    using RandomStateGenerator = std::function<T (void)>;
-    template<typename T>
-    using DistanceCalculator = std::function<float (const T &stateA, const T &stateB)>;
-    template<typename T>
-    using IntermediateStateGenerator = std::function<T (const T &source, const T &target, float stepSize)>;
-
-
     /**
      * An RRT tree searches a state space by randomly filling it in and
      * connecting points to form a branching tree.  Once a branch of the tree
@@ -84,19 +74,18 @@ namespace RRT
      * user of this class.
      *
      * USAGE:
-     * 1) Create a new Tree
-     *    RRT::Tree<My2dPoint> tree();
+     * 1) Create a new Tree with the appropriate StateSpace
+     *    RRT::Tree<My2dPoint> tree(stateSpace);
      *
-     * 2) Set the goal state
+     * 2) Set the start and goal states
+     *    tree->setStartState(s);
      *    tree->setGoalState(g);
-     *
-     * 3) Implement all callbacks
      *
      * 4) Run the RRT algorithm!  This can be done in one of two ways:
      *    Option 1) Call the run() method - it will grow the tree
      *              until it finds a solution or runs out of iterations.
      *
-     *    Option 2) Call the setup() method, then call grow() repeatedly
+     *    Option 2) Call grow() repeatedly
      * 
      *    Either way works fine, just choose whatever works best for your
      *    application.
@@ -110,19 +99,15 @@ namespace RRT
     template<typename T>
     class Tree {
     public:
-        Tree() {
+        Tree(shared_ptr<StateSpace<T>> stateSpace) {
+            _stateSpace = stateSpace;
+
             //  default values
             setStepSize(0.1);
             setMaxIterations(1000);
             setGoalBias(0);
             setWaypointBias(0);
             setGoalMaxDist(0.1);
-
-            //  null out all callbacks - they must be set by the user of the class
-            transitionValidator = nullptr;
-            randomStateGenerator = nullptr;
-            distanceCalculator = nullptr;
-            intermediateStateGenerator = nullptr;
         }
 
         virtual ~Tree() {
@@ -130,35 +115,12 @@ namespace RRT
         }
 
 
-        //
-        //  Callbacks - These MUST be overridden before using the Tree
-        //
-
-        /**
-         * This callback determines if a given transition is valid.
-         */
-        TransitionValidator<T> transitionValidator;
-
-        /**
-         * Override this to provide a way for the Tree to generate random states.
-         *
-         * @return a state that is randomly chosen from the state-space
-         */
-        RandomStateGenerator<T> randomStateGenerator;
-
-        /**
-         * This callback accepts two states and returns the 'distance' between
-         * them.
-         */
-        DistanceCalculator<T> distanceCalculator;
-
-        /**
-         * Finds a state in the direction of @target from @source.state().
-         * This new state will potentially be added to the tree.  No need to do
-         * any validation on the state before returning, the tree will handle
-         * that.
-         */
-        IntermediateStateGenerator<T> intermediateStateGenerator;
+        StateSpace<T> &stateSpace() {
+            return *_stateSpace;
+        }
+        const StateSpace<T> &stateSpace() const {
+            return *_stateSpace;
+        }
 
 
         /**
@@ -240,17 +202,16 @@ namespace RRT
 
 
         /**
-         * Executes the RRT algorithm with the given start state.  The run()
-         * method calls reset() automatically before doing anything.
+         * Executes the RRT algorithm with the given start state.
          *
          * @return a bool indicating whether or not it found a path to the goal
          */
-        bool run(const T &start) {
+        bool run() {
             //  grow the tree until we find the goal or run out of iterations
             for (int i = 0; i < _maxIterations; i++) {
                 Node<T> *newNode = grow();
 
-                if (newNode && distanceCalculator(newNode->state(), _goalState)) return true;
+                if (newNode && _stateSpace->distance(newNode->state(), _goalState)) return true;
             }
 
             //  we hit our iteration limit and didn't reach the goal :(
@@ -261,17 +222,18 @@ namespace RRT
          * Removes all Nodes from the tree so it can be run() again.
          */
         void reset(bool eraseRoot = false) {
-            Node<T> *root = _nodes.front();
+            if (!_nodes.empty()) {
+                Node<T> *root = _nodes.front();
+                _nodes.erase(_nodes.begin());
 
-            if (!_nodes.empty()) _nodes.erase(_nodes.begin());
+                for (Node<T> *n : _nodes) delete n;
+                _nodes.clear();
 
-            for (Node<T> *n : _nodes) delete n;
-            _nodes.clear();
-
-            if (eraseRoot) {
-                if (root) delete root;
-            } else {
-                _nodes.emplace_front(root);
+                if (eraseRoot) {
+                    delete root;
+                } else {
+                    _nodes.push_back(root);
+                }
             }
         }
 
@@ -288,7 +250,7 @@ namespace RRT
                 const T &waypoint = _waypoints[rand() % _waypoints.size()];
                 return extend(waypoint);
             } else {
-                return extend(randomStateGenerator());
+                return extend(_stateSpace->randomState());
             }
         }
 
@@ -302,7 +264,7 @@ namespace RRT
             Node<T> *best = nullptr;
             
             for (Node<T> *other : _nodes) {
-                float dist = distanceCalculator(other->state(), state);
+                float dist = _stateSpace->distance(other->state(), state);
                 if (bestDistance < 0 || dist < bestDistance) {
                     bestDistance = dist;
                     best = other;
@@ -333,11 +295,11 @@ namespace RRT
             //  Get a state that's in the direction of @target from @source.
             //  This should take a step in that direction, but not go all the
             //  way unless the they're really close together.
-            T intermediateState = intermediateStateGenerator(source->state(), target, stepSize());
+            T intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
 
             //  Make sure there's actually a direct path from @source to
             //  @intermediateState.  If not, abort
-            if (!transitionValidator(source->state(), intermediateState)) {
+            if (!_stateSpace->transitionValid(source->state(), intermediateState)) {
                 return nullptr;
             }
 
@@ -410,7 +372,7 @@ namespace RRT
         /**
          * All the nodes
          */
-        const std::list<Node<T> *> allNodes() const {
+        const vector<Node<T> *> allNodes() const {
             return _nodes;
         }
 
@@ -446,7 +408,7 @@ namespace RRT
         /**
          * A list of all Node objects in the tree.
          */
-        std::list<Node<T> *> _nodes;
+        vector<Node<T> *> _nodes;
 
         T _goalState;
 
@@ -461,5 +423,7 @@ namespace RRT
         float _goalMaxDist;
 
         float _stepSize;
+
+        shared_ptr<StateSpace<T>> _stateSpace;
     };
 }

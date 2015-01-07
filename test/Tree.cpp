@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include <Tree.hpp>
 #include <2dplane/2dplane.hpp>
+#include <2dplane/GridStateSpace.hpp>
 #include <vector>
 
 using namespace RRT;
@@ -9,13 +10,12 @@ using namespace std;
 
 
 TEST(Instantiation, Tree) {
-	Tree<int> *tree = new Tree<int>();
+	Tree<Vector2f> tree(make_shared<GridStateSpace>(50, 50, 50, 50));
 }
 
 TEST(Example_2dplane, Tree) {
 	Tree<Vector2f> *tree = TreeFor2dPlane(
-		100,				//	width
-		100,				//	height
+		make_shared<GridStateSpace>(50, 50, 50, 50),
 		Vector2f(90, 90),	//	goal point
 		5);					//	step size
 
@@ -23,15 +23,15 @@ TEST(Example_2dplane, Tree) {
 	const int maxIterations = 10000;
 	tree->setMaxIterations(maxIterations);
 
-	bool success = tree->run(Vector2f(10, 10));	//	run with the given starting point
+	tree->setStartState(Vector2f(10, 10));
+	bool success = tree->run();	//	run with the given starting point
 
 	ASSERT_EQ(success, true);
 }
 
 TEST(GetPath, Tree) {
 	Tree<Vector2f> *tree = TreeFor2dPlane(
-		100,				//	width
-		100,				//	height
+		make_shared<GridStateSpace>(50, 50, 50, 50),
 		Vector2f(90, 90),	//	goal point
 		5);					//	step size
 
@@ -39,7 +39,8 @@ TEST(GetPath, Tree) {
 	const int maxIterations = 10000;
 	tree->setMaxIterations(maxIterations);
 
-	bool success = tree->run(Vector2f(10, 10));	//	run with the given starting point
+	tree->setStartState(Vector2f(10, 10));
+	bool success = tree->run();	//	run with the given starting point
 
 	//	get path in reverse order (end -> root)
 	vector<Vector2f> path;

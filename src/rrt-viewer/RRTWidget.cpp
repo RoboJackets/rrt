@@ -1,5 +1,6 @@
 
 #include "RRTWidget.hpp"
+#include <planning/Path.hpp>
 #include <2dplane/2dplane.hpp>
 
 using namespace RRT;
@@ -8,6 +9,11 @@ using namespace Eigen;
 
 RRTWidget::RRTWidget() {
     setFixedSize(800, 600);
+
+    _environment = make_shared<GridStateSpace>(rect().width(),
+                                        rect().height(),
+                                        40,
+                                        30);
 
     //  default to bidirectional
     _bidirectional = true;
@@ -32,52 +38,10 @@ RRTWidget::RRTWidget() {
     setMouseTracking(true);
     _draggingStart = false;
     _draggingGoal = false;
-
-    slot_clearObstacles();
 }
 
 bool RRTWidget::bidirectional() const {
     return _bidirectional;
-}
-
-/**
- * @brief Reduce the vector to @maxSize length
- * @details We do this by sampling to evenly distribute deletions
- * 
- * @param pts The vector of T values to sample
- * @param maxSize Max length of the resulting vector
- */
-template<typename T>
-void downSampleVector(vector<T> &pts, size_t maxSize) {
-    //  limit waypoint cache size
-    if (pts.size() > maxSize) {
-        int toDelete = pts.size() - maxSize;
-        float spacing = (float)pts.size() / (float)toDelete;
-        float i = 0.0;
-        while (toDelete) {
-            toDelete--;
-            pts.erase(pts.begin() + (int)(i+0.5));
-            i += spacing - 1.0;
-        }
-    }
-}
-
-//  attempts to remove points from @pts, but still have the path avoid any collisions
-void smoothPath(vector<Vector2f> &pts, std::function<bool (const Vector2f &start, const Vector2f &newState)> transitionValidator) {
-    int span = 2;
-    while (span < pts.size()) {
-        bool changed = false;
-        for (int i = 0; i+span < pts.size(); i++) {
-            if (transitionValidator(pts[i], pts[i+span])) {
-                for (int x = 1; x < span; x++) {
-                    pts.erase(pts.begin() + i + 1);
-                }
-                changed = true;
-            }
-        }
-
-        if (!changed) span++;
-    }
 }
 
 void RRTWidget::getSolution(vector<Vector2f> &solutionOut) {
@@ -107,7 +71,7 @@ void RRTWidget::slot_reset() {
             waypoints.erase(waypoints.end());
 
             //  down-sample
-            downSampleVector<Vector2f>(waypoints, _waypointCacheMaxSize);
+            Planning::DownSampleVector<Vector2f>(waypoints, _waypointCacheMaxSize);
         }
     } else {
         _previousSolution.clear();
@@ -128,11 +92,8 @@ void RRTWidget::resetTrees() {
 }
 
 void RRTWidget::slot_clearObstacles() {
-    for (int x = 0; x < GridWidth; x++) {
-        for (int y = 0; y < GridHeight; y++) {
-            _blocked[x][y] = false;
-        }
-    }
+    _environment->clearObstacles();
+
     update();
 }
 
@@ -156,111 +117,12 @@ void RRTWidget::slot_setWaypointBias(int bias) {
     if (_goalTree) _goalTree->setWaypointBias(_waypointBias);
 }
 
-template<typename T>
-bool inRange(T n, T min, T max) {
-    return (n >= min) && (n <= max);
-}
-
-template<typename T>
-void mySwap(T &a, T &b) {
-    T tmp = a;
-    a = b;
-    b = tmp;
-}
-
 void RRTWidget::setupTree(Tree<Vector2f> **treePP, Vector2f start) {
     resetSolution();
 
     if (*treePP) delete *treePP;
     const float stepSize = 10;
-    *treePP = TreeFor2dPlane(width(), height(), Vector2f(0,0), _stepSize);
-
-
-    //  setup the callback to do collision checking for the new leg to be added to the tree
-    (*treePP)->transitionValidator = [&](const Vector2f &from, const Vector2f &to) {
-
-        //  make sure we're within bounds
-        if (!rect().contains(to.x(), to.y())) return false;
-
-        Vector2f delta = to - from;
-
-        //  get the corners of this segment in integer coordinates.  This limits our intersection test to only the boxes in that square
-        int x1, y1; getIntCoordsForPt<Vector2f>(from, x1, y1);
-        int x2, y2; getIntCoordsForPt<Vector2f>(to, x2, y2);
-
-
-        //  order ascending
-        if (x1 > x2) mySwap<int>(x1, x2);
-        if (y1 > y2) mySwap<int>(y1, y2);
-
-        QSizeF blockSize(rect().width() / GridWidth, rect().height() / GridHeight);
-
-        //  check all squares from (x1, y1) to (x2, y2)
-        for (int x = x1; x <= x2; x++) {
-            for (int y = y1; y <= y2; y++) {
-                if (_blocked[x][y]) {
-                    //  there's an obstacle here, so check for intersection
-
-
-                    //  the corners of this obstacle square
-                    Vector2f ulCorner(x * blockSize.width(), y * blockSize.height());
-                    Vector2f brCorner(ulCorner.x() + blockSize.width(), ulCorner.y() + blockSize.height());
-
-                    if (delta.x() != 0) {
-                        /**
-                         * Find slope and y-intercept of the line passing through @from and @to.
-                         * y1 = m*x1+b
-                         * b = y1-m*x1
-                         */
-                        float slope = delta.y() / delta.x();
-                        float b = to.y() - to.x()*slope;
-
-                        /*
-                         * First check intersection with the vertical segments of the box.  Use y=mx+b for the from-to line and plug in the x value for each wall
-                         * If the corresponding y-value is within the y-bounds of the vertical segment, it's an intersection.
-                         */
-                        float yInt = slope*ulCorner.x() + b;
-                        if (inRange<float>(yInt, ulCorner.y(), brCorner.y())) return false;
-                        yInt = slope*brCorner.x() + b;
-                        if (inRange<float>(yInt, ulCorner.y(), brCorner.y())) return false;
-
-                        /*
-                         * Check intersection with horizontal sides of box
-                         * y = k;
-                         * y = mx+b;
-                         * mx+b = k;
-                         * mx = k - b;
-                         * (k - b) / m = x;  is x within the horizontal range of the box?
-                         */
-                        if (slope == 0) return false;
-                        float xInt = (ulCorner.y() - b) / slope;
-                        if (inRange<float>(xInt, ulCorner.x(), brCorner.x())) return false;
-                        xInt = (brCorner.y() - b) / slope;
-                        if (inRange<float>(xInt, ulCorner.x(), brCorner.x())) return false;
-                    } else {
-                        //  vertical line - slope undefined
-
-                        //  see if it's within the x-axis bounds of this obstacle box
-                        if (inRange<float>(from.x(), ulCorner.x(), brCorner.x())) {
-                            //  order by y-value
-                            //  note: @lower has a smaller value of y, but will appear higher visually on the screen due to qt's coordinate layout
-                            Vector2f lower(from);
-                            Vector2f higher(to);
-                            if (higher.y() < lower.y()) swap<Vector2f>(lower, higher);
-
-                            //  check for intersection based on y-values
-                            if (lower.y() < ulCorner.y() && higher.y() > ulCorner.y()) return false;
-                            if (lower.y() < brCorner.y() && higher.y() > brCorner.y()) return false;
-                        }
-                    }
-
-                }
-            }
-        }
-
-
-        return true;
-    };
+    *treePP = TreeFor2dPlane(_environment, Vector2f(0,0), _stepSize);
 
     (*treePP)->setStartState(start);
 
@@ -336,7 +198,7 @@ void RRTWidget::step(int numTimes) {
     _previousSolution.clear();
     if (_solutionLength != INT_MAX) {
         getSolution(_previousSolution);
-        smoothPath(_previousSolution, _startTree->transitionValidator);
+        Planning::SmoothPath<Vector2f>(_previousSolution, _startTree->stateSpace());
     }
 
     update();
@@ -350,7 +212,7 @@ Node<Vector2f> *RRTWidget::findBestPath(Vector2f targetState, Tree<Vector2f> *tr
 
     for (Node<Vector2f> *other : treeToSearch->allNodes()) {
         Vector2f delta = other->state() - targetState;
-        if (magnitude(delta) < maxDist && other->depth() < depth) {
+        if (delta.norm() < maxDist && other->depth() < depth) {
             bestNode = other;
             depth = other->depth();
         }
@@ -373,11 +235,11 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     painter.drawRect(rect());
 
     //  draw obstacles
-    int rectW = rect().width() / GridWidth, rectH = rect().height() / GridHeight;
+    int rectW = rect().width() / _environment->discretizedWidth(), rectH = rect().height() / _environment->discretizedHeight();
     painter.setPen(QPen(Qt::black, 2));
-    for (int x = 0; x < GridWidth; x++) {
-        for (int y = 0; y < GridHeight; y++) {
-            if (_blocked[x][y]) {
+    for (int x = 0; x < _environment->discretizedWidth(); x++) {
+        for (int y = 0; y < _environment->discretizedHeight(); y++) {
+            if (_environment->obstacleAt(x, y)) {
                 painter.fillRect(x * rectW, y * rectH, rectW, rectH, Qt::SolidPattern);
             }
         }
@@ -490,11 +352,12 @@ void RRTWidget::mousePressEvent(QMouseEvent *event) {
         _draggingGoal = true;
     } else {
         _editingObstacles = true;
-        int x, y; getIntCoordsForPt<QPointF>(event->pos(), x, y);
-        _erasingObstacles = _blocked[x][y];
+        Vector2f pos = Vector2f(event->pos().x(), event->pos().y());
+        Vector2i gridLoc = _environment->gridSquareForState(pos);
+        _erasingObstacles = _environment->obstacleAt(gridLoc);
 
-        //  toggle the blocked state of clicked square
-        _blocked[x][y] = !_erasingObstacles;
+        //  toggle the obstacle state of clicked square
+        _environment->obstacleAt(gridLoc) = !_erasingObstacles;
         update();
     }
 }
@@ -513,8 +376,8 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
         updateTreeGoals();
         update();
     } else if (_editingObstacles) {
-        int x, y; getIntCoordsForPt<QPointF>(event->pos(), x, y);
-        _blocked[x][y] = !_erasingObstacles;
+        Vector2i gridLoc = _environment->gridSquareForState(point);
+        _environment->obstacleAt(gridLoc) = !_erasingObstacles;
         update();
     }
 }
