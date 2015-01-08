@@ -7,9 +7,7 @@ using namespace Eigen;
 using namespace std;
 
 
-GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight) {
-    _width = width;
-    _height = height;
+GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight) : PlaneStateSpace(width, height) {
     _discretizedWidth = discretizedWidth;
     _discretizedHeight = discretizedHeight;
     
@@ -22,29 +20,8 @@ GridStateSpace::~GridStateSpace() {
     free(_obstacles);
 }
 
-Vector2f GridStateSpace::randomState() const {
-    return Vector2f(drand48() * width(), drand48() * height());
-}
-
-Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float stepSize) const {
-    Vector2f delta = target - source;
-    delta = delta / delta.norm();   //  unit vector
-
-    Vector2f val = source + delta * stepSize;
-    return val;
-}
-
-double GridStateSpace::distance(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const {
-    Vector2f delta = from - to;
-    return sqrtf(powf(delta.x(), 2) + powf(delta.y(), 2));
-}
-
 bool GridStateSpace::stateValid(const Vector2f &pt) const {
-    return pt.x() >= 0
-            && pt.y() >= 0
-            && pt.x() < width()
-            && pt.y() < height()
-            && !obstacleAt(gridSquareForState(pt));
+    return PlaneStateSpace::stateValid(pt) && !obstacleAt(gridSquareForState(pt));
 }
 
 Vector2i GridStateSpace::gridSquareForState(const Vector2f &state) const {
@@ -167,12 +144,4 @@ int GridStateSpace::discretizedWidth() const {
 
 int GridStateSpace::discretizedHeight() const {
     return _discretizedHeight;
-}
-
-float GridStateSpace::width() const {
-    return _width;
-}
-
-float GridStateSpace::height() const {
-    return _height;
 }

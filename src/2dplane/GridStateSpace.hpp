@@ -1,6 +1,6 @@
 #pragma once
 
-#include <StateSpace.hpp>
+#include <2dplane/PlaneStateSpace.hpp>
 #include <Eigen/Dense>
 
 
@@ -8,16 +8,10 @@
  * @brief A 2d plane with continuous states and discretized obstacles.
  * @details The state space is broken up into a grid with the given discrete height and widths.
  */
-class GridStateSpace : public StateSpace<Eigen::Vector2f> {
+class GridStateSpace : public PlaneStateSpace {
 public:
     GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight);
     ~GridStateSpace();
-
-    Eigen::Vector2f randomState() const;
-
-    Eigen::Vector2f intermediateState(const Eigen::Vector2f &source, const Eigen::Vector2f &target, float stepSize) const;
-
-    double distance(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const;
 
     /**
      * Returns a boolean indicating whether the given point is within bounds and obstacle-free.
@@ -36,12 +30,8 @@ public:
     int discretizedWidth() const;
     int discretizedHeight() const;
 
-    float width() const;
-    float height() const;
-
 
 private:
-    float _width, _height;
     int _discretizedWidth, _discretizedHeight;
 
     /// 2d array of obstacles
