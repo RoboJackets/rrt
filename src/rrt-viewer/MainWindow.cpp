@@ -20,9 +20,6 @@ MainWindow::MainWindow() {
     clearObstacles->setText("Clear Obstacles");
     clearObstacles->setStyleSheet("background-color: red;");
 
-    QCheckBox *bidirectional = new QCheckBox("Bidirectional");
-    bidirectional->setChecked(_rrtWidget->bidirectional());
-
     QSlider *goalBias = new QSlider(Qt::Horizontal, this);
     goalBias->setTickPosition(QSlider::TicksBelow);
     goalBias->setMinimum(0);
@@ -51,14 +48,13 @@ MainWindow::MainWindow() {
     layout->addWidget(stepBig, 1, 1);
     layout->addWidget(reset, 1, 2);
     layout->addWidget(clearObstacles, 1, 3);
-    layout->addWidget(bidirectional, 1, 4);
-    layout->addWidget(goalBias, 1, 5);
-    layout->addWidget(_goalBiasLabel, 0, 5);
-    layout->addWidget(waypointBias, 1, 6);
-    layout->addWidget(_waypointBiasLabel, 0, 6);
-    layout->addWidget(stepSizeBox, 1, 7);
-    layout->addWidget(stepSizeLabel, 0, 7);
-    layout->addWidget(_rrtWidget, 2, 0, 1, 8);
+    layout->addWidget(goalBias, 1, 4);
+    layout->addWidget(_goalBiasLabel, 0, 4);
+    layout->addWidget(waypointBias, 1, 5);
+    layout->addWidget(_waypointBiasLabel, 0, 5);
+    layout->addWidget(stepSizeBox, 1, 6);
+    layout->addWidget(stepSizeLabel, 0, 6);
+    layout->addWidget(_rrtWidget, 2, 0, 1, 7);
 
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
@@ -72,7 +68,6 @@ MainWindow::MainWindow() {
     connect(stepBig, SIGNAL(clicked()), _rrtWidget, SLOT(slot_stepBig()));
     connect(reset, SIGNAL(clicked()), _rrtWidget, SLOT(slot_reset()));
     connect(clearObstacles, SIGNAL(clicked()), _rrtWidget, SLOT(slot_clearObstacles()));
-    connect(bidirectional, SIGNAL(stateChanged(int)), _rrtWidget, SLOT(slot_setBidirectional(int)));
     connect(goalBias, SIGNAL(valueChanged(int)), _rrtWidget, SLOT(slot_setGoalBias(int)));
     connect(goalBias, SIGNAL(valueChanged(int)), this, SLOT(slot_updateGoalBiasLabel(int)));
     connect(waypointBias, SIGNAL(valueChanged(int)), _rrtWidget, SLOT(slot_setWaypointBias(int)));

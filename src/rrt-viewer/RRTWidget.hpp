@@ -17,18 +17,12 @@ class RRTWidget : public QWidget {
 public:
     RRTWidget();
 
-    /**
-     * If true, the widget will grow a tree from the start and from the
-     * goal point.  When the trees intersect, a solution has been found.
-     */
-    bool bidirectional() const;
 
 private slots:
     void slot_reset();
     void slot_clearObstacles();
     void slot_step();
     void slot_stepBig();
-    void slot_setBidirectional(int bidirectional);
     void slot_setGoalBias(int bias);        //  bias is from 0 to 100
     void slot_setWaypointBias(int bias);    //  bias is from 0 to 100
     void slot_setStepSize(double step);
@@ -71,9 +65,6 @@ private:
     //  if you click down on an obstacle, you enter erase mode
     //  if you click down where there's no obstacle, you enter draw mode
     bool _editingObstacles, _erasingObstacles;
-
-    /// if true, uses @_goalTree to grow from the goal towards @_startTree
-    bool _bidirectional;
 
     float _goalBias;
     float _waypointBias;

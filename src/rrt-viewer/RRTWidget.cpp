@@ -15,9 +15,6 @@ RRTWidget::RRTWidget() {
                                         40,
                                         30);
 
-    //  default to bidirectional
-    _bidirectional = true;
-
     //  biases default to zero
     _goalBias = 0.0;
     _waypointBias = 0.0;
@@ -38,10 +35,6 @@ RRTWidget::RRTWidget() {
     setMouseTracking(true);
     _draggingStart = false;
     _draggingGoal = false;
-}
-
-bool RRTWidget::bidirectional() const {
-    return _bidirectional;
 }
 
 void RRTWidget::getSolution(vector<Vector2f> &solutionOut) {
@@ -95,14 +88,6 @@ void RRTWidget::slot_clearObstacles() {
     _environment->clearObstacles();
 
     update();
-}
-
-void RRTWidget::slot_setBidirectional(int bidirectional) {
-    if ((bool)bidirectional != _bidirectional) {
-        _bidirectional = (bool)bidirectional;
-        resetTrees();
-        update();
-    }
 }
 
 void RRTWidget::slot_setGoalBias(int bias) {
@@ -179,16 +164,14 @@ void RRTWidget::step(int numTimes) {
             }
         }
 
-        if (_bidirectional) {
-            newNode = _goalTree->grow();
+        newNode = _goalTree->grow();
 
-            if (newNode) {
-                otherNode = findBestPath(newNode->state(), _startTree, &depth);
-                if (otherNode && depth + newNode->depth() < _solutionLength) {
-                    _startSolutionNode = otherNode;
-                    _goalSolutionNode = newNode;
-                    _solutionLength = newNode->depth() + depth;
-                }
+        if (newNode) {
+            otherNode = findBestPath(newNode->state(), _startTree, &depth);
+            if (otherNode && depth + newNode->depth() < _solutionLength) {
+                _startSolutionNode = otherNode;
+                _goalSolutionNode = newNode;
+                _solutionLength = newNode->depth() + depth;
             }
         }
     }
@@ -276,9 +259,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     drawTree(painter, _startTree, _startSolutionNode);
 
     //  draw @_goalTree
-    if (_bidirectional) {
-        drawTree(painter, _goalTree, _goalSolutionNode, Qt::darkGreen);
-    }
+    drawTree(painter, _goalTree, _goalSolutionNode, Qt::darkGreen);
 
     //  draw root as a red dot
     if (_startTree->rootNode()) {
