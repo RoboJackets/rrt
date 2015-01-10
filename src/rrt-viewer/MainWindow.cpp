@@ -7,6 +7,13 @@ MainWindow::MainWindow() {
 
     setWindowTitle("Interactive RRT");
 
+    QPushButton *run = new QPushButton(this);
+    run->setText("Run");
+    run->setStyleSheet("background-color: green;");
+
+    QPushButton *stop = new QPushButton(this);
+    stop->setText("Stop");
+
     QPushButton *step = new QPushButton(this);
     step->setText("Step");
 
@@ -44,17 +51,19 @@ MainWindow::MainWindow() {
     QLabel *stepSizeLabel = new QLabel("Step Size:");
 
     QGridLayout *layout = new QGridLayout();
-    layout->addWidget(step, 1, 0);
-    layout->addWidget(stepBig, 1, 1);
-    layout->addWidget(reset, 1, 2);
-    layout->addWidget(clearObstacles, 1, 3);
-    layout->addWidget(goalBias, 1, 4);
-    layout->addWidget(_goalBiasLabel, 0, 4);
-    layout->addWidget(waypointBias, 1, 5);
-    layout->addWidget(_waypointBiasLabel, 0, 5);
-    layout->addWidget(stepSizeBox, 1, 6);
-    layout->addWidget(stepSizeLabel, 0, 6);
-    layout->addWidget(_rrtWidget, 2, 0, 1, 7);
+    layout->addWidget(run, 0, 0);
+    layout->addWidget(stop, 1, 0);
+    layout->addWidget(step, 1, 1);
+    layout->addWidget(stepBig, 1, 2);
+    layout->addWidget(reset, 1, 3);
+    layout->addWidget(clearObstacles, 1, 4);
+    layout->addWidget(goalBias, 1, 5);
+    layout->addWidget(_goalBiasLabel, 0, 5);
+    layout->addWidget(waypointBias, 1, 6);
+    layout->addWidget(_waypointBiasLabel, 0, 6);
+    layout->addWidget(stepSizeBox, 1, 7);
+    layout->addWidget(stepSizeLabel, 0, 7);
+    layout->addWidget(_rrtWidget, 2, 0, 1, 8);
 
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
@@ -64,6 +73,8 @@ MainWindow::MainWindow() {
     setFixedSize(sizeHint());
 
     //  make the buttons do things
+    connect(run, SIGNAL(clicked()), _rrtWidget, SLOT(slot_run()));
+    connect(stop, SIGNAL(clicked()), _rrtWidget, SLOT(slot_stop()));
     connect(step, SIGNAL(clicked()), _rrtWidget, SLOT(slot_step()));
     connect(stepBig, SIGNAL(clicked()), _rrtWidget, SLOT(slot_stepBig()));
     connect(reset, SIGNAL(clicked()), _rrtWidget, SLOT(slot_reset()));

@@ -19,6 +19,9 @@ public:
 
 
 private slots:
+    void slot_run();
+    void run_step();
+    void slot_stop();
     void slot_reset();
     void slot_clearObstacles();
     void slot_step();
@@ -59,5 +62,5 @@ private:
 
     vector<Eigen::Vector2f> _previousSolution;
 
-    //  sets the goal state for both trees (note that the goal of @_goalTree is the start point)
+    QTimer *_runTimer;
 };

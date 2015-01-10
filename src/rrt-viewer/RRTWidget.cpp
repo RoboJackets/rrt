@@ -27,6 +27,8 @@ RRTWidget::RRTWidget() {
     setMouseTracking(true);
     _draggingStart = false;
     _draggingGoal = false;
+
+    _runTimer = nullptr;
 }
 
 void RRTWidget::slot_reset() {
@@ -78,6 +80,30 @@ void RRTWidget::slot_stepBig() {
 
 void RRTWidget::slot_setStepSize(double step) {
     _biRRT->setStepSize(step);
+}
+
+void RRTWidget::slot_run() {
+    if (!_runTimer) {
+        _runTimer = new QTimer(this);
+        connect(_runTimer, SIGNAL(timeout()), this, SLOT(run_step()));
+        _runTimer->start(0);
+    }
+}
+
+void RRTWidget::slot_stop() {
+    if (_runTimer) {
+        delete _runTimer;
+        _runTimer = nullptr;
+    }
+}
+
+void RRTWidget::run_step() {
+    if (_biRRT->startSolutionNode() == nullptr) {
+        step(1);
+    } else {
+        delete _runTimer;
+        _runTimer = nullptr;
+    }
 }
 
 void RRTWidget::step(int numTimes) {
