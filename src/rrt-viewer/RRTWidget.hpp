@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtWidgets>
-#include <Tree.hpp>
+#include <BiRRT.hpp>
 #include <2dplane/GridStateSpace.hpp>
 #include <Eigen/Dense>
 
@@ -30,12 +30,11 @@ private slots:
 protected:
     void paintEvent(QPaintEvent *p);
     void drawTree(QPainter &painter,
-        const RRT::Tree<Eigen::Vector2f> *rrt,
+        const RRT::Tree<Eigen::Vector2f> &rrt,
         const RRT::Node<Eigen::Vector2f> *solutionNode = NULL,
         QColor treeColor = Qt::blue,
         QColor solutionColor = Qt::red);
 
-    void setupTree(RRT::Tree<Eigen::Vector2f> **treePP, Eigen::Vector2f source);
     QPointF pointFromNode(const RRT::Node<Eigen::Vector2f> *n);
 
     void step(int numTimes);
@@ -46,37 +45,19 @@ protected:
 
     static bool mouseInGrabbingRange(QMouseEvent *event, const Eigen::Vector2f &pt);
 
-    void resetTrees();
-
-    void getSolution(vector<Eigen::Vector2f> &solutionOut);
-
 
 private:
-    RRT::Tree<Eigen::Vector2f> *_startTree;
-    RRT::Tree<Eigen::Vector2f> *_goalTree;
-    bool _draggingStart, _draggingGoal;
-
-    //  track solution
-    void resetSolution();
-    RRT::Node<Eigen::Vector2f> *findBestPath(Eigen::Vector2f targetState, RRT::Tree<Eigen::Vector2f> *treeToSearch, int *depthOut);
-    int _solutionLength;
-    RRT::Node<Eigen::Vector2f> *_startSolutionNode, *_goalSolutionNode;
+    shared_ptr<GridStateSpace> _stateSpace;
+    RRT::BiRRT<Eigen::Vector2f> *_biRRT;
 
     //  if you click down on an obstacle, you enter erase mode
     //  if you click down where there's no obstacle, you enter draw mode
     bool _editingObstacles, _erasingObstacles;
+    bool _draggingStart, _draggingGoal;
 
-    float _goalBias;
-    float _waypointBias;
     int _waypointCacheMaxSize;
-
-    void updateStepSizes();
-    float _stepSize;
 
     vector<Eigen::Vector2f> _previousSolution;
 
     //  sets the goal state for both trees (note that the goal of @_goalTree is the start point)
-    void updateTreeGoals();
-
-    shared_ptr<GridStateSpace> _environment;
 };

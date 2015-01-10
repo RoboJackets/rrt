@@ -37,7 +37,7 @@ namespace RRT
         float goalBias() const {
             return _startTree.goalBias();
         }
-        float setGoalBias(float goalBias) {
+        void setGoalBias(float goalBias) {
             _startTree.setGoalBias(goalBias);
             _goalTree.setGoalBias(goalBias);
         }
@@ -114,7 +114,7 @@ namespace RRT
                 }
             }
 
-            Node<T> *newGoalNode = _goalTree->grow();
+            Node<T> *newGoalNode = _goalTree.grow();
             if (newGoalNode) {
                 otherNode = _findBestPath(newGoalNode->state(), _startTree, &depth);
                 if (otherNode && depth + newGoalNode->depth() < _solutionLength) {
@@ -148,13 +148,22 @@ namespace RRT
         }
 
 
+        const Node<T> *startSolutionNode() {
+            return _startSolutionNode;
+        }
+
+        const Node<T> *goalSolutionNode() {
+            return _goalSolutionNode;
+        }
+
+
     protected:
-        Node<T> *_findBestPath(const T &targetState, Tree<T> *treeToSearch, int *depthOut) {
+        Node<T> *_findBestPath(const T &targetState, Tree<T> &treeToSearch, int *depthOut) {
             Node<T> *bestNode = nullptr;
             int depth = INT_MAX;
 
-            for (Node<T> *other : treeToSearch->allNodes()) {
-                float dist = _startTree.distanceCalculator(other->state(), targetState);
+            for (Node<T> *other : treeToSearch.allNodes()) {
+                float dist = _startTree.stateSpace().distance(other->state(), targetState);
                 if (dist < goalMaxDist() && other->depth() < depth) {
                     bestNode = other;
                     depth = other->depth();
