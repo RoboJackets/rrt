@@ -33,7 +33,6 @@ RRTWidget::RRTWidget() {
 
 void RRTWidget::slot_reset() {
     //  store waypoint cache
-
     vector<Vector2f> waypoints;
     if (_biRRT->startSolutionNode() && _biRRT->goalSolutionNode()) {
         waypoints = _previousSolution;
@@ -52,6 +51,8 @@ void RRTWidget::slot_reset() {
     _biRRT->reset();
 
     _biRRT->setWaypoints(waypoints);
+
+    emit signal_stepped(0);
 
     update();
 }
@@ -117,6 +118,8 @@ void RRTWidget::step(int numTimes) {
         _biRRT->getPath(_previousSolution);
         Planning::SmoothPath<Vector2f>(_previousSolution, *_stateSpace);
     }
+
+    emit signal_stepped(_biRRT->iterationCount());
 
     update();
 }

@@ -7,6 +7,10 @@ MainWindow::MainWindow() {
 
     setWindowTitle("Interactive RRT");
 
+    _iterationCountLabel = new QLabel(this);
+    _iterationCountLabel->setText("Iterations: 0");
+    statusBar()->addPermanentWidget(_iterationCountLabel);
+
     QPushButton *run = new QPushButton(this);
     run->setText("Run");
     run->setStyleSheet("background-color: green;");
@@ -84,6 +88,7 @@ MainWindow::MainWindow() {
     connect(waypointBias, SIGNAL(valueChanged(int)), _rrtWidget, SLOT(slot_setWaypointBias(int)));
     connect(waypointBias, SIGNAL(valueChanged(int)), this, SLOT(slot_updateWaypointBiasLabel(int)));
     connect(stepSizeBox, SIGNAL(valueChanged(double)), _rrtWidget, SLOT(slot_setStepSize(double)));
+    connect(_rrtWidget, SIGNAL(signal_stepped(int)), this, SLOT(slot_updateIterationCount(int)));
 }
 
 void MainWindow::slot_updateGoalBiasLabel(int value) {
@@ -92,4 +97,8 @@ void MainWindow::slot_updateGoalBiasLabel(int value) {
 
 void MainWindow::slot_updateWaypointBiasLabel(int value) {
     _waypointBiasLabel->setText(QString("Waypoint Bias: %1").arg(value / 100.0f));
+}
+
+void MainWindow::slot_updateIterationCount(int iterationCount) {
+    _iterationCountLabel->setText(QString("Iterations: %1").arg(iterationCount));
 }

@@ -30,6 +30,10 @@ private slots:
     void slot_setWaypointBias(int bias);    //  bias is from 0 to 100
     void slot_setStepSize(double step);
 
+signals:
+    void signal_stepped(int iterationCount);
+
+
 protected:
     void paintEvent(QPaintEvent *p);
     void drawTree(QPainter &painter,

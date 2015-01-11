@@ -21,6 +21,8 @@ namespace RRT
             _startTree.reset();
             _goalTree.reset();
 
+            _iterationCount = 0;
+
             _startSolutionNode = nullptr;
             _goalSolutionNode = nullptr;
             _solutionLength = INT_MAX;
@@ -123,6 +125,8 @@ namespace RRT
                     _solutionLength = newGoalNode->depth() + depth;
                 }
             }
+
+            ++_iterationCount;
         }
 
 
@@ -157,6 +161,11 @@ namespace RRT
         }
 
 
+        int iterationCount() const {
+            return _iterationCount;
+        }
+
+
     protected:
         Node<T> *_findBestPath(const T &targetState, Tree<T> &treeToSearch, int *depthOut) {
             Node<T> *bestNode = nullptr;
@@ -179,6 +188,8 @@ namespace RRT
     private:
         Tree<T> _startTree;
         Tree<T> _goalTree;
+
+        int _iterationCount;
 
         int _solutionLength;
         Node<T> *_startSolutionNode, *_goalSolutionNode;

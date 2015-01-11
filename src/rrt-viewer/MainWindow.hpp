@@ -16,9 +16,11 @@ public:
 protected slots:
     void slot_updateGoalBiasLabel(int value);
     void slot_updateWaypointBiasLabel(int value);
+    void slot_updateIterationCount(int iterationCount);
 
 private:
     RRTWidget *_rrtWidget;
     QLabel *_goalBiasLabel;
     QLabel *_waypointBiasLabel;
+    QLabel *_iterationCountLabel;
 };
