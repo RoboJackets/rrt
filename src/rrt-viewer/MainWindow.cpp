@@ -89,6 +89,11 @@ MainWindow::MainWindow() {
     connect(waypointBias, SIGNAL(valueChanged(int)), this, SLOT(slot_updateWaypointBiasLabel(int)));
     connect(stepSizeBox, SIGNAL(valueChanged(double)), _rrtWidget, SLOT(slot_setStepSize(double)));
     connect(_rrtWidget, SIGNAL(signal_stepped(int)), this, SLOT(slot_updateIterationCount(int)));
+
+    //  keyboard shortcuts
+    new QShortcut(QKeySequence(Qt::Key_R), _rrtWidget, SLOT(slot_run()));
+    new QShortcut(QKeySequence(Qt::Key_S), _rrtWidget, SLOT(slot_stop()));
+    new QShortcut(QKeySequence(Qt::Key_C), _rrtWidget, SLOT(slot_reset()));
 }
 
 void MainWindow::slot_updateGoalBiasLabel(int value) {
