@@ -7,26 +7,13 @@ using namespace Eigen;
 using namespace std;
 
 
-GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight) : PlaneStateSpace(width, height) {
-    _discretizedWidth = discretizedWidth;
-    _discretizedHeight = discretizedHeight;
-    
-    _obstacles = (bool *)malloc(sizeof(bool) * discretizedWidth * discretizedHeight);
-
-    clearObstacles();
-}
-
-GridStateSpace::~GridStateSpace() {
-    free(_obstacles);
+GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight):
+    PlaneStateSpace(width, height),
+    _obstacleGrid(width, height, discretizedWidth, discretizedHeight) {
 }
 
 bool GridStateSpace::stateValid(const Vector2f &pt) const {
-    return PlaneStateSpace::stateValid(pt) && !obstacleAt(gridSquareForState(pt));
-}
-
-Vector2i GridStateSpace::gridSquareForState(const Vector2f &state) const {
-    return Vector2i(state.x() / width() * discretizedWidth(),
-                    state.y() / height() * discretizedHeight());
+    return PlaneStateSpace::stateValid(pt) && !_obstacleGrid.obstacleAt(_obstacleGrid.gridSquareForState(pt));
 }
 
 bool GridStateSpace::transitionValid(const Vector2f &from, const Vector2f &to) const {
@@ -36,8 +23,8 @@ bool GridStateSpace::transitionValid(const Vector2f &from, const Vector2f &to) c
     Vector2f delta = to - from;
 
     //  get the corners of this segment in integer coordinates.  This limits our intersection test to only the boxes in that square
-    Vector2i discreteFrom = gridSquareForState(from);
-    Vector2i discreteTo = gridSquareForState(to);
+    Vector2i discreteFrom = _obstacleGrid.gridSquareForState(from);
+    Vector2i discreteTo = _obstacleGrid.gridSquareForState(to);
     int x1 = discreteFrom.x(), y1 = discreteFrom.y();
     int x2 = discreteTo.x(), y2 = discreteTo.y();
 
@@ -46,13 +33,13 @@ bool GridStateSpace::transitionValid(const Vector2f &from, const Vector2f &to) c
     if (x1 > x2) swap<int>(x1, x2);
     if (y1 > y2) swap<int>(y1, y2);
 
-    float gridSqWidth = width() / discretizedWidth();
-    float gridSqHeight = height() / discretizedHeight();
+    float gridSqWidth = width() / _obstacleGrid.discretizedWidth();
+    float gridSqHeight = height() / _obstacleGrid.discretizedHeight();
 
     //  check all squares from (x1, y1) to (x2, y2)
     for (int x = x1; x <= x2; x++) {
         for (int y = y1; y <= y2; y++) {
-            if (obstacleAt(x, y)) {
+            if (_obstacleGrid.obstacleAt(x, y)) {
                 //  there's an obstacle here, so check for intersection
 
                 //  the corners of this obstacle square
@@ -114,34 +101,10 @@ bool GridStateSpace::transitionValid(const Vector2f &from, const Vector2f &to) c
     return true;
 }
 
-void GridStateSpace::clearObstacles() {
-    for (int x = 0; x < discretizedWidth(); x++) {
-        for (int y = 0; y < discretizedHeight(); y++) {
-            obstacleAt(x, y) = false;
-        }
-    }
+const ObstacleGrid &GridStateSpace::obstacleGrid() const {
+    return _obstacleGrid;
 }
 
-bool &GridStateSpace::obstacleAt(int x, int y) {
-    return _obstacles[x + _discretizedWidth*y];
-}
-
-bool GridStateSpace::obstacleAt(int x, int y) const {
-    return _obstacles[x + _discretizedWidth*y];
-}
-
-bool &GridStateSpace::obstacleAt(const Vector2i &gridLoc) {
-    return obstacleAt(gridLoc.x(), gridLoc.y());
-}
-
-bool GridStateSpace::obstacleAt(const Vector2i &gridLoc) const {
-    return obstacleAt(gridLoc.x(), gridLoc.y());
-}
-
-int GridStateSpace::discretizedWidth() const {
-    return _discretizedWidth;
-}
-
-int GridStateSpace::discretizedHeight() const {
-    return _discretizedHeight;
+ObstacleGrid &GridStateSpace::obstacleGrid() {
+    return _obstacleGrid;
 }

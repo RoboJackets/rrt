@@ -57,7 +57,7 @@ void RRTWidget::slot_reset() {
 }
 
 void RRTWidget::slot_clearObstacles() {
-    _stateSpace->clearObstacles();
+    _stateSpace->obstacleGrid().clear();
 
     update();
 }
@@ -133,11 +133,11 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     painter.drawRect(rect());
 
     //  draw obstacles
-    int rectW = rect().width() / _stateSpace->discretizedWidth(), rectH = rect().height() / _stateSpace->discretizedHeight();
+    int rectW = rect().width() / _stateSpace->obstacleGrid().discretizedWidth(), rectH = rect().height() / _stateSpace->obstacleGrid().discretizedHeight();
     painter.setPen(QPen(Qt::black, 2));
-    for (int x = 0; x < _stateSpace->discretizedWidth(); x++) {
-        for (int y = 0; y < _stateSpace->discretizedHeight(); y++) {
-            if (_stateSpace->obstacleAt(x, y)) {
+    for (int x = 0; x < _stateSpace->obstacleGrid().discretizedWidth(); x++) {
+        for (int y = 0; y < _stateSpace->obstacleGrid().discretizedHeight(); y++) {
+            if (_stateSpace->obstacleGrid().obstacleAt(x, y)) {
                 painter.fillRect(x * rectW, y * rectH, rectW, rectH, Qt::SolidPattern);
             }
         }
@@ -247,11 +247,11 @@ void RRTWidget::mousePressEvent(QMouseEvent *event) {
     } else {
         _editingObstacles = true;
         Vector2f pos = Vector2f(event->pos().x(), event->pos().y());
-        Vector2i gridLoc = _stateSpace->gridSquareForState(pos);
-        _erasingObstacles = _stateSpace->obstacleAt(gridLoc);
+        Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForState(pos);
+        _erasingObstacles = _stateSpace->obstacleGrid().obstacleAt(gridLoc);
 
         //  toggle the obstacle state of clicked square
-        _stateSpace->obstacleAt(gridLoc) = !_erasingObstacles;
+        _stateSpace->obstacleGrid().obstacleAt(gridLoc) = !_erasingObstacles;
         update();
     }
 }
@@ -268,8 +268,8 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
         _biRRT->setGoalState(point);
         update();
     } else if (_editingObstacles) {
-        Vector2i gridLoc = _stateSpace->gridSquareForState(point);
-        _stateSpace->obstacleAt(gridLoc) = !_erasingObstacles;
+        Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForState(point);
+        _stateSpace->obstacleGrid().obstacleAt(gridLoc) = !_erasingObstacles;
         update();
     }
 }

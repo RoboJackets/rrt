@@ -1,6 +1,7 @@
 #pragma once
 
 #include <2dplane/PlaneStateSpace.hpp>
+#include <2dplane/ObstacleGrid.hpp>
 #include <Eigen/Dense>
 
 
@@ -11,7 +12,6 @@
 class GridStateSpace : public PlaneStateSpace {
 public:
     GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight);
-    ~GridStateSpace();
 
     /**
      * Returns a boolean indicating whether the given point is within bounds and obstacle-free.
@@ -19,21 +19,10 @@ public:
     bool stateValid(const Eigen::Vector2f &pt) const;
     bool transitionValid(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const;
 
-    Eigen::Vector2i gridSquareForState(const Eigen::Vector2f &state) const;
-
-    void clearObstacles();
-    bool &obstacleAt(int x, int y);
-    bool obstacleAt(int x, int y) const;
-    bool &obstacleAt(const Eigen::Vector2i &gridLoc);
-    bool obstacleAt(const Eigen::Vector2i &gridLoc) const;
-
-    int discretizedWidth() const;
-    int discretizedHeight() const;
+    const ObstacleGrid &obstacleGrid() const;
+    ObstacleGrid &obstacleGrid();
 
 
 private:
-    int _discretizedWidth, _discretizedHeight;
-
-    /// 2d array of obstacles
-    bool *_obstacles;
+    ObstacleGrid _obstacleGrid;
 };
