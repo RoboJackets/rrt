@@ -57,17 +57,17 @@ MainWindow::MainWindow() {
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(run, 0, 0);
     layout->addWidget(stop, 1, 0);
-    layout->addWidget(step, 1, 1);
-    layout->addWidget(stepBig, 1, 2);
-    layout->addWidget(reset, 1, 3);
-    layout->addWidget(clearObstacles, 1, 4);
-    layout->addWidget(goalBias, 1, 5);
-    layout->addWidget(_goalBiasLabel, 0, 5);
-    layout->addWidget(waypointBias, 1, 6);
-    layout->addWidget(_waypointBiasLabel, 0, 6);
-    layout->addWidget(stepSizeBox, 1, 7);
-    layout->addWidget(stepSizeLabel, 0, 7);
-    layout->addWidget(_rrtWidget, 2, 0, 1, 8);
+    layout->addWidget(step, 0, 1);
+    layout->addWidget(stepBig, 1, 1);
+    layout->addWidget(reset, 0, 2);
+    layout->addWidget(clearObstacles, 1, 2);
+    layout->addWidget(goalBias, 1, 3);
+    layout->addWidget(_goalBiasLabel, 0, 3);
+    layout->addWidget(waypointBias, 1, 4);
+    layout->addWidget(_waypointBiasLabel, 0, 4);
+    layout->addWidget(stepSizeBox, 1, 5);
+    layout->addWidget(stepSizeLabel, 0, 5);
+    layout->addWidget(_rrtWidget, 2, 0, 1, 6);
 
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
