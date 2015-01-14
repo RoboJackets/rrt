@@ -250,7 +250,7 @@ void RRTWidget::mousePressEvent(QMouseEvent *event) {
     } else {
         _editingObstacles = true;
         Vector2f pos = Vector2f(event->pos().x(), event->pos().y());
-        Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForState(pos);
+        Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForLocation(pos);
         _erasingObstacles = _stateSpace->obstacleGrid().obstacleAt(gridLoc);
 
         //  toggle the obstacle state of clicked square
@@ -271,7 +271,7 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
         _biRRT->setGoalState(point);
         update();
     } else if (_editingObstacles) {
-        Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForState(point);
+        Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForLocation(point);
         _stateSpace->obstacleGrid().obstacleAt(gridLoc) = !_erasingObstacles;
         update();
     }

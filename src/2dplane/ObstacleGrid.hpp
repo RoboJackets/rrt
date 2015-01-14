@@ -12,7 +12,7 @@ public:
     ObstacleGrid(float width, float height, int discretizedWidth, int discretizedHeight);
     ~ObstacleGrid();
 
-    Eigen::Vector2i gridSquareForState(const Eigen::Vector2f &state) const;
+    Eigen::Vector2i gridSquareForLocation(const Eigen::Vector2f &loc) const;
 
     void clear();
     bool &obstacleAt(int x, int y);

@@ -19,9 +19,9 @@ ObstacleGrid::~ObstacleGrid() {
     free(_obstacles);
 }
 
-Vector2i ObstacleGrid::gridSquareForState(const Vector2f &state) const {
-    return Vector2i(state.x() / width() * discretizedWidth(),
-                    state.y() / height() * discretizedHeight());
+Vector2i ObstacleGrid::gridSquareForLocation(const Vector2f &loc) const {
+    return Vector2i(loc.x() / width() * discretizedWidth(),
+                    loc.y() / height() * discretizedHeight());
 }
 
 void ObstacleGrid::clear() {

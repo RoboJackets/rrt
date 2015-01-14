@@ -13,7 +13,7 @@ GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, 
 }
 
 bool GridStateSpace::stateValid(const Vector2f &pt) const {
-    return PlaneStateSpace::stateValid(pt) && !_obstacleGrid.obstacleAt(_obstacleGrid.gridSquareForState(pt));
+    return PlaneStateSpace::stateValid(pt) && !_obstacleGrid.obstacleAt(_obstacleGrid.gridSquareForLocation(pt));
 }
 
 bool GridStateSpace::transitionValid(const Vector2f &from, const Vector2f &to) const {
@@ -23,8 +23,8 @@ bool GridStateSpace::transitionValid(const Vector2f &from, const Vector2f &to) c
     Vector2f delta = to - from;
 
     //  get the corners of this segment in integer coordinates.  This limits our intersection test to only the boxes in that square
-    Vector2i discreteFrom = _obstacleGrid.gridSquareForState(from);
-    Vector2i discreteTo = _obstacleGrid.gridSquareForState(to);
+    Vector2i discreteFrom = _obstacleGrid.gridSquareForLocation(from);
+    Vector2i discreteTo = _obstacleGrid.gridSquareForLocation(to);
     int x1 = discreteFrom.x(), y1 = discreteFrom.y();
     int x2 = discreteTo.x(), y2 = discreteTo.y();
 
