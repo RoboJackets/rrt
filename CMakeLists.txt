@@ -6,13 +6,16 @@ PROJECT(rrt)
 #       it complains about position-independent code otherwise
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
+# include cmake files in the 'cmake folder'
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+
 # includes
 INCLUDE_DIRECTORIES(src)
 
 
-# Eigen3
-INCLUDE_DIRECTORIES("/usr/include/eigen3")
-# FIND_PACKAGE(Eigen)
+# Eigen - used for linear algebra
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN_INCLUDE_DIR})
 
 # debug
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
