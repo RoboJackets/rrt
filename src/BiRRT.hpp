@@ -13,7 +13,7 @@ namespace RRT
     template<typename T>
     class BiRRT {
     public:
-        BiRRT(shared_ptr<StateSpace<T>> stateSpace) : _startTree(stateSpace), _goalTree(stateSpace) {
+        BiRRT(shared_ptr<StateSpace<T>> stateSpace) : _startTree(stateSpace), _goalTree(stateSpace, true) {
             reset();
         }
 

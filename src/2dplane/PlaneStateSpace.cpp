@@ -12,7 +12,7 @@ Vector2f PlaneStateSpace::randomState() const {
     return Vector2f(drand48() * width(), drand48() * height());
 }
 
-Vector2f PlaneStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float stepSize) const {
+Vector2f PlaneStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float stepSize, bool reverse) const {
     Vector2f delta = target - source;
     delta = delta / delta.norm();   //  unit vector
 

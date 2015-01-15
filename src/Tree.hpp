@@ -99,7 +99,7 @@ namespace RRT
     template<typename T>
     class Tree {
     public:
-        Tree(shared_ptr<StateSpace<T>> stateSpace) {
+        Tree(shared_ptr<StateSpace<T>> stateSpace, bool reverse = false) {
             _stateSpace = stateSpace;
 
             //  default values
@@ -108,6 +108,7 @@ namespace RRT
             setGoalBias(0);
             setWaypointBias(0);
             setGoalMaxDist(0.1);
+            _reverse = reverse;
         }
 
         virtual ~Tree() {
@@ -186,6 +187,15 @@ namespace RRT
         }
         void setStepSize(float stepSize) {
             _stepSize = stepSize;
+        }
+
+
+        /**
+         * @brief If true, indicates that the tree is rooted at the actual goal point in the problem being solved.
+         * This is relevant when generating intermediate states.
+         */
+        bool isReverse() const {
+            return _reverse;
         }
 
 
@@ -295,7 +305,7 @@ namespace RRT
             //  Get a state that's in the direction of @target from @source.
             //  This should take a step in that direction, but not go all the
             //  way unless the they're really close together.
-            T intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
+            T intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize(), _reverse);
 
             //  Make sure there's actually a direct path from @source to
             //  @intermediateState.  If not, abort
@@ -423,6 +433,8 @@ namespace RRT
         float _goalMaxDist;
 
         float _stepSize;
+
+        bool _reverse;
 
         shared_ptr<StateSpace<T>> _stateSpace;
     };

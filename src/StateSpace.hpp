@@ -24,8 +24,9 @@ public:
      * This new state will potentially be added to the tree.  No need to do
      * any validation on the state before returning, the tree will handle
      * that.
+     * @param reverse If true, indicates that the robot will actually be travelling from @target to @source - used in Bidirectional RRTs
      */
-    virtual T intermediateState(const T &source, const T &target, float stepSize) const = 0;
+    virtual T intermediateState(const T &source, const T &target, float stepSize, bool reverse = false) const = 0;
 
     /**
      * @brief Calculate the distance between two states

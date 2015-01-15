@@ -13,7 +13,7 @@ public:
 
     Eigen::Vector2f randomState() const;
 
-    Eigen::Vector2f intermediateState(const Eigen::Vector2f &source, const Eigen::Vector2f &target, float stepSize) const;
+    Eigen::Vector2f intermediateState(const Eigen::Vector2f &source, const Eigen::Vector2f &target, float stepSize, bool reverse = false) const;
 
     double distance(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const;
 
