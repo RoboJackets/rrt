@@ -4,7 +4,7 @@ PROJECT(rrt)
 # c++11
 # note: the -fPIC flag is for building with Qt...
 #       it complains about position-independent code otherwise
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -lpthread")
 
 # include cmake files in the 'cmake folder'
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
@@ -43,11 +43,36 @@ ADD_EXECUTABLE("rrt-viewer" ${rrt_viewer_SRC})
 QT5_USE_MODULES("rrt-viewer" Widgets)
 
 
-# test-runner
+# gtest
+################################################################################
+
+include(ExternalProject)
+
+ExternalProject_Add(googletest
+    GIT_REPOSITORY https://git.chromium.org/git/external/googletest.git
+    CMAKE_ARGS -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG:PATH=DebugLibs
+               -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE:PATH=ReleaseLibs
+    PREFIX "${CMAKE_CURRENT_BINARY_DIR}"
+    # disable install step
+    INSTALL_COMMAND ""
+)
+set_target_properties(googletest PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+# specify include dir
+ExternalProject_Get_Property(googletest source_dir)
+set(GTEST_INCLUDE_DIRS ${source_dir}/include)
+
+# specify link libraries
+ExternalProject_Get_Property(googletest binary_dir)
+set(GTEST_LIBS_DIR ${binary_dir})
+
+
+
+# test-cpp
 ################################################################################
 
 # test srcs
-FILE(GLOB tests_SRC
+file(GLOB tests_SRC
     "test/*.cpp"
     "src/*.cpp"
     "src/planning/*.cpp"
@@ -55,10 +80,16 @@ FILE(GLOB tests_SRC
 )
 
 # stup gtest
-ADD_SUBDIRECTORY(gtest)
-ENABLE_TESTING()
-INCLUDE_DIRECTORIES(gtest/include)
+enable_testing()
+include_directories(${GTEST_INCLUDE_DIRS})
 
 # test-runner
-ADD_EXECUTABLE("test-runner" ${tests_SRC})
-TARGET_LINK_LIBRARIES("test-runner" gtest gtest_main)
+add_executable(test-cpp ${tests_SRC})
+target_link_libraries(test-cpp
+    ${GTEST_LIBS_DIR}/libgtest.a
+    ${GTEST_LIBS_DIR}/libgtest_main.a
+)
+set_target_properties(test-cpp PROPERTIES EXCLUDE_FROM_ALL TRUE)
+add_dependencies(test-cpp googletest)
+
+add_test(test1 test-cpp)

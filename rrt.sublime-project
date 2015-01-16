@@ -3,7 +3,7 @@
     [
         {
             "path": ".",
-            "folder_exclude_patterns": ["build", "gtest"]
+            "folder_exclude_patterns": ["build"]
         }
     ]
 }
