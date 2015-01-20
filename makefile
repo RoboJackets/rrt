@@ -12,6 +12,7 @@ debug: all
 tests: test-cpp
 
 test-cpp:
+	mkdir -p build
 	cd build && cmake --target test-cpp .. && make test-cpp && cd .. && build/test-cpp
 
 clean:
