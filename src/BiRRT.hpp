@@ -13,7 +13,7 @@ namespace RRT
     template<typename T>
     class BiRRT {
     public:
-        BiRRT(shared_ptr<StateSpace<T>> stateSpace) : _startTree(stateSpace), _goalTree(stateSpace) {
+        BiRRT(std::shared_ptr<StateSpace<T>> stateSpace) : _startTree(stateSpace), _goalTree(stateSpace) {
             reset();
         }
 
@@ -60,10 +60,10 @@ namespace RRT
             _goalTree.setWaypointBias(waypointBias);
         }
 
-        const vector<T> &waypoints() {
+        const std::vector<T> &waypoints() {
             return _startTree.waypoints();
         }
-        void setWaypoints(const vector<T> &waypoints) {
+        void setWaypoints(const std::vector<T> &waypoints) {
             _startTree.setWaypoints(waypoints);
             _goalTree.setWaypoints(waypoints);
         }
@@ -90,7 +90,7 @@ namespace RRT
          * 
          * @param vecOut The vector to place the solution in
          */
-        void getPath(vector<T> &vecOut) {
+        void getPath(std::vector<T> &vecOut) {
             _startTree.getPath(vecOut, _startSolutionNode);
             _startTree.getPath(vecOut, _goalSolutionNode, true);
         }

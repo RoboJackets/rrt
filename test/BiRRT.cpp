@@ -3,6 +3,7 @@
 #include <2dplane/GridStateSpace.hpp>
 
 using namespace RRT;
+using namespace std;
 
 
 TEST(Instantiation, BiRRT) {

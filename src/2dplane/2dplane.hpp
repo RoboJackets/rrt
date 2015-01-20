@@ -22,6 +22,6 @@
  * if your 2d plane has any obstacles.
  */
 RRT::Tree<Eigen::Vector2f> *TreeFor2dPlane(
-    shared_ptr<StateSpace<Eigen::Vector2f>> stateSpace,
+    std::shared_ptr<StateSpace<Eigen::Vector2f>> stateSpace,
     Eigen::Vector2f goal,
     float step);

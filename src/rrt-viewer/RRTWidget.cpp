@@ -5,6 +5,7 @@
 
 using namespace RRT;
 using namespace Eigen;
+using namespace std;
 
 
 RRTWidget::RRTWidget() {

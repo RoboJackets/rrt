@@ -54,7 +54,7 @@ protected:
 
 
 private:
-    shared_ptr<GridStateSpace> _stateSpace;
+    std::shared_ptr<GridStateSpace> _stateSpace;
     RRT::BiRRT<Eigen::Vector2f> *_biRRT;
 
     //  if you click down on an obstacle, you enter erase mode
@@ -64,7 +64,7 @@ private:
 
     int _waypointCacheMaxSize;
 
-    vector<Eigen::Vector2f> _previousSolution;
+    std::vector<Eigen::Vector2f> _previousSolution;
 
     QTimer *_runTimer;
 };

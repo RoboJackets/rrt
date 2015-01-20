@@ -13,7 +13,7 @@ namespace Planning {
      * @param maxSize Max length of the resulting vector
      */
     template<typename T>
-    void DownSampleVector(vector<T> &states, size_t maxSize) {
+    void DownSampleVector(std::vector<T> &states, size_t maxSize) {
         if (states.size() > maxSize) {
             int toDelete = states.size() - maxSize;
             float spacing = (float)states.size() / (float)toDelete;
@@ -35,7 +35,7 @@ namespace Planning {
      *        whether or not a straight connection exists between the two given states
      */
     template<typename T>
-    void SmoothPath(vector<T> &pts, const StateSpace<T> &stateSpace) {
+    void SmoothPath(std::vector<T> &pts, const StateSpace<T> &stateSpace) {
         int span = 2;
         while (span < pts.size()) {
             bool changed = false;

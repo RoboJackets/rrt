@@ -8,8 +8,6 @@
 #include <stdexcept>
 #include <stdlib.h>
 
-using namespace std;
-
 
 namespace RRT
 {
@@ -100,7 +98,7 @@ namespace RRT
     template<typename T>
     class Tree {
     public:
-        Tree(shared_ptr<StateSpace<T>> stateSpace) {
+        Tree(std::shared_ptr<StateSpace<T>> stateSpace) {
             _stateSpace = stateSpace;
 
             //  default values
@@ -147,7 +145,7 @@ namespace RRT
         }
         void setGoalBias(float goalBias) {
             if (goalBias < 0 || goalBias > 1) {
-                throw invalid_argument("The goal bias must be a number between 0.0 and 1.0");
+                throw std::invalid_argument("The goal bias must be a number between 0.0 and 1.0");
             }
             _goalBias = goalBias;
         }
@@ -161,7 +159,7 @@ namespace RRT
         }
         void setWaypointBias(float waypointBias) {
             if (waypointBias < 0 || waypointBias > 1) {
-                throw invalid_argument("The waypoint bias must be a number between 0.0 and 1.0");
+                throw std::invalid_argument("The waypoint bias must be a number between 0.0 and 1.0");
             }
             _waypointBias = waypointBias;
         }
@@ -171,10 +169,10 @@ namespace RRT
          * The waypoints vector holds a series of states that were a part of a previously-generated successful path.
          * Setting these here and setting @waypointBias > 0 will bias tree growth towards these
          */
-        const vector<T> &waypoints() const {
+        const std::vector<T> &waypoints() const {
             return _waypoints;
         }
-        void setWaypoints(const vector<T> &waypoints) {
+        void setWaypoints(const std::vector<T> &waypoints) {
             _waypoints = waypoints;
         }
         void clearWaypoints() {
@@ -373,7 +371,7 @@ namespace RRT
         /**
          * All the nodes
          */
-        const vector<Node<T> *> allNodes() const {
+        const std::vector<Node<T> *> allNodes() const {
             return _nodes;
         }
 
@@ -382,7 +380,7 @@ namespace RRT
          * @brief The start state for this tree
          */
         const T &startState() const {
-            if (_nodes.empty()) throw logic_error("No start state specified for RRT::Tree");
+            if (_nodes.empty()) throw std::logic_error("No start state specified for RRT::Tree");
             else return rootNode()->state();
         }
         void setStartState(const T &startState) {
@@ -409,7 +407,7 @@ namespace RRT
         /**
          * A list of all Node objects in the tree.
          */
-        vector<Node<T> *> _nodes;
+        std::vector<Node<T> *> _nodes;
 
         T _goalState;
 
@@ -425,6 +423,6 @@ namespace RRT
 
         float _stepSize;
 
-        shared_ptr<StateSpace<T>> _stateSpace;
+        std::shared_ptr<StateSpace<T>> _stateSpace;
     };
 }
