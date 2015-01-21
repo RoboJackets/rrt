@@ -1,4 +1,3 @@
-
 #include "GridRRTWidget.hpp"
 #include <planning/Path.hpp>
 
@@ -7,12 +6,11 @@ using namespace Eigen;
 
 
 GridRRTWidget::GridRRTWidget() {
-    _stateSpace = make_shared<GridStateSpace>(800,
-                                        600,
+    _stateSpace = make_shared<GridStateSpace>(rect().width(),
+                                        rect().height(),
                                         40,
                                         30);
     _biRRT = new BiRRT<Vector2f>(_stateSpace);
-    setFixedSize(800, 600);
 
     _waypointCacheMaxSize = 15;
 
@@ -26,8 +24,6 @@ GridRRTWidget::GridRRTWidget() {
     setMouseTracking(true);
     _draggingStart = false;
     _draggingGoal = false;
-
-    _runTimer = nullptr;
 }
 
 void GridRRTWidget::slot_reset() {
@@ -52,7 +48,6 @@ void GridRRTWidget::slot_reset() {
     _biRRT->setWaypoints(waypoints);
 
     emit signal_stepped(0);
-
     update();
 }
 
@@ -70,40 +65,12 @@ void GridRRTWidget::slot_setWaypointBias(int bias) {
     _biRRT->setWaypointBias((float)bias / 100.0f);
 }
 
-void GridRRTWidget::slot_step() {
-    step(1);
-}
-
-void GridRRTWidget::slot_stepBig() {
-    step(100);
-}
-
 void GridRRTWidget::slot_setStepSize(double step) {
     _biRRT->setStepSize(step);
 }
 
-void GridRRTWidget::slot_run() {
-    if (!_runTimer) {
-        _runTimer = new QTimer(this);
-        connect(_runTimer, SIGNAL(timeout()), this, SLOT(run_step()));
-        _runTimer->start(0);
-    }
-}
-
-void GridRRTWidget::slot_stop() {
-    if (_runTimer) {
-        delete _runTimer;
-        _runTimer = nullptr;
-    }
-}
-
-void GridRRTWidget::run_step() {
-    if (_biRRT->startSolutionNode() == nullptr) {
-        step(1);
-    } else {
-        delete _runTimer;
-        _runTimer = nullptr;
-    }
+bool GridRRTWidget::hasSolution() const {
+    return _biRRT->startSolutionNode() != nullptr;
 }
 
 void GridRRTWidget::step(int numTimes) {
@@ -119,7 +86,6 @@ void GridRRTWidget::step(int numTimes) {
     }
 
     emit signal_stepped(_biRRT->iterationCount());
-
     update();
 }
 
@@ -128,23 +94,11 @@ QPointF GridRRTWidget::pointFromNode(const Node<Vector2f> *n) {
 }
 
 void GridRRTWidget::paintEvent(QPaintEvent *p) {
+    RRTWidget::paintEvent(p);
+
     QPainter painter(this);
 
-    //  draw black border around widget
-    painter.setPen(QPen (Qt::black, 3));
-    painter.drawRect(rect());
-
-    //  draw obstacles
-    int rectW = rect().width() / _stateSpace->obstacleGrid().discretizedWidth(), rectH = rect().height() / _stateSpace->obstacleGrid().discretizedHeight();
-    painter.setPen(QPen(Qt::black, 2));
-    for (int x = 0; x < _stateSpace->obstacleGrid().discretizedWidth(); x++) {
-        for (int y = 0; y < _stateSpace->obstacleGrid().discretizedHeight(); y++) {
-            if (_stateSpace->obstacleGrid().obstacleAt(x, y)) {
-                painter.fillRect(x * rectW, y * rectH, rectW, rectH, Qt::SolidPattern);
-            }
-        }
-    }
-
+    drawObstacles(painter, _stateSpace->obstacleGrid());
 
     //  draw previous solution
     if (_previousSolution.size() > 0) {
@@ -177,18 +131,14 @@ void GridRRTWidget::paintEvent(QPaintEvent *p) {
     drawTree(painter, _biRRT->goalTree(), _biRRT->goalSolutionNode(), Qt::darkGreen);
 
     //  draw root as a red dot
-    if (_biRRT->startTree().rootNode()) {
-        painter.setPen(QPen (Qt::red, 6));
-        QPointF rootLoc = pointFromNode(_biRRT->startTree().rootNode());
-        painter.drawEllipse(rootLoc, 2, 2);
-    }
+    painter.setPen(QPen (Qt::red, 6));
+    QPointF rootLoc = pointFromNode(_biRRT->startTree().rootNode());
+    painter.drawEllipse(rootLoc, 2, 2);
 
     //  draw goal as a green dot
-    if (_biRRT->goalTree().rootNode()) {
-        QPointF goalLoc = pointFromNode(_biRRT->goalTree().rootNode());
-        painter.setPen(QPen(Qt::darkGreen, 6));
-        painter.drawEllipse(goalLoc, 2, 2);
-    }
+    QPointF goalLoc = pointFromNode(_biRRT->goalTree().rootNode());
+    painter.setPen(QPen(Qt::darkGreen, 6));
+    painter.drawEllipse(goalLoc, 2, 2);
 }
 
 void GridRRTWidget::drawTree(QPainter &painter,

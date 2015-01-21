@@ -1,0 +1,4 @@
+Things to add:
+* velocities?
+* robot obstacles?
+* add minIterations() to RRT::Tree

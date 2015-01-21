@@ -39,43 +39,20 @@ RoboCupRobotState RoboCupStateSpace::intermediateState(const RoboCupRobotState &
     RoboCupRobotState src = reverse ? target : source;
     RoboCupRobotState dst = reverse ? source : target;
 
+    stepSize /= 30;
+
     float t = 2.0 * (dst.pos - src.pos).norm() / (dst.vel + src.vel).norm();
     Vector2f a = (dst.vel - src.vel) / t;
 
     if (a.norm() > _maxAccel) {
         return RoboCupRobotState(-1, -1, -1, -1);
     } else {
-        float dt = 0.2;
         RoboCupRobotState state;
-
-        state.pos = 0.5*a*t*t + src.vel*dt + src.pos;
+        state.pos = 0.5*a*t*t + src.vel*stepSize + src.pos;
         state.vel = a*t + src.vel;
 
         return state;
     }
-
-    // //  TODO: apply an acceleration for a fixed time interval
-
-    // //  use the formula Vf^2 = Vi^2 + 2*a*d
-    // //  rearrange to get (Vf^2 - Vi^2) / (2*d) = a
-    // //  we do this once for x and once for y
-    // Vector2f accel(
-    //     (powf(target.vel.x(), 2) - powf(source.vel.x(), 2)) / (2*(target.pos.x() - source.pos.x())),
-    //     (powf(target.vel.y(), 2) - powf(source.vel.y(), 2)) / (2*(target.pos.y() - source.pos.y()))
-    // );
-
-    // if (accel.norm() > _maxAccel) {
-    //     //  requires too high of an acceleration, return an invalid state
-    //     return RoboCupRobotState(-1,-1,-1,-1);
-    // } else {
-    //     const float dt = 0.2;
-    //     RoboCupRobotState state;
-
-    //     state.pos = 0.5*accel*powf(dt, 2) + source.vel*dt + source.pos;
-    //     state.vel = source.vel + accel*dt;
-
-    //     return state;
-    // }
 }
 
 double RoboCupStateSpace::distance(const RoboCupRobotState &from, const RoboCupRobotState &to) const {

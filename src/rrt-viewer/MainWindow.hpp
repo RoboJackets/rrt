@@ -1,6 +1,6 @@
 
 #include <QtWidgets>
-#include "GridRRTWidget.hpp"
+#include "RRTWidget.hpp"
 
 /**
  * This window subclass displays the Interactive RRT 'applet'.
@@ -19,7 +19,7 @@ protected slots:
     void slot_updateIterationCount(int iterationCount);
 
 private:
-    GridRRTWidget *_rrtWidget;
+    RRTWidget *_rrtWidget;
     QLabel *_goalBiasLabel;
     QLabel *_waypointBiasLabel;
     QLabel *_iterationCountLabel;

@@ -17,15 +17,12 @@ class GridRRTWidget : public RRTWidget {
 public:
     GridRRTWidget();
 
+    bool hasSolution() const;
+
 
 private slots:
-    void slot_run();
-    void run_step();
-    void slot_stop();
     void slot_reset();
     void slot_clearObstacles();
-    void slot_step();
-    void slot_stepBig();
     void slot_setGoalBias(int bias);        //  bias is from 0 to 100
     void slot_setWaypointBias(int bias);    //  bias is from 0 to 100
     void slot_setStepSize(double step);
@@ -54,7 +51,7 @@ protected:
 
 
 private:
-    shared_ptr<GridStateSpace> _stateSpace;
+    std::shared_ptr<GridStateSpace> _stateSpace;
     RRT::BiRRT<Eigen::Vector2f> *_biRRT;
 
     //  if you click down on an obstacle, you enter erase mode
@@ -65,6 +62,4 @@ private:
     int _waypointCacheMaxSize;
 
     vector<Eigen::Vector2f> _previousSolution;
-
-    QTimer *_runTimer;
 };

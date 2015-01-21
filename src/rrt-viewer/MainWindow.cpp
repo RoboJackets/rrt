@@ -1,9 +1,10 @@
-
 #include "MainWindow.hpp"
+#include "GridRRTWidget.hpp"
+#include "RoboCupRRTWidget.hpp"
 
 
 MainWindow::MainWindow() {
-    _rrtWidget = new GridRRTWidget();
+    _rrtWidget = new RoboCupRRTWidget();
 
     setWindowTitle("Interactive RRT");
 
@@ -48,7 +49,7 @@ MainWindow::MainWindow() {
     _waypointBiasLabel = new QLabel("Waypoint Bias: 0", this);
 
     QDoubleSpinBox *stepSizeBox = new QDoubleSpinBox(this);
-    stepSizeBox->setMinimum(0.1);
+    stepSizeBox->setMinimum(0.001);
     stepSizeBox->setMaximum(100);
     stepSizeBox->setValue(10);
 

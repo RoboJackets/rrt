@@ -8,12 +8,12 @@
 class RoboCupRobotState {
 public:
     Eigen::Vector2f pos, vel;
-    RoboCupRobotState(float x, float y, float vx, float vy) : pos(x, y), vel(x, y) {}
+    RoboCupRobotState(float x, float y, float vx, float vy) : pos(x, y), vel(vx, vy) {}
     RoboCupRobotState() {}
 };
 
 
-class RoboCupStateSpace : StateSpace<RoboCupRobotState> {
+class RoboCupStateSpace : public StateSpace<RoboCupRobotState> {
 public:
     RoboCupStateSpace(float width, float height, int discretizedWidth, int discretizedHeight, float maxSpeed, float maxAccel);
 
