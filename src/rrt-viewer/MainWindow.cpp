@@ -3,7 +3,7 @@
 
 
 MainWindow::MainWindow() {
-    _rrtWidget = new RRTWidget();
+    _rrtWidget = new GridRRTWidget();
 
     setWindowTitle("Interactive RRT");
 

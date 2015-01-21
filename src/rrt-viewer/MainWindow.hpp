@@ -1,10 +1,10 @@
 
 #include <QtWidgets>
-#include "RRTWidget.hpp"
+#include "GridRRTWidget.hpp"
 
 /**
  * This window subclass displays the Interactive RRT 'applet'.
- * It has an RRTWidget that takes up most of the space and a
+ * It has an GridRRTWidget that takes up most of the space and a
  * buttons for interacting with the RRT.
  */
 class MainWindow : public QMainWindow {
@@ -19,7 +19,7 @@ protected slots:
     void slot_updateIterationCount(int iterationCount);
 
 private:
-    RRTWidget *_rrtWidget;
+    GridRRTWidget *_rrtWidget;
     QLabel *_goalBiasLabel;
     QLabel *_waypointBiasLabel;
     QLabel *_iterationCountLabel;
