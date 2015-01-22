@@ -171,50 +171,44 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
             }
             prev = curr;
         }
+
+
+
+        //  draw cubic bezier interpolation of waypoints
+        painter.setPen(QPen(Qt::darkBlue, 5));
+        QPainterPath path(vecToPoint(_previousSolution[0]));
+
+        Vector2f prevControlDiff = -_startVel*VelocityDrawingMultiplier;
+        for (int i = 1; i < _previousSolution.size(); i++) {
+            Vector2f waypoint = _previousSolution[i];
+            Vector2f prevWaypoint = _previousSolution[i-1];
+
+            Vector2f controlDir;
+            float controlLength;
+            if (i == _previousSolution.size() - 1) {
+                controlLength = _goalVel.norm() * VelocityDrawingMultiplier;
+                controlDir = -_goalVel.normalized();
+            } else {
+                //  using first derivative heuristic from Sprunk 2008 to determine the distance of the control point from the waypoint
+                Vector2f nextWaypoint = _previousSolution[i+1];
+                controlLength = 0.5*min( (waypoint - prevWaypoint).norm(), (nextWaypoint - waypoint).norm() );
+                controlDir = ((prevWaypoint - waypoint).normalized() - (nextWaypoint - waypoint).normalized()).normalized();
+            }
+            
+
+            Vector2f controlDiff = controlDir * controlLength;
+
+            path.cubicTo(
+                vecToPoint(prevWaypoint - prevControlDiff),
+                vecToPoint(waypoint + controlDiff),
+                vecToPoint(waypoint)
+            );
+
+            prevControlDiff = controlDiff;
+        }
+
+        painter.drawPath(path);
     }
-
-
-    //  draw bezier
-    painter.setPen(QPen(Qt::darkBlue, 5));
-    QPainterPath path(vecToPoint(_biRRT->startState()));
-
-    Vector2f prevControlDiff = -_startVel*VelocityDrawingMultiplier;
-    for (int i = 0; i < _biRRT->waypoints().size(); i++) {
-        Vector2f waypoint = _biRRT->waypoints()[i];
-
-        Vector2f prevWaypoint;
-        if (i == 0) prevWaypoint = _biRRT->startState();
-        else prevWaypoint = _biRRT->waypoints()[i-1];
-
-        Vector2f nextWaypoint;
-        if (i == _biRRT->waypoints().size() - 1) nextWaypoint = _biRRT->goalState();
-        else nextWaypoint = _biRRT->waypoints()[i+1];
-
-        //  using first derivative heuristic from Sprunk 2008 to determine the distance of the control point from the waypoint
-        float controlLength = 0.5*min( (waypoint - prevWaypoint).norm(), (nextWaypoint - waypoint).norm() );
-
-        Vector2f controlDir = ((prevWaypoint - waypoint).normalized() - (nextWaypoint - waypoint).normalized()).normalized();
-        Vector2f controlDiff = controlDir * controlLength;
-
-        path.cubicTo(
-            vecToPoint(prevWaypoint - prevControlDiff),
-            vecToPoint(waypoint + controlDiff),
-            vecToPoint(waypoint)
-        );
-
-        prevControlDiff = controlDiff;
-    }
-
-    Vector2f prevWaypoint;
-    if (_biRRT->waypoints().size() == 0) prevWaypoint = _biRRT->startState();
-    else prevWaypoint = _biRRT->waypoints().back();
-
-    path.cubicTo(
-        vecToPoint(prevWaypoint - prevControlDiff),
-        vecToPoint(_biRRT->goalState() - _goalVel*VelocityDrawingMultiplier),
-        vecToPoint(_biRRT->goalState())
-    );
-    painter.drawPath(path);
 
 
     //  draw waypoint cache
