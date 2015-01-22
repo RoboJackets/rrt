@@ -145,10 +145,16 @@ namespace RRT
             _startTree.setStartState(start);
             _goalTree.setGoalState(start);
         }
+        const T &startState() const {
+            return _startTree.startState();
+        }
 
         void setGoalState(const T &goal) {
             _startTree.setGoalState(goal);
             _goalTree.setStartState(goal);
+        }
+        const T &goalState() const {
+            return _startTree.goalState();
         }
 
 

@@ -7,6 +7,9 @@ using namespace RRT;
 using namespace Eigen;
 using namespace std;
 
+/// multiply velocity by this to get the length of the vector to draw
+const float VelocityDrawingMultiplier = 18;
+
 
 RRTWidget::RRTWidget() {
     _stateSpace = make_shared<GridStateSpace>(800,
@@ -24,10 +27,13 @@ RRTWidget::RRTWidget() {
     _biRRT->setStepSize(10);
     _biRRT->setGoalMaxDist(12);
 
+    _startVel = Vector2f(1, 0);
+    _goalVel = Vector2f(0, 1);
+
     //  register for mouse events
     setMouseTracking(true);
-    _draggingStart = false;
-    _draggingGoal = false;
+
+    _draggingItem = DraggingNone;
 
     _runTimer = nullptr;
 }
@@ -178,19 +184,37 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     drawTree(painter, _biRRT->startTree(), _biRRT->startSolutionNode());
     drawTree(painter, _biRRT->goalTree(), _biRRT->goalSolutionNode(), Qt::darkGreen);
 
-    //  draw root as a red dot
-    if (_biRRT->startTree().rootNode()) {
-        painter.setPen(QPen (Qt::red, 6));
-        QPointF rootLoc = pointFromNode(_biRRT->startTree().rootNode());
-        painter.drawEllipse(rootLoc, 2, 2);
-    }
+    //  draw start and goal states
+    drawTerminalState(painter, _biRRT->startState(), _startVel, Qt::red);
+    drawTerminalState(painter, _biRRT->goalState(), _goalVel, Qt::darkGreen);
+}
 
-    //  draw goal as a green dot
-    if (_biRRT->goalTree().rootNode()) {
-        QPointF goalLoc = pointFromNode(_biRRT->goalTree().rootNode());
-        painter.setPen(QPen(Qt::darkGreen, 6));
-        painter.drawEllipse(goalLoc, 2, 2);
-    }
+void RRTWidget::drawTerminalState(QPainter &painter, const Vector2f &pos, const Vector2f &vel, const QColor &color) {
+    //  draw point
+    painter.setPen(QPen(color, 6));
+    QPointF rootLoc(pos.x(), pos.y());
+    painter.drawEllipse(rootLoc, 2, 2);
+
+
+    Vector2f tipOffset = vel * VelocityDrawingMultiplier;
+    Vector2f tipLocVec = pos + tipOffset;
+    QPointF tipLoc(tipLocVec.x(), tipLocVec.y());
+
+    //  draw arrow shaft
+    painter.setPen(QPen(color, 3));
+    painter.drawLine(rootLoc, tipLoc);
+
+    //  draw arrow head
+    Vector2f headBase = tipLocVec - tipOffset.normalized()*4;
+    Vector2f perp = Vector2f(-tipOffset.y(), tipOffset.x()).normalized();
+    Vector2f tipLeftVec = headBase + perp*4;
+    Vector2f tipRightVec = headBase - perp*4;
+    QPointF trianglePts[] = {
+        tipLoc,
+        QPointF(tipLeftVec.x(), tipLeftVec.y()),
+        QPointF(tipRightVec.x(), tipRightVec.y())
+    };
+    painter.drawPolygon(trianglePts, 3);
 }
 
 void RRTWidget::drawTree(QPainter &painter,
@@ -244,10 +268,14 @@ bool RRTWidget::mouseInGrabbingRange(QMouseEvent *event, const Vector2f &pt) {
 }
 
 void RRTWidget::mousePressEvent(QMouseEvent *event) {
-    if (mouseInGrabbingRange(event, _biRRT->startTree().rootNode()->state())) {
-        _draggingStart = true;
-    } else if (mouseInGrabbingRange(event, _biRRT->goalTree().rootNode()->state())) {
-        _draggingGoal = true;
+    if (mouseInGrabbingRange(event, _biRRT->startState())) {
+        _draggingItem = DraggingStart;
+    } else if (mouseInGrabbingRange(event, _biRRT->goalState())) {
+        _draggingItem = DraggingGoal;
+    } else if (mouseInGrabbingRange(event, _biRRT->startState() + _startVel*VelocityDrawingMultiplier)) {
+        _draggingItem = DraggingStartVel;
+    } else if (mouseInGrabbingRange(event, _biRRT->goalState() + _goalVel*VelocityDrawingMultiplier)) {
+        _draggingItem = DraggingGoalVel;
     } else {
         _editingObstacles = true;
         Vector2f pos = Vector2f(event->pos().x(), event->pos().y());
@@ -263,23 +291,25 @@ void RRTWidget::mousePressEvent(QMouseEvent *event) {
 void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
     Vector2f point(event->pos().x(), event->pos().y());
 
-    if (_draggingStart) {
+    if (_draggingItem == DraggingStart) {
         //  reset the tree with the new start pos
         _biRRT->setStartState(point);
-        update();
-    } else if (_draggingGoal) {
+    } else if (_draggingItem == DraggingGoal) {
         //  set the new goal point
         _biRRT->setGoalState(point);
-        update();
+    } else if (_draggingItem == DraggingStartVel) {
+        _startVel = (point - _biRRT->startState()) / VelocityDrawingMultiplier;
+    } else if (_draggingItem == DraggingGoalVel) {
+        _goalVel = (point - _biRRT->goalState()) / VelocityDrawingMultiplier;
     } else if (_editingObstacles) {
         Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForLocation(point);
         _stateSpace->obstacleGrid().obstacleAt(gridLoc) = !_erasingObstacles;
-        update();
     }
+
+    if (_draggingItem != DraggingNone || _editingObstacles) update();
 }
 
 void RRTWidget::mouseReleaseEvent(QMouseEvent *event) {
-    _draggingGoal = false;
-    _draggingStart = false;
+    _draggingItem = DraggingNone;
     _editingObstacles = false;
 }

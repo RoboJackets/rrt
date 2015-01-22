@@ -41,6 +41,7 @@ protected:
         const RRT::Node<Eigen::Vector2f> *solutionNode = NULL,
         QColor treeColor = Qt::blue,
         QColor solutionColor = Qt::red);
+    void drawTerminalState(QPainter &painter, const Eigen::Vector2f &pos, const Eigen::Vector2f &vel, const QColor &color);
 
     QPointF pointFromNode(const RRT::Node<Eigen::Vector2f> *n);
 
@@ -57,10 +58,19 @@ private:
     std::shared_ptr<GridStateSpace> _stateSpace;
     RRT::BiRRT<Eigen::Vector2f> *_biRRT;
 
+    Eigen::Vector2f _startVel, _goalVel;
+
     //  if you click down on an obstacle, you enter erase mode
     //  if you click down where there's no obstacle, you enter draw mode
     bool _editingObstacles, _erasingObstacles;
-    bool _draggingStart, _draggingGoal;
+
+    enum {
+        DraggingNone = 0,
+        DraggingStart,
+        DraggingGoal,
+        DraggingStartVel,
+        DraggingGoalVel
+    } _draggingItem;
 
     int _waypointCacheMaxSize;
 
