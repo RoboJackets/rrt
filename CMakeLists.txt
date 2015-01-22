@@ -4,7 +4,7 @@ PROJECT(rrt)
 # c++11
 # note: the -fPIC flag is for building with Qt...
 #       it complains about position-independent code otherwise
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -lpthread")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
 # include cmake files in the 'cmake folder'
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
@@ -88,6 +88,7 @@ add_executable(test-cpp ${tests_SRC})
 target_link_libraries(test-cpp
     ${GTEST_LIBS_DIR}/libgtest.a
     ${GTEST_LIBS_DIR}/libgtest_main.a
+    pthread
 )
 set_target_properties(test-cpp PROPERTIES EXCLUDE_FROM_ALL TRUE)
 add_dependencies(test-cpp googletest)
