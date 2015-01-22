@@ -135,6 +135,10 @@ QPointF RRTWidget::pointFromNode(const Node<Vector2f> *n) {
     return QPointF(n->state().x(), n->state().y());
 }
 
+QPointF vecToPoint(const Vector2f &vec) {
+    return QPointF(vec.x(), vec.y());
+}
+
 void RRTWidget::paintEvent(QPaintEvent *p) {
     QPainter painter(this);
 
@@ -168,6 +172,49 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
             prev = curr;
         }
     }
+
+
+    //  draw bezier
+    painter.setPen(QPen(Qt::darkBlue, 5));
+    QPainterPath path(vecToPoint(_biRRT->startState()));
+
+    Vector2f prevControlDiff = -_startVel*VelocityDrawingMultiplier;
+    for (int i = 0; i < _biRRT->waypoints().size(); i++) {
+        Vector2f waypoint = _biRRT->waypoints()[i];
+
+        Vector2f prevWaypoint;
+        if (i == 0) prevWaypoint = _biRRT->startState();
+        else prevWaypoint = _biRRT->waypoints()[i-1];
+
+        Vector2f nextWaypoint;
+        if (i == _biRRT->waypoints().size() - 1) nextWaypoint = _biRRT->goalState();
+        else nextWaypoint = _biRRT->waypoints()[i+1];
+
+        //  using first derivative heuristic from Sprunk 2008 to determine the distance of the control point from the waypoint
+        float controlLength = 0.5*min( (waypoint - prevWaypoint).norm(), (nextWaypoint - waypoint).norm() );
+
+        Vector2f controlDir = ((prevWaypoint - waypoint).normalized() - (nextWaypoint - waypoint).normalized()).normalized();
+        Vector2f controlDiff = controlDir * controlLength;
+
+        path.cubicTo(
+            vecToPoint(prevWaypoint - prevControlDiff),
+            vecToPoint(waypoint + controlDiff),
+            vecToPoint(waypoint)
+        );
+
+        prevControlDiff = controlDiff;
+    }
+
+    Vector2f prevWaypoint;
+    if (_biRRT->waypoints().size() == 0) prevWaypoint = _biRRT->startState();
+    else prevWaypoint = _biRRT->waypoints().back();
+
+    path.cubicTo(
+        vecToPoint(prevWaypoint - prevControlDiff),
+        vecToPoint(_biRRT->goalState() - _goalVel*VelocityDrawingMultiplier),
+        vecToPoint(_biRRT->goalState())
+    );
+    painter.drawPath(path);
 
 
     //  draw waypoint cache
