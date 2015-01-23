@@ -5,6 +5,10 @@
 #include <Eigen/Dense>
 
 
+//  constrains the angle to one between -pi and pi
+float fixAngleRadians(float angle);
+
+
 class AngleLimitedState {
 public:
     AngleLimitedState(const Eigen::Vector2f &pos = Eigen::Vector2f(0,0), float angle = 0, bool hasAngle = false) {
@@ -14,11 +18,7 @@ public:
     }
 
     void setAngle(float angle) {
-        //  normalize
-        while (angle > M_PI) angle -= M_PI;
-        while (angle < -M_PI) angle += M_PI;
-
-        _angle = angle;
+        _angle = fixAngleRadians(angle);
     }
     float angle() const {
         return _angle;
@@ -37,6 +37,8 @@ public:
     bool hasAngle() const {
         return _hasAngle;
     }
+
+    float maxAngleDiff;
 
 
 private:

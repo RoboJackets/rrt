@@ -2,7 +2,6 @@
 #include "RRTWidget.hpp"
 #include <planning/Path.hpp>
 #include <2dplane/2dplane.hpp>
-
 #include <iostream>
 
 
@@ -11,7 +10,7 @@ using namespace Eigen;
 using namespace std;
 
 /// multiply velocity by this to get the length of the vector to draw
-const float VelocityDrawingMultiplier = 12;
+const float VelocityDrawingMultiplier = 25;
 
 
 RRTWidget::RRTWidget() {
@@ -190,7 +189,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
         painter.setPen(QPen(Qt::darkBlue, 5));
         QPainterPath path(vecToPoint(_previousSolution[0]));
 
-        Vector2f prevControlDiff = -_startVel*VelocityDrawingMultiplier;
+        Vector2f prevControlDiff = -_startVel*VelocityDrawingMultiplier * 2;
         for (int i = 1; i < _previousSolution.size(); i++) {
             Vector2f waypoint = _previousSolution[i];
             Vector2f prevWaypoint = _previousSolution[i-1];
@@ -198,7 +197,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
             Vector2f controlDir;
             float controlLength;
             if (i == _previousSolution.size() - 1) {
-                controlLength = _goalVel.norm() * VelocityDrawingMultiplier;
+                controlLength = _goalVel.norm() * VelocityDrawingMultiplier * 2;
                 controlDir = -_goalVel.normalized();
             } else {
                 //  using first derivative heuristic from Sprunk 2008 to determine the distance of the control point from the waypoint
@@ -268,6 +267,9 @@ void RRTWidget::drawTerminalState(QPainter &painter, const Vector2f &pos, const 
         QPointF(tipRightVec.x(), tipRightVec.y())
     };
     painter.drawPolygon(trianglePts, 3);
+
+    painter.setPen(QPen(Qt::black, 3));
+    painter.drawText(rootLoc + QPointF(15, 0), QString("%1 m/s").arg(vel.norm()));
 }
 
 void RRTWidget::drawTree(QPainter &painter,
@@ -365,6 +367,7 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
         _goalVel = (point - _biRRT->goalState().pos()) / VelocityDrawingMultiplier;
         bool goalVelMatters = _goalVel.norm() > minMatterableEndpointVel;
         AngleLimitedState goal(_biRRT->goalState().pos(), atan2f(_goalVel.y(), _goalVel.x()), goalVelMatters);
+        // goal.maxAngleDiff = _goalVel.normsq() * 
         _biRRT->setGoalState(goal);
     } else if (_editingObstacles) {
         Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForLocation(point);
