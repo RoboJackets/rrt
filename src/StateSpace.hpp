@@ -24,8 +24,11 @@ public:
      * This new state will potentially be added to the tree.  No need to do
      * any validation on the state before returning, the tree will handle
      * that.
+     *
+     * @param reverse Boolean indicating whether or not this transition is in
+     * the Tree rooted at the goal for a bidirectional RRT
      */
-    virtual T intermediateState(const T &source, const T &target, float stepSize) const = 0;
+    virtual T intermediateState(const T &source, const T &target, float stepSize, bool reverse = false) const = 0;
 
     /**
      * @brief Calculate the distance between two states
@@ -35,7 +38,7 @@ public:
      * 
      * @return The distance between the states
      */
-    virtual double distance(const T &from, const T &to) const = 0;
+    virtual double distance(const T &from, const T &to, bool reverse = false) const = 0;
 
     /**
      * @brief Check if a state is within bounds and obstacle-free
@@ -52,8 +55,10 @@ public:
      * 
      * @param from The start state
      * @param to The destination state
+     * @param reverse Boolean indicating whether or not this transition is in
+     * the Tree rooted at the goal for a bidirectional RRT
      * 
      * @return A boolean indicating validity
      */
-    virtual bool transitionValid(const T &from, const T &to) const = 0;
+    virtual bool transitionValid(const T &from, const T &to, bool reverse = false) const = 0;
 };

@@ -20,6 +20,9 @@ public:
     bool &obstacleAt(const Eigen::Vector2i &gridLoc);
     bool obstacleAt(const Eigen::Vector2i &gridLoc) const;
 
+    bool transitionValid(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const;
+    bool pointInBounds(const Eigen::Vector2f &pt) const;
+
     int discretizedWidth() const;
     int discretizedHeight() const;
     float width() const;

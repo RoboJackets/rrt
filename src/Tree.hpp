@@ -98,8 +98,9 @@ namespace RRT
     template<typename T>
     class Tree {
     public:
-        Tree(std::shared_ptr<StateSpace<T>> stateSpace) {
+        Tree(std::shared_ptr<StateSpace<T>> stateSpace, bool reverse = false) {
             _stateSpace = stateSpace;
+            _reverse = reverse;
 
             //  default values
             setStepSize(0.1);
@@ -210,7 +211,7 @@ namespace RRT
             for (int i = 0; i < _maxIterations; i++) {
                 Node<T> *newNode = grow();
 
-                if (newNode && _stateSpace->distance(newNode->state(), _goalState)) return true;
+                if (newNode && _stateSpace->distance(newNode->state(), _goalState, _reverse)) return true;
             }
 
             //  we hit our iteration limit and didn't reach the goal :(
@@ -263,7 +264,7 @@ namespace RRT
             Node<T> *best = nullptr;
             
             for (Node<T> *other : _nodes) {
-                float dist = _stateSpace->distance(other->state(), state);
+                float dist = _stateSpace->distance(other->state(), state, _reverse);
                 if (bestDistance < 0 || dist < bestDistance) {
                     bestDistance = dist;
                     best = other;
@@ -294,11 +295,11 @@ namespace RRT
             //  Get a state that's in the direction of @target from @source.
             //  This should take a step in that direction, but not go all the
             //  way unless the they're really close together.
-            T intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
+            T intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize(), _reverse);
 
             //  Make sure there's actually a direct path from @source to
             //  @intermediateState.  If not, abort
-            if (!_stateSpace->transitionValid(source->state(), intermediateState)) {
+            if (!_stateSpace->transitionValid(source->state(), intermediateState, _reverse)) {
                 return nullptr;
             }
 
@@ -403,6 +404,15 @@ namespace RRT
         }
 
 
+        /**
+         * @brief Used to indicate this is part of a bidirectional RRT
+         * and this is the tree rooted at the goal rather than the start state.
+         */
+        bool isReverse() const {
+            return _reverse;
+        }
+
+
     protected:
         /**
          * A list of all Node objects in the tree.
@@ -424,5 +434,6 @@ namespace RRT
         float _stepSize;
 
         std::shared_ptr<StateSpace<T>> _stateSpace;
+        bool _reverse;
     };
 }

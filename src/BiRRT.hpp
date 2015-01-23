@@ -13,7 +13,7 @@ namespace RRT
     template<typename T>
     class BiRRT {
     public:
-        BiRRT(std::shared_ptr<StateSpace<T>> stateSpace) : _startTree(stateSpace), _goalTree(stateSpace) {
+        BiRRT(std::shared_ptr<StateSpace<T>> stateSpace) : _startTree(stateSpace), _goalTree(stateSpace, true) {
             reset();
         }
 
@@ -144,6 +144,7 @@ namespace RRT
         void setStartState(const T &start) {
             _startTree.setStartState(start);
             _goalTree.setGoalState(start);
+            reset();
         }
         const T &startState() const {
             return _startTree.startState();
@@ -152,6 +153,7 @@ namespace RRT
         void setGoalState(const T &goal) {
             _startTree.setGoalState(goal);
             _goalTree.setStartState(goal);
+            reset();
         }
         const T &goalState() const {
             return _startTree.goalState();
@@ -179,7 +181,7 @@ namespace RRT
 
             for (Node<T> *other : treeToSearch.allNodes()) {
                 float dist = _startTree.stateSpace().distance(other->state(), targetState);
-                if (dist < goalMaxDist() && other->depth() < depth) {
+                if (dist < goalMaxDist() && other->depth() < depth && _startTree.stateSpace().transitionValid(other->state(), targetState)) {
                     bestNode = other;
                     depth = other->depth();
                 }

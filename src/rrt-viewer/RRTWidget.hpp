@@ -2,7 +2,7 @@
 
 #include <QtWidgets>
 #include <BiRRT.hpp>
-#include <2dplane/GridStateSpace.hpp>
+#include <2dplane/AngleLimitedStateSpace.hpp>
 #include <Eigen/Dense>
 
 
@@ -37,13 +37,13 @@ signals:
 protected:
     void paintEvent(QPaintEvent *p);
     void drawTree(QPainter &painter,
-        const RRT::Tree<Eigen::Vector2f> &rrt,
-        const RRT::Node<Eigen::Vector2f> *solutionNode = NULL,
+        const RRT::Tree<AngleLimitedState> &rrt,
+        const RRT::Node<AngleLimitedState> *solutionNode = NULL,
         QColor treeColor = Qt::blue,
         QColor solutionColor = Qt::red);
     void drawTerminalState(QPainter &painter, const Eigen::Vector2f &pos, const Eigen::Vector2f &vel, const QColor &color);
 
-    QPointF pointFromNode(const RRT::Node<Eigen::Vector2f> *n);
+    QPointF pointFromNode(const RRT::Node<AngleLimitedState> *n);
 
     void step(int numTimes);
 
@@ -55,8 +55,8 @@ protected:
 
 
 private:
-    std::shared_ptr<GridStateSpace> _stateSpace;
-    RRT::BiRRT<Eigen::Vector2f> *_biRRT;
+    std::shared_ptr<AngleLimitedStateSpace> _stateSpace;
+    RRT::BiRRT<AngleLimitedState> *_biRRT;
 
     Eigen::Vector2f _startVel, _goalVel;
 

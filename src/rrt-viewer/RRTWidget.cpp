@@ -3,6 +3,9 @@
 #include <planning/Path.hpp>
 #include <2dplane/2dplane.hpp>
 
+#include <iostream>
+
+
 using namespace RRT;
 using namespace Eigen;
 using namespace std;
@@ -12,23 +15,23 @@ const float VelocityDrawingMultiplier = 12;
 
 
 RRTWidget::RRTWidget() {
-    _stateSpace = make_shared<GridStateSpace>(800,
+    _stateSpace = make_shared<AngleLimitedStateSpace>(800,
                                         600,
                                         40,
                                         30);
-    _biRRT = new BiRRT<Vector2f>(_stateSpace);
+    _biRRT = new BiRRT<AngleLimitedState>(_stateSpace);
     setFixedSize(800, 600);
 
     _waypointCacheMaxSize = 15;
 
-    //  setup birrt
-    _biRRT->setStartState(Vector2f(50, 50));
-    _biRRT->setGoalState(Vector2f(width() / 2.0, height() / 2.0));
-    _biRRT->setStepSize(10);
-    _biRRT->setGoalMaxDist(12);
+    _startVel = Vector2f(5, 0);
+    _goalVel = Vector2f(0, 5);
 
-    _startVel = Vector2f(1, 0);
-    _goalVel = Vector2f(0, 1);
+    //  setup birrt
+    _biRRT->setStartState(AngleLimitedState(Vector2f(50, 50), atan2f(_startVel.y(), _startVel.x()), true));
+    _biRRT->setGoalState(AngleLimitedState(Vector2f(width() / 2.0, height() / 2.0), atan2f(_goalVel.y(), _goalVel.x()), true));
+    _biRRT->setStepSize(10);
+    _biRRT->setGoalMaxDist(8);
 
     //  register for mouse events
     setMouseTracking(true);
@@ -40,16 +43,22 @@ RRTWidget::RRTWidget() {
 
 void RRTWidget::slot_reset() {
     //  store waypoint cache
-    vector<Vector2f> waypoints;
+    vector<AngleLimitedState> waypoints;
     if (_biRRT->startSolutionNode() && _biRRT->goalSolutionNode()) {
-        waypoints = _previousSolution;
-        if (waypoints.size() > 0) {
+
+        vector<Vector2f> prevSol = _previousSolution;
+
+        if (prevSol.size() > 0) {
             //  don't keep the start or end states
-            waypoints.erase(waypoints.begin());
-            waypoints.erase(waypoints.end());
+            prevSol.erase(prevSol.begin());
+            prevSol.erase(prevSol.end());
 
             //  down-sample
-            Planning::DownSampleVector<Vector2f>(waypoints, _waypointCacheMaxSize);
+            Planning::DownSampleVector<Vector2f>(prevSol, _waypointCacheMaxSize);
+        }
+
+        for (Vector2f &pos : prevSol) {
+            waypoints.push_back(AngleLimitedState(pos));
         }
     } else {
         _previousSolution.clear();
@@ -122,8 +131,11 @@ void RRTWidget::step(int numTimes) {
     //  store solution
     _previousSolution.clear();
     if (_biRRT->startSolutionNode() != nullptr) {
-        _biRRT->getPath(_previousSolution);
-        Planning::SmoothPath<Vector2f>(_previousSolution, *_stateSpace);
+        vector<AngleLimitedState> prevSolutionStates;
+        _biRRT->getPath(prevSolutionStates);
+
+        Planning::SmoothPath<AngleLimitedState>(prevSolutionStates, *_stateSpace);
+        for (auto &state : prevSolutionStates) _previousSolution.push_back(state.pos());
     }
 
     emit signal_stepped(_biRRT->iterationCount());
@@ -131,8 +143,8 @@ void RRTWidget::step(int numTimes) {
     update();
 }
 
-QPointF RRTWidget::pointFromNode(const Node<Vector2f> *n) {
-    return QPointF(n->state().x(), n->state().y());
+QPointF RRTWidget::pointFromNode(const Node<AngleLimitedState> *n) {
+    return QPointF(n->state().pos().x(), n->state().pos().y());
 }
 
 QPointF vecToPoint(const Vector2f &vec) {
@@ -216,8 +228,8 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
         float r = 2;    //  radius to draw waypoint dots
 
         painter.setPen(QPen(Qt::lightGray, 3));
-        for (const Vector2f &waypoint : _biRRT->waypoints()) {
-            painter.drawEllipse(QPointF(waypoint.x(), waypoint.y()), r, r);
+        for (const AngleLimitedState &waypoint : _biRRT->waypoints()) {
+            painter.drawEllipse(QPointF(waypoint.pos().x(), waypoint.pos().y()), r, r);
         }
     }
 
@@ -226,8 +238,8 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     drawTree(painter, _biRRT->goalTree(), _biRRT->goalSolutionNode(), Qt::darkGreen);
 
     //  draw start and goal states
-    drawTerminalState(painter, _biRRT->startState(), _startVel, Qt::red);
-    drawTerminalState(painter, _biRRT->goalState(), _goalVel, Qt::darkGreen);
+    drawTerminalState(painter, _biRRT->startState().pos(), _startVel, Qt::red);
+    drawTerminalState(painter, _biRRT->goalState().pos(), _goalVel, Qt::darkGreen);
 }
 
 void RRTWidget::drawTerminalState(QPainter &painter, const Vector2f &pos, const Vector2f &vel, const QColor &color) {
@@ -259,8 +271,8 @@ void RRTWidget::drawTerminalState(QPainter &painter, const Vector2f &pos, const 
 }
 
 void RRTWidget::drawTree(QPainter &painter,
-    const Tree<Vector2f> &rrt,
-    const Node<Vector2f> *solutionNode,
+    const Tree<AngleLimitedState> &rrt,
+    const Node<AngleLimitedState> *solutionNode,
     QColor treeColor,
     QColor solutionColor)
 {
@@ -268,7 +280,7 @@ void RRTWidget::drawTree(QPainter &painter,
     const float r = 1;
 
     //  draw all the nodes and connections
-    for (const Node<Vector2f> *node : rrt.allNodes()) {
+    for (const Node<AngleLimitedState> *node : rrt.allNodes()) {
         painter.setPen(QPen (treeColor, 1));
         QPointF loc = pointFromNode(node);
         painter.drawEllipse(loc, r, r);
@@ -285,7 +297,7 @@ void RRTWidget::drawTree(QPainter &painter,
     if (solutionNode) {
         painter.setPen(QPen(solutionColor, 2));
 
-        const Node<Vector2f> *node = solutionNode, *parent = solutionNode->parent();
+        const Node<AngleLimitedState> *node = solutionNode, *parent = solutionNode->parent();
         while (parent) {
             //  draw the edge
             QPointF from = pointFromNode(node);
@@ -309,13 +321,13 @@ bool RRTWidget::mouseInGrabbingRange(QMouseEvent *event, const Vector2f &pt) {
 }
 
 void RRTWidget::mousePressEvent(QMouseEvent *event) {
-    if (mouseInGrabbingRange(event, _biRRT->startState())) {
+    if (mouseInGrabbingRange(event, _biRRT->startState().pos())) {
         _draggingItem = DraggingStart;
-    } else if (mouseInGrabbingRange(event, _biRRT->goalState())) {
+    } else if (mouseInGrabbingRange(event, _biRRT->goalState().pos())) {
         _draggingItem = DraggingGoal;
-    } else if (mouseInGrabbingRange(event, _biRRT->startState() + _startVel*VelocityDrawingMultiplier)) {
+    } else if (mouseInGrabbingRange(event, _biRRT->startState().pos() + _startVel*VelocityDrawingMultiplier)) {
         _draggingItem = DraggingStartVel;
-    } else if (mouseInGrabbingRange(event, _biRRT->goalState() + _goalVel*VelocityDrawingMultiplier)) {
+    } else if (mouseInGrabbingRange(event, _biRRT->goalState().pos() + _goalVel*VelocityDrawingMultiplier)) {
         _draggingItem = DraggingGoalVel;
     } else {
         _editingObstacles = true;
@@ -332,16 +344,28 @@ void RRTWidget::mousePressEvent(QMouseEvent *event) {
 void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
     Vector2f point(event->pos().x(), event->pos().y());
 
+    const float minMatterableEndpointVel = 0.1;
+
     if (_draggingItem == DraggingStart) {
         //  reset the tree with the new start pos
-        _biRRT->setStartState(point);
+        bool startVelMatters = _startVel.norm() > minMatterableEndpointVel;
+        AngleLimitedState start(point, atan2f(_startVel.y(), _startVel.x()), startVelMatters);
+        _biRRT->setStartState(start);
     } else if (_draggingItem == DraggingGoal) {
         //  set the new goal point
-        _biRRT->setGoalState(point);
+        bool goalVelMatters = _goalVel.norm() > minMatterableEndpointVel;
+        AngleLimitedState goal(point, atan2f(_goalVel.y(), _goalVel.x()), goalVelMatters);
+        _biRRT->setGoalState(goal);
     } else if (_draggingItem == DraggingStartVel) {
-        _startVel = (point - _biRRT->startState()) / VelocityDrawingMultiplier;
+        _startVel = (point - _biRRT->startState().pos()) / VelocityDrawingMultiplier;
+        bool startVelMatters = _startVel.norm() > minMatterableEndpointVel;
+        AngleLimitedState start(_biRRT->startState().pos(), atan2f(_startVel.y(), _startVel.x()), startVelMatters);
+        _biRRT->setStartState(start);
     } else if (_draggingItem == DraggingGoalVel) {
-        _goalVel = (point - _biRRT->goalState()) / VelocityDrawingMultiplier;
+        _goalVel = (point - _biRRT->goalState().pos()) / VelocityDrawingMultiplier;
+        bool goalVelMatters = _goalVel.norm() > minMatterableEndpointVel;
+        AngleLimitedState goal(_biRRT->goalState().pos(), atan2f(_goalVel.y(), _goalVel.x()), goalVelMatters);
+        _biRRT->setGoalState(goal);
     } else if (_editingObstacles) {
         Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForLocation(point);
         _stateSpace->obstacleGrid().obstacleAt(gridLoc) = !_erasingObstacles;
