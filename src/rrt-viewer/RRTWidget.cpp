@@ -8,7 +8,7 @@ using namespace Eigen;
 using namespace std;
 
 /// multiply velocity by this to get the length of the vector to draw
-const float VelocityDrawingMultiplier = 18;
+const float VelocityDrawingMultiplier = 12;
 
 
 RRTWidget::RRTWidget() {
