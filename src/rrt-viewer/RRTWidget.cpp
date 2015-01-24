@@ -164,7 +164,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     painter.scale(s, s);
 
     //  draw black border around widget
-    painter.setPen(QPen (Qt::black, 0.02));
+    painter.setPen(QPen(Qt::black, 0.02));
     QRectF bounds(0, 0, _stateSpace->width(), _stateSpace->height());
     bounds.adjust(0.02, 0.02, -0.02, -0.02);
     painter.drawRect(bounds);
@@ -172,11 +172,13 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     //  draw obstacles
     float rectW = _stateSpace->width() / _stateSpace->obstacleGrid().discretizedWidth();
     float rectH = _stateSpace->height() / _stateSpace->obstacleGrid().discretizedHeight();
-    painter.setPen(QPen(Qt::black, 2));
+    painter.setPen(QPen(Qt::black, 0.1));
+    painter.setBrush(QBrush(Qt::black));
     for (int x = 0; x < _stateSpace->obstacleGrid().discretizedWidth(); x++) {
         for (int y = 0; y < _stateSpace->obstacleGrid().discretizedHeight(); y++) {
             if (_stateSpace->obstacleGrid().obstacleAt(x, y)) {
-                painter.fillRect(x * rectW, y * rectH, rectW, rectH, Qt::SolidPattern);
+                QRectF rect(x*rectW, y*rectH, rectW, rectH);
+                painter.fillRect(rect, Qt::SolidPattern);
             }
         }
     }
