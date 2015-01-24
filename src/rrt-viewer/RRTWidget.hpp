@@ -17,6 +17,10 @@ class RRTWidget : public QWidget {
 public:
     RRTWidget();
 
+    QPointF stateLocationToGui(const Eigen::Vector2f &stateLoc) const;
+    Eigen::Vector2f guiToStateLocation(const QPointF &guiPt) const;
+    float drawingScaleFactor() const;
+
 
 private slots:
     void slot_run();
@@ -51,7 +55,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
 
-    static bool mouseInGrabbingRange(QMouseEvent *event, const Eigen::Vector2f &pt);
+    bool mouseInGrabbingRange(QMouseEvent *event, const Eigen::Vector2f &pt);
 
 
 private:

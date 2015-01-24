@@ -48,9 +48,9 @@ MainWindow::MainWindow() {
     _waypointBiasLabel = new QLabel("Waypoint Bias: 0", this);
 
     QDoubleSpinBox *stepSizeBox = new QDoubleSpinBox(this);
-    stepSizeBox->setMinimum(0.1);
-    stepSizeBox->setMaximum(100);
-    stepSizeBox->setValue(10);
+    stepSizeBox->setMinimum(0.01);
+    stepSizeBox->setMaximum(1);
+    stepSizeBox->setValue(0.1);
 
     QLabel *stepSizeLabel = new QLabel("Step Size:");
 

@@ -5,10 +5,6 @@
 using namespace Eigen;
 
 
-const float MaxAngleDiff = M_PI / 8.0;
-
-
-
 float fixAngleRadians(float angle) {
     //  normalize
     while (angle > M_PI) angle -= 2.0*M_PI;
@@ -37,13 +33,16 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(const AngleLimitedSt
     if (reverse) newAngle += M_PI;
 
 
-    if (fabs(newAngle - source.angle()) > MaxAngleDiff) {
-        newAngle = source.angle() + MaxAngleDiff*0.99999 * (newAngle-source.angle() > 0 ? 1 : -1);
+    if (fabs(fixAngleRadians(newAngle - source.angle())) > source.maxAngleDiff()) {
+        newAngle = source.angle() + source.maxAngleDiff()*0.99999 * (newAngle-source.angle() > 0 ? 1 : -1);
         newPos = source.pos() + Vector2f(-cosf(newAngle), -sinf(newAngle));
     }
 
 
-    return AngleLimitedState(newPos, newAngle, true);
+    AngleLimitedState newState(newPos, newAngle, true);
+    newState.reverse = reverse;
+
+    return newState;
 }
 
 double AngleLimitedStateSpace::distance(const AngleLimitedState &from, const AngleLimitedState &to, bool reverse) const {
@@ -51,18 +50,18 @@ double AngleLimitedStateSpace::distance(const AngleLimitedState &from, const Ang
 
 
 
-    float angleDiff = (from.hasAngle() && to.hasAngle()) ? fabs(to.angle() - from.angle()) : 0;
+    float angleDiff = (from.hasAngle() && to.hasAngle()) ? fabs(fixAngleRadians(to.angle() - from.angle())) : 0;
 
     if (!to.hasAngle()) {
         float angle2 = atan2f(diff.y(), diff.x());
         if (reverse) angle2 += M_PI;
-        angleDiff = fabs(angle2 - from.angle());
+        angleDiff = fabs(fixAngleRadians(angle2 - from.angle()));
     }
 
 
     float maxDist = sqrtf(width()*width() + height()*height());
 
-    return angleDiff > MaxAngleDiff ? diff.norm() + maxDist: diff.norm();
+    return angleDiff > from.maxAngleDiff() ? diff.norm() + maxDist: diff.norm();
 
 
     const float DistanceWeight = 0.3;
@@ -75,8 +74,9 @@ bool AngleLimitedStateSpace::stateValid(const AngleLimitedState &state) const {
 }
 
 bool AngleLimitedStateSpace::transitionValid(const AngleLimitedState &from, const AngleLimitedState &to, bool reverse) const {
-    float angleDiff = from.hasAngle() && to.hasAngle() ? fabs(from.angle() - to.angle()) : 0;
-    return _obstacleGrid.transitionValid(from.pos(), to.pos()) && angleDiff < MaxAngleDiff;
+    float maxAngleDiff = to.reverse ? to.maxAngleDiff() : from.maxAngleDiff();
+    float angleDiff = from.hasAngle() && to.hasAngle() ? fabs(fixAngleRadians(from.angle() - to.angle())) : 0;
+    return _obstacleGrid.transitionValid(from.pos(), to.pos()) && angleDiff < maxAngleDiff;
 }
 
 const ObstacleGrid &AngleLimitedStateSpace::obstacleGrid() const {

@@ -3,6 +3,7 @@
 #include <StateSpace.hpp>
 #include <2dplane/ObstacleGrid.hpp>
 #include <Eigen/Dense>
+#include <math.h>
 
 
 //  constrains the angle to one between -pi and pi
@@ -15,6 +16,9 @@ public:
         setPos(pos);
         setAngle(angle);
         setHasAngle(hasAngle);
+        setMaxAngleDiff(M_PI / 6.0);
+
+        reverse = false;
     }
 
     void setAngle(float angle) {
@@ -38,12 +42,20 @@ public:
         return _hasAngle;
     }
 
-    float maxAngleDiff;
+    float maxAngleDiff() const {
+        return _maxAngleDiff;
+    }
+    void setMaxAngleDiff(float maxAngleDiff) {
+        _maxAngleDiff = maxAngleDiff;
+    }
+
+    bool reverse;
 
 
 private:
     Eigen::Vector2f _pos;
     float _angle;
+    float _maxAngleDiff;
     bool _hasAngle;
 };
 
