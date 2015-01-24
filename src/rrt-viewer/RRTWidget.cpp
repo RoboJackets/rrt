@@ -170,7 +170,8 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     painter.drawRect(bounds);
 
     //  draw obstacles
-    int rectW = _stateSpace->width() / _stateSpace->obstacleGrid().discretizedWidth(), rectH = _stateSpace->height() / _stateSpace->obstacleGrid().discretizedHeight();
+    float rectW = _stateSpace->width() / _stateSpace->obstacleGrid().discretizedWidth();
+    float rectH = _stateSpace->height() / _stateSpace->obstacleGrid().discretizedHeight();
     painter.setPen(QPen(Qt::black, 2));
     for (int x = 0; x < _stateSpace->obstacleGrid().discretizedWidth(); x++) {
         for (int y = 0; y < _stateSpace->obstacleGrid().discretizedHeight(); y++) {
@@ -200,7 +201,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
         painter.setPen(QPen(Qt::darkBlue, 0.05));
         QPainterPath path(vecToPoint(_previousSolution[0]));
 
-        Vector2f prevControlDiff = -_startVel;
+        Vector2f prevControlDiff = -_startVel.normalized() * 0.5*min(_startVel.norm(), (_previousSolution[0] - _previousSolution[1]).norm());
         for (int i = 1; i < _previousSolution.size(); i++) {
             Vector2f waypoint = _previousSolution[i];
             Vector2f prevWaypoint = _previousSolution[i-1];
@@ -208,7 +209,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
             Vector2f controlDir;
             float controlLength;
             if (i == _previousSolution.size() - 1) {
-                controlLength = _goalVel.norm();
+                controlLength = 0.5*min(_goalVel.norm(), (waypoint - prevWaypoint).norm());
                 controlDir = -_goalVel.normalized();
             } else {
                 //  using first derivative heuristic from Sprunk 2008 to determine the distance of the control point from the waypoint
@@ -252,11 +253,13 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
 
 void RRTWidget::drawTerminalState(QPainter &painter, const Vector2f &pos, const Vector2f &vel, const QColor &color) {
     //  draw point
-    painter.setBrush(QBrush(color));
-    painter.setPen(QPen(color, 0.2));
+    QColor seethroughColor = color;
+    seethroughColor.setAlphaF(0.5);
+    painter.setBrush(QBrush(seethroughColor));
+    painter.setPen(QPen(seethroughColor, 0));
     QPointF rootLoc(pos.x(), pos.y());
-    const float botRadius = 0.09;
-    painter.drawEllipse(rootLoc, botRadius, botRadius);
+    const float botDiameter = 0.18;
+    painter.drawEllipse(rootLoc, botDiameter, botDiameter);
 
 
     Vector2f tipOffset = vel;

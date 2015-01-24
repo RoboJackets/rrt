@@ -35,7 +35,7 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(const AngleLimitedSt
 
     if (fabs(fixAngleRadians(newAngle - source.angle())) > source.maxAngleDiff()) {
         newAngle = source.angle() + source.maxAngleDiff()*0.99999 * (newAngle-source.angle() > 0 ? 1 : -1);
-        newPos = source.pos() + Vector2f(-cosf(newAngle), -sinf(newAngle));
+        newPos = source.pos() + Vector2f(-cosf(newAngle), -sinf(newAngle)).normalized()*stepSize;
     }
 
 
@@ -47,8 +47,6 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(const AngleLimitedSt
 
 double AngleLimitedStateSpace::distance(const AngleLimitedState &from, const AngleLimitedState &to, bool reverse) const {
     Vector2f diff = to.pos() - from.pos();
-
-
 
     float angleDiff = (from.hasAngle() && to.hasAngle()) ? fabs(fixAngleRadians(to.angle() - from.angle())) : 0;
 
