@@ -291,6 +291,11 @@ namespace RRT
                     return nullptr;
                 }
             }
+
+            //  if they're the same point, don't add it to the tree again
+            if (_stateSpace->distance(source->state(), target) < 0.0001) {
+                return nullptr;
+            }
             
             //  Get a state that's in the direction of @target from @source.
             //  This should take a step in that direction, but not go all the
@@ -299,7 +304,7 @@ namespace RRT
 
             //  Make sure there's actually a direct path from @source to
             //  @intermediateState.  If not, abort
-            if (!_stateSpace->transitionValid(source->state(), intermediateState, _reverse)) {
+            if (!_stateSpace->transitionValid(source->state(), intermediateState)) {
                 return nullptr;
             }
 

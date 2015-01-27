@@ -10,6 +10,30 @@ using namespace Eigen;
 using namespace std;
 
 
+const float AccelLimit = 2.0;   //  TODO: make this configurable in the gui
+const float MaxMaxAngleDiff = M_PI / 6.0;
+
+
+float maxAngleDiffForSpeed(float speed, float accelLimit, float stepSize, float maxValue) {
+    //  Think of the segments of an rrt forming a polygon inscribed
+    //  in a circle if each segment is at the max angle diff from the previous segment.
+    //  The max acceleration allowed and current speed limit the curvature of our path,
+    //  so we use these to determine the min radius of this circle.
+    //  accelCentripetal = speed^2 / radius = accelLimit
+    //  for inscribed polygons, sideLength = 2*radius*sin(pi/numSides)
+    //  for regular polygons (equal side lengths), numSides*exteriorAngle = 2*pi
+    //  the exterior angle is equal to the maxAngleDiff, which is what we're trying to find
+    //  maxAngleDiff = 2*pi / numSides
+    //  sideLength = RRT step size
+    //  numSides = 2*pi/maxAngleDiff
+    //  stepSize = 2*radius*sin(maxAngleDiff/2)
+    //  radius = speed^2 / accelLimit
+    //  stepSize = 2*speed^2/accelLimit * sin(maxAngleDiff/2)
+    //  maxAngleDiff = 2*asin(stepSize*accelLimit/(2*speed^2))
+    float maxAngleDiff = 2.0*asinf(stepSize*accelLimit/(2.0*powf(speed, 2.0)));
+    return min<float>(maxAngleDiff, maxValue);
+}
+
 RRTWidget::RRTWidget() {
     _stateSpace = make_shared<AngleLimitedStateSpace>(8.09,
                                         6.05,
@@ -29,15 +53,17 @@ RRTWidget::RRTWidget() {
 
     //  setup birrt
     AngleLimitedState start(Vector2f(1, 1), atan2f(_startVel.y(), _startVel.x()), true);
+    start.setMaxAngleDiff(maxAngleDiffForSpeed(_startVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
     _biRRT->setStartState(start);
 
     //  TODO: set curvature limits and decay rates for endpoint states
 
     AngleLimitedState goal(Vector2f(_stateSpace->width() / 2.0, _stateSpace->height() / 2.0), atan2f(_goalVel.y(), _goalVel.x()), true);
+    goal.setMaxAngleDiff(maxAngleDiffForSpeed(_goalVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
     _biRRT->setGoalState(goal);
 
     _biRRT->setStepSize(0.2);
-    _biRRT->setGoalMaxDist(0.05);
+    _biRRT->setGoalMaxDist(0.1);
 
     //  register for mouse events
     setMouseTracking(true);
@@ -157,6 +183,21 @@ QPointF vecToPoint(const Vector2f &vec) {
     return QPointF(vec.x(), vec.y());
 }
 
+void RRTWidget::drawObstacleGrid(QPainter &painter, const ObstacleGrid &obstacleGrid) {
+    float rectW = obstacleGrid.width() / obstacleGrid.discretizedWidth();
+    float rectH = obstacleGrid.height() / obstacleGrid.discretizedHeight();
+    painter.setPen(QPen(Qt::black, 0.1));
+    painter.setBrush(QBrush(Qt::black));
+    for (int x = 0; x < obstacleGrid.discretizedWidth(); x++) {
+        for (int y = 0; y < obstacleGrid.discretizedHeight(); y++) {
+            if (obstacleGrid.obstacleAt(x, y)) {
+                QRectF rect(x*rectW, y*rectH, rectW, rectH);
+                painter.fillRect(rect, Qt::SolidPattern);
+            }
+        }
+    }
+}
+
 void RRTWidget::paintEvent(QPaintEvent *p) {
     QPainter painter(this);
 
@@ -169,20 +210,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
     bounds.adjust(0.02, 0.02, -0.02, -0.02);
     painter.drawRect(bounds);
 
-    //  draw obstacles
-    float rectW = _stateSpace->width() / _stateSpace->obstacleGrid().discretizedWidth();
-    float rectH = _stateSpace->height() / _stateSpace->obstacleGrid().discretizedHeight();
-    painter.setPen(QPen(Qt::black, 0.1));
-    painter.setBrush(QBrush(Qt::black));
-    for (int x = 0; x < _stateSpace->obstacleGrid().discretizedWidth(); x++) {
-        for (int y = 0; y < _stateSpace->obstacleGrid().discretizedHeight(); y++) {
-            if (_stateSpace->obstacleGrid().obstacleAt(x, y)) {
-                QRectF rect(x*rectW, y*rectH, rectW, rectH);
-                painter.fillRect(rect, Qt::SolidPattern);
-            }
-        }
-    }
-
+    drawObstacleGrid(painter, _stateSpace->obstacleGrid());
 
     //  draw previous solution
     if (_previousSolution.size() > 0) {
@@ -201,6 +229,7 @@ void RRTWidget::paintEvent(QPaintEvent *p) {
 
         //  draw cubic bezier interpolation of waypoints
         painter.setPen(QPen(Qt::darkBlue, 0.05));
+        painter.setBrush(Qt::NoBrush);
         QPainterPath path(vecToPoint(_previousSolution[0]));
 
         Vector2f prevControlDiff = -_startVel.normalized() * 0.5*min(_startVel.norm(), (_previousSolution[0] - _previousSolution[1]).norm());
@@ -374,22 +403,25 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
         //  reset the tree with the new start pos
         bool startVelMatters = _startVel.norm() > minMatterableEndpointVel;
         AngleLimitedState start(point, atan2f(_startVel.y(), _startVel.x()), startVelMatters);
+        start.setMaxAngleDiff(maxAngleDiffForSpeed(_startVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
         _biRRT->setStartState(start);
     } else if (_draggingItem == DraggingGoal) {
         //  set the new goal point
         bool goalVelMatters = _goalVel.norm() > minMatterableEndpointVel;
         AngleLimitedState goal(point, atan2f(_goalVel.y(), _goalVel.x()), goalVelMatters);
+        goal.setMaxAngleDiff(maxAngleDiffForSpeed(_goalVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
         _biRRT->setGoalState(goal);
     } else if (_draggingItem == DraggingStartVel) {
         _startVel = (point - _biRRT->startState().pos());
         bool startVelMatters = _startVel.norm() > minMatterableEndpointVel;
         AngleLimitedState start(_biRRT->startState().pos(), atan2f(_startVel.y(), _startVel.x()), startVelMatters);
+        start.setMaxAngleDiff(maxAngleDiffForSpeed(_startVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
         _biRRT->setStartState(start);
     } else if (_draggingItem == DraggingGoalVel) {
         _goalVel = (point - _biRRT->goalState().pos());
         bool goalVelMatters = _goalVel.norm() > minMatterableEndpointVel;
         AngleLimitedState goal(_biRRT->goalState().pos(), atan2f(_goalVel.y(), _goalVel.x()), goalVelMatters);
-        // goal.maxAngleDiff = _goalVel.normsq() * 
+        goal.setMaxAngleDiff(maxAngleDiffForSpeed(_goalVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
         _biRRT->setGoalState(goal);
     } else if (_editingObstacles) {
         Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForLocation(point);

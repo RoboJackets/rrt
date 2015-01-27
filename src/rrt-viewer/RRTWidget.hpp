@@ -46,6 +46,7 @@ protected:
         QColor treeColor = Qt::blue,
         QColor solutionColor = Qt::red);
     void drawTerminalState(QPainter &painter, const Eigen::Vector2f &pos, const Eigen::Vector2f &vel, const QColor &color);
+    void drawObstacleGrid(QPainter &painter, const ObstacleGrid &obstacleGrid);
 
     QPointF pointFromNode(const RRT::Node<AngleLimitedState> *n);
 

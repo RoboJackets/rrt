@@ -16,7 +16,7 @@ bool GridStateSpace::stateValid(const Vector2f &pt) const {
     return PlaneStateSpace::stateValid(pt) && !_obstacleGrid.obstacleAt(_obstacleGrid.gridSquareForLocation(pt));
 }
 
-bool GridStateSpace::transitionValid(const Vector2f &from, const Vector2f &to, bool reverse) const {
+bool GridStateSpace::transitionValid(const Vector2f &from, const Vector2f &to) const {
     return _obstacleGrid.transitionValid(from, to);
 }
 
