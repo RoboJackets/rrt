@@ -24,6 +24,7 @@ public:
 
 private slots:
     void slot_run();
+    void slot_runFast();
     void run_step();
     void slot_stop();
     void slot_reset();
@@ -49,6 +50,8 @@ protected:
     void drawObstacleGrid(QPainter &painter, const ObstacleGrid &obstacleGrid);
 
     QPointF pointFromNode(const RRT::Node<AngleLimitedState> *n);
+
+    void printPath(const std::vector<AngleLimitedState> path);
 
     void step(int numTimes);
 

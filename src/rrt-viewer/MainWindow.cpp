@@ -15,6 +15,10 @@ MainWindow::MainWindow() {
     run->setText("Run");
     run->setStyleSheet("background-color: green;");
 
+    QPushButton *runFast = new QPushButton(this);
+    runFast->setText("Run Fast");
+    runFast->setStyleSheet("background-color: darkGreen;");
+
     QPushButton *stop = new QPushButton(this);
     stop->setText("Stop");
 
@@ -57,6 +61,7 @@ MainWindow::MainWindow() {
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(run, 0, 0);
     layout->addWidget(stop, 1, 0);
+    layout->addWidget(runFast, 2, 0);
     layout->addWidget(step, 0, 1);
     layout->addWidget(stepBig, 1, 1);
     layout->addWidget(reset, 0, 2);
@@ -67,7 +72,7 @@ MainWindow::MainWindow() {
     layout->addWidget(_waypointBiasLabel, 0, 4);
     layout->addWidget(stepSizeBox, 1, 5);
     layout->addWidget(stepSizeLabel, 0, 5);
-    layout->addWidget(_rrtWidget, 2, 0, 1, 6);
+    layout->addWidget(_rrtWidget, 3, 0, 1, 6);
 
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
@@ -78,6 +83,7 @@ MainWindow::MainWindow() {
 
     //  make the buttons do things
     connect(run, SIGNAL(clicked()), _rrtWidget, SLOT(slot_run()));
+    connect(runFast, SIGNAL(clicked()), _rrtWidget, SLOT(slot_runFast()));
     connect(stop, SIGNAL(clicked()), _rrtWidget, SLOT(slot_stop()));
     connect(step, SIGNAL(clicked()), _rrtWidget, SLOT(slot_step()));
     connect(stepBig, SIGNAL(clicked()), _rrtWidget, SLOT(slot_stepBig()));
@@ -94,6 +100,7 @@ MainWindow::MainWindow() {
     new QShortcut(QKeySequence(Qt::Key_R), _rrtWidget, SLOT(slot_run()));
     new QShortcut(QKeySequence(Qt::Key_S), _rrtWidget, SLOT(slot_stop()));
     new QShortcut(QKeySequence(Qt::Key_C), _rrtWidget, SLOT(slot_reset()));
+    new QShortcut(QKeySequence(Qt::Key_F), _rrtWidget, SLOT(slot_runFast()));
 }
 
 void MainWindow::slot_updateGoalBiasLabel(int value) {
