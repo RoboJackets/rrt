@@ -17,7 +17,7 @@ public:
      * Returns a boolean indicating whether the given point is within bounds and obstacle-free.
      */
     bool stateValid(const Eigen::Vector2f &pt) const;
-    bool transitionValid(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const;
+    bool transitionValid(const Eigen::Vector2f &from, const Eigen::Vector2f &to, bool reverse = false) const;
 
     const ObstacleGrid &obstacleGrid() const;
     ObstacleGrid &obstacleGrid();

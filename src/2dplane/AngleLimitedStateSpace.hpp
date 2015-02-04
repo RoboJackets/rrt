@@ -51,7 +51,6 @@ public:
 
     bool reverse;
 
-
 private:
     Eigen::Vector2f _pos;
     float _angle;
@@ -59,6 +58,7 @@ private:
     bool _hasAngle;
 };
 
+std::ostream &operator<<(std::ostream &os, const AngleLimitedState &st);
 
 
 class AngleLimitedStateSpace : public StateSpace<AngleLimitedState> {
@@ -71,7 +71,7 @@ public:
     double distance(const AngleLimitedState &from, const AngleLimitedState &to, bool reverse = false) const;
 
     bool stateValid(const AngleLimitedState &state) const;
-    bool transitionValid(const AngleLimitedState &from, const AngleLimitedState &to) const;
+    bool transitionValid(const AngleLimitedState &from, const AngleLimitedState &to, bool reverse = false) const;
 
     const ObstacleGrid &obstacleGrid() const;
     ObstacleGrid &obstacleGrid();

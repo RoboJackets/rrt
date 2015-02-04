@@ -3,6 +3,7 @@
 *.a
 *.pyc
 build/
+.idea
 
 .DS_Store
 

@@ -2,6 +2,7 @@
 #include <math.h>
 #include <cfloat>
 #include <algorithm>
+#include <iostream>
 
 using namespace Eigen;
 using namespace std;
@@ -12,6 +13,13 @@ float fixAngleRadians(float angle) {
     while (angle > M_PI) angle -= 2.0*M_PI;
     while (angle < -M_PI) angle += 2.0*M_PI;
     return angle;
+}
+
+
+ostream &operator<<(ostream &os, const AngleLimitedState &st) {
+    os << "AngleLimitedState: pos=(" << st.pos().x() << ", " << st.pos().y() << "); angle=";
+    os << st.angle() << "; maxAngleDiff=" << st.maxAngleDiff() << "; hasAngle=" << st.hasAngle();
+    return os;
 }
 
 
@@ -29,21 +37,30 @@ AngleLimitedState AngleLimitedStateSpace::randomState() const {
 }
 
 AngleLimitedState AngleLimitedStateSpace::intermediateState(const AngleLimitedState &source, const AngleLimitedState &target, float stepSize, bool reverse) const {
-    Vector2f delta = (target.pos() - source.pos()).normalized();    //  unit vector
-    Vector2f newPos = source.pos() + delta * stepSize;
-    float newAngle = atan2(delta.y(), delta.x());
-    if (reverse) newAngle = fixAngleRadians(newAngle+M_PI);
+    Vector2f dir = (target.pos() - source.pos()).normalized();    //  unit vector
+    Vector2f newPos = source.pos() + dir * stepSize;
+    
+    // cout << "intermediateState(reverse=" << reverse << ")";
+
+    float prevAngle = reverse ? fixAngleRadians(source.angle() + M_PI) : source.angle();
+
+    float newAngle = atan2f(dir.y(), dir.x());
 
     //  if this new intermediate state would violate the max angle rule, we rotate it so that it falls just within our constraints.
     //  this goes a long ways towards allowing the rrt to explore as much area as possible rather than getting stuck because of its angle restrictions
-    if (fabs(fixAngleRadians(newAngle - source.angle())) > source.maxAngleDiff()) {
-        newAngle = source.angle() + source.maxAngleDiff()*0.99999 * (newAngle-source.angle() > 0 ? 1 : -1);
-        if (reverse) newAngle = fixAngleRadians(newAngle+M_PI);
+    if (fabs(fixAngleRadians(newAngle - prevAngle)) > source.maxAngleDiff()) {
+        // cout << "\n\toldAngle too big: " << newAngle;
+        newAngle = fixAngleRadians(prevAngle + source.maxAngleDiff()*0.98 * (prevAngle < newAngle ? 1 : -1));
         newPos = source.pos() + Vector2f(cosf(newAngle), sinf(newAngle)).normalized()*stepSize;
     }
 
-    AngleLimitedState newState(newPos, newAngle, true); newState.reverse = reverse;
+    newAngle = reverse ? fixAngleRadians(newAngle+M_PI) : fixAngleRadians(newAngle);
+
+    AngleLimitedState newState(newPos, newAngle, true);
+    newState.reverse = reverse;
     newState.setMaxAngleDiff(min<float>(newState.maxAngleDiff(), source.maxAngleDiff() + maxAngleDiffDecay()));
+
+    // cout << "\n\tfrom=" << source << "\n\tto=" << target << "\n\tresult=" << newState << endl;
 
     return newState;
 }
@@ -69,10 +86,21 @@ bool AngleLimitedStateSpace::stateValid(const AngleLimitedState &state) const {
     return _obstacleGrid.pointInBounds(state.pos());
 }
 
-bool AngleLimitedStateSpace::transitionValid(const AngleLimitedState &from, const AngleLimitedState &to) const {
-    float maxAngleDiff = max<float>(to.maxAngleDiff(), from.maxAngleDiff());
-    float angleDiff = from.hasAngle() && to.hasAngle() ? fabs(fixAngleRadians(from.angle() - to.angle())) : 0;
-    return _obstacleGrid.transitionValid(from.pos(), to.pos()) && angleDiff < maxAngleDiff;
+bool AngleLimitedStateSpace::transitionValid(const AngleLimitedState &from, const AngleLimitedState &to, bool reverse) const {
+    float maxAngleDiff = min<float>(to.maxAngleDiff(), from.maxAngleDiff());
+    // float angleDiff = from.hasAngle() && to.hasAngle() ? fabs(fixAngleRadians(from.angle() - to.angle())) : 0;
+
+    Vector2f diff = (to.pos() - from.pos());
+    if (reverse) diff *= -1;
+    float angle2 = atan2f(diff.y(), diff.x());
+
+    float angleDiff = from.hasAngle() && to.hasAngle() ? fabs(fixAngleRadians(from.angle() - angle2)) : 0;
+
+    bool valid =  _obstacleGrid.transitionValid(from.pos(), to.pos()) && angleDiff < maxAngleDiff;
+
+    // cout << "TRANSITION_VALID(reverse=" << reverse << ")\n\tfrom=" << from << "\n\tto=" << to << "\n\tresult = " << valid << endl;
+
+    return valid;
 }
 
 const ObstacleGrid &AngleLimitedStateSpace::obstacleGrid() const {

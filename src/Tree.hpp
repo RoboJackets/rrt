@@ -304,7 +304,7 @@ namespace RRT
 
             //  Make sure there's actually a direct path from @source to
             //  @intermediateState.  If not, abort
-            if (!_stateSpace->transitionValid(source->state(), intermediateState)) {
+            if (!_stateSpace->transitionValid(source->state(), intermediateState, _reverse)) {
                 return nullptr;
             }
 

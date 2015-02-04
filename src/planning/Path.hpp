@@ -2,6 +2,9 @@
 
 #include <vector>
 
+#include <iostream>
+using namespace std;
+
 
 namespace Planning {
 
@@ -27,21 +30,16 @@ namespace Planning {
     }
 
 
-    /**
-     * @brief Deletes waypoints from @pts
-     * 
-     * @param pts A vector of states that constitutes the path
-     * @param transitionValidator A function that returns a boolean indicating
-     *        whether or not a straight connection exists between the two given states
-     */
     template<typename T>
-    void SmoothPath(std::vector<T> &pts, const StateSpace<T> &stateSpace) {
+    void SmoothPath(std::vector<T> &pts, std::function<bool(const T &from, const T &to)> const&transitionValidator) {
         int span = 2;
-        while (span < pts.size()) {
+        while (span + 1 < pts.size()) {
             bool changed = false;
             for (int i = 0; i+span < pts.size(); i++) {
-                if (stateSpace.transitionValid(pts[i], pts[i+span])) {
+                if (transitionValidator(pts[i], pts[i+span])) {
+                    cout << "Transition Valid: (" << pts[i].pos().x() << ", " << pts[i].pos().y() << ") -> (" << pts[i+span].pos().x() << ", " << pts[i+span].pos().y() << ");" << endl;
                     for (int x = 1; x < span; x++) {
+                        cout << "  DELETING: pts[i+1]: (" << pts[i+1].pos().x() << ", " << pts[i+1].pos().y() << ")" << endl;
                         pts.erase(pts.begin() + i + 1);
                     }
                     changed = true;
@@ -50,6 +48,19 @@ namespace Planning {
 
             if (!changed) span++;
         }
+    }
+
+
+    /**
+     * @brief Deletes waypoints from @pts
+     * 
+     * @param pts A vector of states that constitutes the path
+     */
+    template<typename T>
+    void SmoothPath(std::vector<T> &pts, const StateSpace<T> &stateSpace) {
+        SmoothPath<T>(pts, [&](const T &from, const T &to){
+            return stateSpace.transitionValid(from, to);
+        });
     }
 
 };

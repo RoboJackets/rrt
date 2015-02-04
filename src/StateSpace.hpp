@@ -60,5 +60,5 @@ public:
      * 
      * @return A boolean indicating validity
      */
-    virtual bool transitionValid(const T &from, const T &to) const = 0;
+    virtual bool transitionValid(const T &from, const T &to, bool reverse = false) const = 0;
 };

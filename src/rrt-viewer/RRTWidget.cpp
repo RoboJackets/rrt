@@ -139,6 +139,13 @@ void RRTWidget::slot_run() {
     }
 }
 
+void RRTWidget::slot_runFast() {
+    while (_biRRT->startSolutionNode() == nullptr) {
+        step(20);
+    }
+    update();
+}
+
 void RRTWidget::slot_stop() {
     if (_runTimer) {
         delete _runTimer;
@@ -155,6 +162,12 @@ void RRTWidget::run_step() {
     }
 }
 
+void RRTWidget::printPath(const vector<AngleLimitedState> path) {
+    for (auto &state : path) {
+        cout << "Pos=(" << state.pos().x() << ", " << state.pos().y() << "); angle=" << state.angle() << "; hasAngle=" << state.hasAngle() << "; maxAngleDiff=" << state.maxAngleDiff() << ";" << endl;
+    }
+}
+
 void RRTWidget::step(int numTimes) {
     for (int i = 0; i < numTimes; i++) {
         _biRRT->grow();
@@ -166,7 +179,16 @@ void RRTWidget::step(int numTimes) {
         vector<AngleLimitedState> prevSolutionStates;
         _biRRT->getPath(prevSolutionStates);
 
-        Planning::SmoothPath<AngleLimitedState>(prevSolutionStates, *_stateSpace);
+        cout << "Raw path" << "------------------" << endl;
+        printPath(prevSolutionStates);
+
+        Planning::SmoothPath<AngleLimitedState>(prevSolutionStates, [&](const AngleLimitedState &from, const AngleLimitedState &to) {
+            return _stateSpace->transitionValid(from, to);
+        });
+
+        cout << endl << "Smoothed Path" << "-------------------" << endl;
+        printPath(prevSolutionStates);
+
         for (auto &state : prevSolutionStates) _previousSolution.push_back(state.pos());
     }
 
