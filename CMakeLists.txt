@@ -6,6 +6,12 @@ PROJECT(rrt)
 #       it complains about position-independent code otherwise
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
+# setup ccache to speed up recompiles.  It's especially useful when switching back and forth
+# between branches where you'd normally have to recompile things many times.
+# see http://stackoverflow.com/questions/1815688/how-to-use-ccache-with-cmake
+set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+
 # include cmake files in the 'cmake folder'
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
