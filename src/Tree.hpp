@@ -80,7 +80,7 @@ namespace RRT
      *    tree->setStartState(s);
      *    tree->setGoalState(g);
      *
-     * 4) Run the RRT algorithm!  This can be done in one of two ways:
+     * 3) Run the RRT algorithm!  This can be done in one of two ways:
      *    Option 1) Call the run() method - it will grow the tree
      *              until it finds a solution or runs out of iterations.
      *
@@ -89,7 +89,7 @@ namespace RRT
      *    Either way works fine, just choose whatever works best for your
      *    application.
      *
-     * 5) Use getPath() to get the series of states that make up the solution
+     * 4) Use getPath() to get the series of states that make up the solution
      *
      * @param T The type that represents a state within the state-space that
      * the tree is searching.  This could be a 2D Point or something else,
