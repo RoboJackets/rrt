@@ -30,7 +30,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 # Qt
 SET(CMAKE_AUTOMOC ON)
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
-FIND_PACKAGE(Qt5Widgets REQUIRED)
+if(APPLE)
+    # look for the homebrew-installed version of Qt5
+    find_package(Qt5Widgets
+        REQUIRED
+        PATHS /usr/local/Cellar/qt5/*)
+else()
+    find_package(Qt5Widgets REQUIRED)
+endif()
+message(STATUS "Found Qt5: ${Qt5Widgets_DIR}")
 
 
 # rrt-viewer
