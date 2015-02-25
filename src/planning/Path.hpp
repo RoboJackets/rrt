@@ -31,7 +31,11 @@ namespace Planning {
 
 
     template<typename T>
-    void SmoothPath(std::vector<T> &pts, std::function<bool(const T &from, const T &to)> const&transitionValidator) {
+    void SmoothPath(
+        std::vector<T> &pts,
+        std::function<bool(const T &from, const T &to)> const&transitionValidator,
+        std::function<void(std::vecor<T> &pts, int start, int end)> const &modifier = []{ for (int x=1; x < end - start; x++) pts.erase(pts.begin()+start+1)})
+    {
         int span = 2;
         while (span + 1 < pts.size()) {
             bool changed = false;
@@ -57,10 +61,18 @@ namespace Planning {
      * @param pts A vector of states that constitutes the path
      */
     template<typename T>
-    void SmoothPath(std::vector<T> &pts, const StateSpace<T> &stateSpace) {
-        SmoothPath<T>(pts, [&](const T &from, const T &to){
-            return stateSpace.transitionValid(from, to);
-        });
+    void SmoothPath(
+        std::vector<T> &pts,
+        const StateSpace<T> &stateSpace,
+        std::function<void(std::vecor<T> &pts, int start, int end)> const &modifier = []{ for (int x=1; x < end - start; x++) pts.erase(pts.begin()+start+1)})
+    {
+        SmoothPath<T>(
+            pts,
+            [&](const T &from, const T &to){
+                return stateSpace.transitionValid(from, to);
+            },
+            modifier
+        );
     }
 
 };
