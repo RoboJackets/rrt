@@ -34,16 +34,18 @@ namespace Planning {
     void SmoothPath(
         std::vector<T> &pts,
         std::function<bool(const T &from, const T &to)> const&transitionValidator,
-        std::function<void(std::vecor<T> &pts, int start, int end)> const &modifier = []{ for (int x=1; x < end - start; x++) pts.erase(pts.begin()+start+1)})
+        std::function<void(std::vector<T> &pts, int start, int end)> const &modifier = []{
+            for (int x=1; x < end - start; x++) pts.erase(pts.begin()+start+1)
+        })
     {
         int span = 2;
         while (span + 1 < pts.size()) {
             bool changed = false;
             for (int i = 0; i+span < pts.size(); i++) {
                 if (transitionValidator(pts[i], pts[i+span])) {
-                    cout << "Transition Valid: (" << pts[i].pos().x() << ", " << pts[i].pos().y() << ") -> (" << pts[i+span].pos().x() << ", " << pts[i+span].pos().y() << ");" << endl;
+                    // cout << "Transition Valid: (" << pts[i].pos().x() << ", " << pts[i].pos().y() << ") -> (" << pts[i+span].pos().x() << ", " << pts[i+span].pos().y() << ");" << endl;
                     for (int x = 1; x < span; x++) {
-                        cout << "  DELETING: pts[i+1]: (" << pts[i+1].pos().x() << ", " << pts[i+1].pos().y() << ")" << endl;
+                        // cout << "  DELETING: pts[i+1]: (" << pts[i+1].pos().x() << ", " << pts[i+1].pos().y() << ")" << endl;
                         pts.erase(pts.begin() + i + 1);
                     }
                     changed = true;
@@ -64,7 +66,9 @@ namespace Planning {
     void SmoothPath(
         std::vector<T> &pts,
         const StateSpace<T> &stateSpace,
-        std::function<void(std::vecor<T> &pts, int start, int end)> const &modifier = []{ for (int x=1; x < end - start; x++) pts.erase(pts.begin()+start+1)})
+        std::function<void(std::vector<T> &pts, int start, int end)> const &modifier = []{
+            for (int x=1; x < end - start; x++) pts.erase(pts.begin()+start+1)
+        })
     {
         SmoothPath<T>(
             pts,

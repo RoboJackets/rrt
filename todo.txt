@@ -1,0 +1,3 @@
+* kinks in middle of path
+* custom path smoothing function for angle limited path
+
