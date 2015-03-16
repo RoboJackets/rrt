@@ -41,20 +41,28 @@ endif()
 message(STATUS "Found Qt5: ${Qt5Widgets_DIR}")
 
 
-# rrt-viewer
+# libRRT
 ################################################################################
 
-# rrt-viewer srcs
-FILE(GLOB rrt_viewer_SRC
+file(GLOB lib_SRC
     "src/*.cpp"
     "src/planning/*.cpp"
     "src/2dplane/*.cpp"
+)
+
+add_library("RRT" ${lib_SRC})
+
+
+# rrt-viewer
+################################################################################
+
+file(GLOB ui_SRC
     "src/rrt-viewer/*.cpp"
 )
 
-# rrt-viewer
-ADD_EXECUTABLE("rrt-viewer" ${rrt_viewer_SRC})
+ADD_EXECUTABLE("rrt-viewer" ${ui_SRC})
 QT5_USE_MODULES("rrt-viewer" Widgets)
+target_link_libraries("rrt-viewer" RRT)
 
 
 # gtest
