@@ -58,6 +58,8 @@ namespace RRT
         T _state;
         std::list<Node<T> *> _children;
         Node<T> *_parent;
+        int error = 50;
+        int boundSize = 30;
     };
 
 
@@ -80,7 +82,7 @@ namespace RRT
      *    tree->setStartState(s);
      *    tree->setGoalState(g);
      *
-     * 4) Run the RRT algorithm!  This can be done in one of two ways:
+     * 3) Run the RRT algorithm!  This can be done in one of two ways:
      *    Option 1) Call the run() method - it will grow the tree
      *              until it finds a solution or runs out of iterations.
      *
@@ -89,7 +91,7 @@ namespace RRT
      *    Either way works fine, just choose whatever works best for your
      *    application.
      *
-     * 5) Use getPath() to get the series of states that make up the solution
+     * 4) Use getPath() to get the series of states that make up the solution
      *
      * @param T The type that represents a state within the state-space that
      * the tree is searching.  This could be a 2D Point or something else,
@@ -104,9 +106,12 @@ namespace RRT
             //  default values
             setStepSize(0.1);
             setMaxIterations(1000);
+            setASC(0);
             setGoalBias(0);
             setWaypointBias(0);
             setGoalMaxDist(0.1);
+            //nearbyObstacle = false;
+            _ascLimit = 0.02;
         }
 
         virtual ~Tree() {
@@ -133,6 +138,30 @@ namespace RRT
             _maxIterations = itr;
         }
 
+
+        /**
+         * A coefficient that determines how much we want to expand our stepsize when adaptive stepsize control.
+         */
+        int ascLimit() const {
+            return _ascLimit;
+        }
+        void setASCLimit(int lim) {
+            _ascLimit = lim;
+        }
+
+
+        /**
+         * Whether or not the tree is to run with adaptive stepsize control.
+         */
+        bool isDynamic() const {
+            return _isDynamic;
+        }
+        void setASC(int checked) {
+            if (checked < 0 || checked > 2) {
+                throw std::invalid_argument("Checked must be either 0 or 2");
+            }
+            _isDynamic = (bool)checked;
+        }
 
         /**
          * @brief The chance we extend towards the goal rather than a random point.
@@ -290,11 +319,16 @@ namespace RRT
                     return nullptr;
                 }
             }
-            
+
             //  Get a state that's in the direction of @target from @source.
             //  This should take a step in that direction, but not go all the
             //  way unless the they're really close together.
-            T intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
+            T intermediateState;
+            if (_isDynamic) {
+                intermediateState = _stateSpace->intermediateState(source->state(), target, -stepSize());
+            } else {
+                intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
+            }
 
             //  Make sure there's actually a direct path from @source to
             //  @intermediateState.  If not, abort
@@ -411,7 +445,11 @@ namespace RRT
 
         T _goalState;
 
+        //bool nearbyObstacle;
+
         int _maxIterations;
+
+        bool _isDynamic;
 
         float _goalBias;
 
@@ -422,6 +460,8 @@ namespace RRT
         float _goalMaxDist;
 
         float _stepSize;
+
+        float _ascLimit;
 
         std::shared_ptr<StateSpace<T>> _stateSpace;
     };

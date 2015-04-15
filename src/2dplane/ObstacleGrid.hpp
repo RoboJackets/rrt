@@ -14,6 +14,7 @@ public:
 
     Eigen::Vector2i gridSquareForLocation(const Eigen::Vector2f &loc) const;
 
+    float nearestObstacle(const Eigen::Vector2f &state) const;
     void clear();
     bool &obstacleAt(int x, int y);
     bool obstacleAt(int x, int y) const;

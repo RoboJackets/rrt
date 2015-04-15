@@ -78,6 +78,10 @@ void RRTWidget::slot_setWaypointBias(int bias) {
     _biRRT->setWaypointBias((float)bias / 100.0f);
 }
 
+void RRTWidget::slot_setASC(int checked) {
+    _biRRT->setASC(checked);
+}
+
 void RRTWidget::slot_step() {
     step(1);
 }

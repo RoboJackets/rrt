@@ -2,6 +2,7 @@
 #include <util.hpp>
 #include <stdexcept>
 #include <math.h>
+#include <iostream>
 
 using namespace Eigen;
 using namespace std;
@@ -14,6 +15,30 @@ GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, 
 
 bool GridStateSpace::stateValid(const Vector2f &pt) const {
     return PlaneStateSpace::stateValid(pt) && !_obstacleGrid.obstacleAt(_obstacleGrid.gridSquareForLocation(pt));
+}
+
+Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float stepSize) const {
+    Vector2f delta = target - source;
+    delta = delta / delta.norm();   //  unit vector
+
+
+    if (stepSize < 0) { //adaptive stepsize control
+        // cout << _obstacleGrid.nearestObstacle(target) << endl;
+        stepSize = -stepSize*pow(_obstacleGrid.nearestObstacle(target), 0.2);
+        // float n = _obstacleGrid.nearestObstacle(target);
+        // cout << n << endl;
+        // if (n > 1) {
+        //     stepSize = -stepSize*1.5;
+        // } else if (n < 1) {
+        //     stepSize = -stepSize*0.5;
+        // } else {
+        //     stepSize = -stepSize;
+        // }
+    }
+
+
+    Vector2f val = source + delta * stepSize;
+    return val;
 }
 
 bool GridStateSpace::transitionValid(const Vector2f &from, const Vector2f &to) const {

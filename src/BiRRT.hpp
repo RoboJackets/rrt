@@ -36,6 +36,14 @@ namespace RRT
             return _goalTree;
         }
 
+        bool isDynamic() const {
+            return _startTree.isDynamic();
+        }
+        void setASC(int checked) {
+            _startTree.setASC(checked);
+            _goalTree.setASC(checked);
+        }
+
         float goalBias() const {
             return _startTree.goalBias();
         }

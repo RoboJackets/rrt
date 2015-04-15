@@ -3,7 +3,7 @@
 
 /**
  * A state space represents the set of possible states for a planning problem.
- * This includes the obstacles that may bee present and what state transitions are valid.
+ * This includes the obstacles that may be present and what state transitions are valid.
  * This class is abstract and must be subclassed in order to provide actual functionality.
  */
 template<typename T>
@@ -23,7 +23,7 @@ public:
      * Finds a state in the direction of @target from @source.state().
      * This new state will potentially be added to the tree.  No need to do
      * any validation on the state before returning, the tree will handle
-     * that.
+     * that. A negative stepSize tells it to implement adaptive stepsize control.
      */
     virtual T intermediateState(const T &source, const T &target, float stepSize) const = 0;
 
