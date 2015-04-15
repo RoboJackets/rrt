@@ -29,8 +29,8 @@ Vector2i ObstacleGrid::gridSquareForLocation(const Vector2f &loc) const {
 float ObstacleGrid::nearestObstacle(const Vector2f &state) const {
     float initial = 2;
     float c = initial; // closest distance
-    int x = (int)(state.x() / 20);
-    int y = (int)(state.y() / 20);
+    int x = (int)(state.x() / (_width / _discretizedWidth));
+    int y = (int)(state.y() / (_height / _discretizedHeight));
     int dlim = 0;
     int ulim = 0;
     int llim = 0;
