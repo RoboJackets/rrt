@@ -24,16 +24,16 @@ Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2
 
     if (stepSize < 0) { //adaptive stepsize control
         // cout << _obstacleGrid.nearestObstacle(target) << endl;
-        stepSize = -stepSize*pow(_obstacleGrid.nearestObstacle(target), 0.2);
-        // float n = _obstacleGrid.nearestObstacle(target);
-        // cout << n << endl;
-        // if (n > 1) {
-        //     stepSize = -stepSize*1.5;
-        // } else if (n < 1) {
-        //     stepSize = -stepSize*0.5;
-        // } else {
-        //     stepSize = -stepSize;
-        // }
+        //stepSize = -stepSize*pow(_obstacleGrid.nearestObstacle(target), 0.2);
+        float n = _obstacleGrid.nearestObstacle(target);
+        cout << n << endl;
+        if (n > 1) {
+            stepSize = -stepSize*2.0;
+        } else if (n < 1) {
+            stepSize = -stepSize*0.5;
+        } else {
+            stepSize = -stepSize;
+        }
     }
 
 
