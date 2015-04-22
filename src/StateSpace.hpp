@@ -28,6 +28,11 @@ public:
     virtual T intermediateState(const T &source, const T &target, float stepSize) const = 0;
 
     /**
+     * An overloaded version designed for use in adaptive stepsize control.
+     */
+    virtual T intermediateState(const T &source, const T &target, float stepSize, float ascLimit) const = 0;
+
+    /**
      * @brief Calculate the distance between two states
      * 
      * @param from Start state

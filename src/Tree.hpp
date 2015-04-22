@@ -111,7 +111,7 @@ namespace RRT
             setWaypointBias(0);
             setGoalMaxDist(0.1);
             //nearbyObstacle = false;
-            _ascLimit = 0.02;
+            _ascLimit = 2;
         }
 
         virtual ~Tree() {
@@ -156,11 +156,8 @@ namespace RRT
         bool isDynamic() const {
             return _isDynamic;
         }
-        void setASC(int checked) {
-            if (checked < 0 || checked > 2) {
-                throw std::invalid_argument("Checked must be either 0 or 2");
-            }
-            _isDynamic = (bool)checked;
+        void setASC(bool checked) {
+            _isDynamic = checked;
         }
 
         /**
@@ -325,7 +322,7 @@ namespace RRT
             //  way unless the they're really close together.
             T intermediateState;
             if (_isDynamic) {
-                intermediateState = _stateSpace->intermediateState(source->state(), target, -stepSize());
+                intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize(), _ascLimit);
             } else {
                 intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
             }

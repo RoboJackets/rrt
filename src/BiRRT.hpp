@@ -39,7 +39,7 @@ namespace RRT
         bool isDynamic() const {
             return _startTree.isDynamic();
         }
-        void setASC(int checked) {
+        void setASC(bool checked) {
             _startTree.setASC(checked);
             _goalTree.setASC(checked);
         }

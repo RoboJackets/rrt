@@ -16,21 +16,20 @@ bool GridStateSpace::stateValid(const Vector2f &pt) const {
     return PlaneStateSpace::stateValid(pt) && !_obstacleGrid.obstacleAt(_obstacleGrid.gridSquareForLocation(pt));
 }
 
-Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float stepSize) const {
+Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float stepSize, float limit) const {
     Vector2f delta = target - source;
     delta = delta / delta.norm();   //  unit vector
 
 
     if (stepSize < 0) { //adaptive stepsize control
-        // cout << _obstacleGrid.nearestObstacle(target) << endl;
-        //stepSize = -stepSize*pow(_obstacleGrid.nearestObstacle(target), 0.2);
-        float n = _obstacleGrid.nearestObstacle(target);
+        //stepSize = -stepSize*pow(_obstacleGrid.nearestObstacle(target), 0.2); //for more subtle changes
+        float n = _obstacleGrid.nearestObstacleDist(target);
         if (n > 1) {
-            stepSize = -stepSize*2.0;
+            stepSize = stepSize*limit;
         } else if (n < 1) {
-            stepSize = -stepSize*0.5;
+            stepSize = stepSize*0.5;
         } else {
-            stepSize = -stepSize;
+            stepSize = stepSize;
         }
     }
 

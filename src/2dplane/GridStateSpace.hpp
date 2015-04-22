@@ -20,7 +20,7 @@ public:
     bool transitionValid(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const;
 
     //adaptive stepsize control
-    Eigen::Vector2f intermediateState(const Eigen::Vector2f &source, const Eigen::Vector2f &target, float stepSize) const;
+    Eigen::Vector2f intermediateState(const Eigen::Vector2f &source, const Eigen::Vector2f &target, float stepSize, float limit) const;
 
     const ObstacleGrid &obstacleGrid() const;
     ObstacleGrid &obstacleGrid();
