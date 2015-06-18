@@ -25,11 +25,11 @@ Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2
         //stepSize = -stepSize*pow(_obstacleGrid.nearestObstacle(target), 0.2); //for more subtle changes
         float n = _obstacleGrid.nearestObstacleDist(target);
         if (n > 1) {
-            stepSize = stepSize*limit;
+            stepSize = -stepSize*limit;
         } else if (n < 1) {
-            stepSize = stepSize*0.5;
+            stepSize = -stepSize*0.5;
         } else {
-            stepSize = stepSize;
+            stepSize = -stepSize;
         }
     }
 

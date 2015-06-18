@@ -58,8 +58,8 @@ namespace RRT
         T _state;
         std::list<Node<T> *> _children;
         Node<T> *_parent;
-        int error = 50;
-        int boundSize = 30;
+        int _error = 50;
+        int _boundSize = 30;
     };
 
 

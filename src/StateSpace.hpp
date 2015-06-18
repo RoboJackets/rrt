@@ -29,6 +29,8 @@ public:
 
     /**
      * An overloaded version designed for use in adaptive stepsize control.
+     *
+     * @param ascLimit The maximum size that the stepsize can be, even when there are no nearby obstacles
      */
     virtual T intermediateState(const T &source, const T &target, float stepSize, float ascLimit) const = 0;
 
