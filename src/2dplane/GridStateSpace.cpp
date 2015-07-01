@@ -20,19 +20,13 @@ Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2
     Vector2f delta = target - source;
     delta = delta / delta.norm();   //  unit vector
 
-
-    if (stepSize < 0) { //adaptive stepsize control
-        //stepSize = -stepSize*pow(_obstacleGrid.nearestObstacle(target), 0.2); //for more subtle changes
-        float n = _obstacleGrid.nearestObstacleDist(target);
-        if (n > 1) {
-            stepSize = -stepSize*limit;
-        } else if (n < 1) {
-            stepSize = -stepSize*0.5;
-        } else {
-            stepSize = -stepSize;
-        }
-    }
-
+    stepSize = stepSize*pow(_obstacleGrid.nearestObstacle(target), 0.2); //for more subtle changes
+    // float n = _obstacleGrid.nearestObstacleDist(target);
+    // if (n > 1) {
+    //     stepSize = stepSize*limit;
+    // } else if (n < 1) {
+    //     stepSize = stepSize*0.5;
+    // }
 
     Vector2f val = source + delta * stepSize;
     return val;

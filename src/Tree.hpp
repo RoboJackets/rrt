@@ -153,11 +153,11 @@ namespace RRT
         /**
          * Whether or not the tree is to run with adaptive stepsize control.
          */
-        bool isDynamic() const {
-            return _isDynamic;
+        bool isASCEnabled() const {
+            return _isASCEnabled;
         }
         void setASC(bool checked) {
-            _isDynamic = checked;
+            _isASCEnabled = checked;
         }
 
         /**
@@ -321,7 +321,7 @@ namespace RRT
             //  This should take a step in that direction, but not go all the
             //  way unless the they're really close together.
             T intermediateState;
-            if (_isDynamic) {
+            if (_isASCEnabled) {
                 intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize(), _ascLimit);
             } else {
                 intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
@@ -446,7 +446,7 @@ namespace RRT
 
         int _maxIterations;
 
-        bool _isDynamic;
+        bool _isASCEnabled;
 
         float _goalBias;
 
