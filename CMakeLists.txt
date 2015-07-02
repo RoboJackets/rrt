@@ -1,10 +1,10 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
-PROJECT(rrt)
+cmake_minimum_required(VERSION 2.8.9)
+project(rrt)
 
 # c++11
 # note: the -fPIC flag is for building with Qt...
 #       it complains about position-independent code otherwise
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
 # setup ccache to speed up recompiles.  It's especially useful when switching back and forth
 # between branches where you'd normally have to recompile things many times.
@@ -16,7 +16,7 @@ set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # includes
-INCLUDE_DIRECTORIES(src)
+include_directories(src)
 
 
 # Eigen - used for linear algebra
@@ -28,8 +28,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
 
 # Qt
-SET(CMAKE_AUTOMOC ON)
-SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if(APPLE)
     # look for the homebrew-installed version of Qt5
     find_package(Qt5Widgets
@@ -60,7 +60,7 @@ file(GLOB ui_SRC
     "src/rrt-viewer/*.cpp"
 )
 
-ADD_EXECUTABLE("rrt-viewer" ${ui_SRC})
+add_executable("rrt-viewer" ${ui_SRC})
 QT5_USE_MODULES("rrt-viewer" Widgets)
 target_link_libraries("rrt-viewer" RRT)
 
