@@ -44,10 +44,11 @@ message(STATUS "Found Qt5: ${Qt5Widgets_DIR}")
 # libRRT
 ################################################################################
 
-file(GLOB lib_SRC
-    "src/*.cpp"
-    "src/planning/*.cpp"
-    "src/2dplane/*.cpp"
+set(lib_SRC
+    "src/2dplane/2dplane.cpp"
+    "src/2dplane/GridStateSpace.cpp"
+    "src/2dplane/ObstacleGrid.cpp"
+    "src/2dplane/PlaneStateSpace.cpp"
 )
 
 add_library("RRT" ${lib_SRC})
@@ -56,8 +57,10 @@ add_library("RRT" ${lib_SRC})
 # rrt-viewer
 ################################################################################
 
-file(GLOB ui_SRC
-    "src/rrt-viewer/*.cpp"
+set(ui_SRC
+    "src/rrt-viewer/main.cpp"
+    "src/rrt-viewer/MainWindow.cpp"
+    "src/rrt-viewer/RRTWidget.cpp"
 )
 
 add_executable("rrt-viewer" ${ui_SRC})
@@ -95,10 +98,8 @@ set(GTEST_LIBS_DIR ${binary_dir})
 
 # test srcs
 file(GLOB tests_SRC
-    "test/*.cpp"
-    "src/*.cpp"
-    "src/planning/*.cpp"
-    "src/2dplane/*.cpp"
+    "src/BiRRTTest.cpp"
+    "src/TreeTest.cpp"
 )
 
 # stup gtest
@@ -107,6 +108,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 # test-runner
 add_executable(test-cpp ${tests_SRC})
+target_link_libraries(test-cpp RRT)
 target_link_libraries(test-cpp
     ${GTEST_LIBS_DIR}/libgtest.a
     ${GTEST_LIBS_DIR}/libgtest_main.a
@@ -114,5 +116,3 @@ target_link_libraries(test-cpp
 )
 set_target_properties(test-cpp PROPERTIES EXCLUDE_FROM_ALL TRUE)
 add_dependencies(test-cpp googletest)
-
-add_test(test1 test-cpp)
