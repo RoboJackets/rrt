@@ -34,8 +34,8 @@ namespace Planning {
     void SmoothPath(
         std::vector<T> &pts,
         std::function<bool(const T &from, const T &to)> const&transitionValidator,
-        std::function<void(std::vector<T> &pts, int start, int end)> const &modifier = []{
-            for (int x=1; x < end - start; x++) pts.erase(pts.begin()+start+1)
+        std::function<void(std::vector<T> &pts, int start, int end)> const &modifier = [](std::vector<T>& pts, int start, int end){
+            for (int x=1; x < end - start; x++) pts.erase(pts.begin()+start+1);
         })
     {
         int span = 2;
@@ -66,8 +66,8 @@ namespace Planning {
     void SmoothPath(
         std::vector<T> &pts,
         const StateSpace<T> &stateSpace,
-        std::function<void(std::vector<T> &pts, int start, int end)> const &modifier = []{
-            for (int x=1; x < end - start; x++) pts.erase(pts.begin()+start+1)
+        std::function<void(std::vector<T> &pts, int start, int end)> const &modifier = [](std::vector<T>& pts, int start, int end){
+            for (int x=1; x < end - start; x++) pts.erase(pts.begin()+start+1);
         })
     {
         SmoothPath<T>(
