@@ -8,14 +8,6 @@ using namespace Eigen;
 using namespace std;
 
 
-float fixAngleRadians(float angle) {
-    //  normalize
-    while (angle > M_PI) angle -= 2.0*M_PI;
-    while (angle < -M_PI) angle += 2.0*M_PI;
-    return angle;
-}
-
-
 ostream &operator<<(ostream &os, const AngleLimitedState &st) {
     os << "AngleLimitedState: pos=(" << st.pos().x() << ", " << st.pos().y() << "); angle=";
     os << st.angle() << "; maxAngleDiff=" << st.maxAngleDiff() << "; hasAngle=" << st.hasAngle();

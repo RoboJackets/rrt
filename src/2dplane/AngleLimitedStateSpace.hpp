@@ -3,11 +3,7 @@
 #include <StateSpace.hpp>
 #include <2dplane/ObstacleGrid.hpp>
 #include <Eigen/Dense>
-#include <math.h>
-
-
-//  constrains the angle to one between -pi and pi
-float fixAngleRadians(float angle);
+#include <util.hpp>
 
 
 class AngleLimitedState {
