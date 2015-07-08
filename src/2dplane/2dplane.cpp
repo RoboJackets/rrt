@@ -1,7 +1,7 @@
 
 #include "2dplane.hpp"
 #include <functional>
-#include <math.h>
+#include <cmath>
 
 using namespace Eigen;
 using namespace RRT;

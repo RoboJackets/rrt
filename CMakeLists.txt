@@ -102,6 +102,7 @@ set(GTEST_LIBS_DIR ${binary_dir})
 file(GLOB tests_SRC
     "src/BiRRTTest.cpp"
     "src/TreeTest.cpp"
+    "src/2dplane/AngleLimitedStateSpaceTest.cpp"
 )
 
 # stup gtest

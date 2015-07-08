@@ -180,8 +180,21 @@ namespace RRT
             int depth = INT_MAX;
 
             for (Node<T> *other : treeToSearch.allNodes()) {
-                float dist = _startTree.stateSpace().distance(other->state(), targetState);
-                if (dist < goalMaxDist() && other->depth() < depth && _startTree.stateSpace().transitionValid(other->state(), targetState)) {
+                float dist;
+                if (treeToSearch.isReverse()) {
+                    dist = _startTree.stateSpace().distance(targetState, other->state());
+                } else {
+                    dist = _startTree.stateSpace().distance(other->state(), targetState);
+                }
+
+                if (dist < goalMaxDist() && other->depth() < depth) {
+                    bool transitionValid;
+                    if (treeToSearch.isReverse()) {
+                        transitionValid = _startTree.stateSpace().transitionValid(targetState, other->state());
+                    } else {
+                        transitionValid = _startTree.stateSpace().transitionValid(other->state(), targetState);
+                    }
+
                     bestNode = other;
                     depth = other->depth();
                 }

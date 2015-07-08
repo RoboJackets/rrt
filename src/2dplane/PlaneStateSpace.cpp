@@ -20,7 +20,7 @@ Vector2f PlaneStateSpace::intermediateState(const Vector2f &source, const Vector
     return val;
 }
 
-double PlaneStateSpace::distance(const Eigen::Vector2f &from, const Eigen::Vector2f &to, bool reverse) const {
+float PlaneStateSpace::distance(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const {
     Vector2f delta = from - to;
     return sqrtf(powf(delta.x(), 2) + powf(delta.y(), 2));
 }

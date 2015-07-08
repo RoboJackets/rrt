@@ -34,6 +34,7 @@ private slots:
     void slot_setGoalBias(int bias);        //  bias is from 0 to 100
     void slot_setWaypointBias(int bias);    //  bias is from 0 to 100
     void slot_setStepSize(double step);
+    void slot_setMaxAngleDiffDecayFactor(double maxAngleDiffDecayFactor); // value must be greater than 1
 
 signals:
     void signal_stepped(int iterationCount);

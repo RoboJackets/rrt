@@ -58,6 +58,13 @@ MainWindow::MainWindow() {
 
     QLabel *stepSizeLabel = new QLabel("Step Size:");
 
+    QDoubleSpinBox *angleDiffDecayFactorBox = new QDoubleSpinBox(this);
+    angleDiffDecayFactorBox->setMinimum(1);
+    angleDiffDecayFactorBox->setMaximum(5);
+    angleDiffDecayFactorBox->setValue(1.1);
+
+    QLabel *angleDiffDecayFactorLabel = new QLabel("Angle Decay factor");
+
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(run, 0, 0);
     layout->addWidget(stop, 1, 0);
@@ -72,7 +79,9 @@ MainWindow::MainWindow() {
     layout->addWidget(_waypointBiasLabel, 0, 4);
     layout->addWidget(stepSizeBox, 1, 5);
     layout->addWidget(stepSizeLabel, 0, 5);
-    layout->addWidget(_rrtWidget, 3, 0, 1, 6);
+    layout->addWidget(angleDiffDecayFactorBox, 1, 6);
+    layout->addWidget(angleDiffDecayFactorLabel, 0, 6);
+    layout->addWidget(_rrtWidget, 3, 0, 1, 7);
 
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
@@ -94,6 +103,7 @@ MainWindow::MainWindow() {
     connect(waypointBias, SIGNAL(valueChanged(int)), _rrtWidget, SLOT(slot_setWaypointBias(int)));
     connect(waypointBias, SIGNAL(valueChanged(int)), this, SLOT(slot_updateWaypointBiasLabel(int)));
     connect(stepSizeBox, SIGNAL(valueChanged(double)), _rrtWidget, SLOT(slot_setStepSize(double)));
+    connect(angleDiffDecayFactorBox, SIGNAL(valueChanged(double)), _rrtWidget, SLOT(slot_setMaxAngleDiffDecayFactor(double)));
     connect(_rrtWidget, SIGNAL(signal_stepped(int)), this, SLOT(slot_updateIterationCount(int)));
 
     //  keyboard shortcuts

@@ -1,5 +1,5 @@
 #include "util.hpp"
-#include <math.h>
+#include <cmath>
 
 float fixAngleRadians(float angle) {
     //  normalize

@@ -98,6 +98,7 @@ namespace RRT
     template<typename T>
     class Tree {
     public:
+        // TODO: make @reverse a template parameter
         Tree(std::shared_ptr<StateSpace<T>> stateSpace, bool reverse = false) {
             _stateSpace = stateSpace;
             _reverse = reverse;
@@ -211,7 +212,15 @@ namespace RRT
             for (int i = 0; i < _maxIterations; i++) {
                 Node<T> *newNode = grow();
 
-                if (newNode && _stateSpace->distance(newNode->state(), _goalState, _reverse)) return true;
+                if (!newNode) return false;
+
+                float dist;
+                if (_reverse) {
+                    dist = _stateSpace->distance(_goalState, newNode->state());
+                } else {
+                    dist = _stateSpace->distance(newNode->state(), _goalState);
+                }
+                if (dist < _goalMaxDist) return true;
             }
 
             //  we hit our iteration limit and didn't reach the goal :(
@@ -255,7 +264,7 @@ namespace RRT
         }
 
         /**
-         * Find the node int the tree closest to @state.  Pass in a float pointer
+         * Find the node in the tree closest to @state.  Pass in a float pointer
          * as the second argument to get the distance that the node is away from
          * @state.
          */
@@ -264,7 +273,13 @@ namespace RRT
             Node<T> *best = nullptr;
             
             for (Node<T> *other : _nodes) {
-                float dist = _stateSpace->distance(other->state(), state, _reverse);
+                float dist;
+                if (_reverse) {
+                    dist = _stateSpace->distance(state, other->state());
+                } else {
+                    dist = _stateSpace->distance(other->state(), state);
+                }
+
                 if (bestDistance < 0 || dist < bestDistance) {
                     bestDistance = dist;
                     best = other;
@@ -296,7 +311,7 @@ namespace RRT
             if (_stateSpace->distance(source->state(), target) < 0.0001) {
                 return nullptr;
             }
-            
+
             //  Get a state that's in the direction of @target from @source.
             //  This should take a step in that direction, but not go all the
             //  way unless the they're really close together.
@@ -304,9 +319,13 @@ namespace RRT
 
             //  Make sure there's actually a direct path from @source to
             //  @intermediateState.  If not, abort
-            if (!_stateSpace->transitionValid(source->state(), intermediateState, _reverse)) {
-                return nullptr;
+            bool transitionValid;
+            if (_reverse) {
+                transitionValid = _stateSpace->transitionValid(intermediateState, source->state());
+            } else {
+                transitionValid = _stateSpace->transitionValid(source->state(), intermediateState);
             }
+            if (!transitionValid) return nullptr;
 
             // Add a node to the tree for this state
             Node<T> *n = new Node<T>(intermediateState, source);

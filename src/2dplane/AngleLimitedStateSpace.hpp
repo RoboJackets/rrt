@@ -64,10 +64,10 @@ public:
     AngleLimitedState randomState() const;
     AngleLimitedState intermediateState(const AngleLimitedState &source, const AngleLimitedState &target, float stepSize, bool reverse = false) const;
 
-    double distance(const AngleLimitedState &from, const AngleLimitedState &to, bool reverse = false) const;
+    float distance(const AngleLimitedState &from, const AngleLimitedState &to) const;
 
     bool stateValid(const AngleLimitedState &state) const;
-    bool transitionValid(const AngleLimitedState &from, const AngleLimitedState &to, bool reverse = false) const;
+    bool transitionValid(const AngleLimitedState &from, const AngleLimitedState &to) const;
 
     const ObstacleGrid &obstacleGrid() const;
     ObstacleGrid &obstacleGrid();
@@ -79,6 +79,10 @@ public:
      * @brief How much the maxAngleDiff increases for each subsequent node.  Note that this increase is limited to a max value.
      * @details This essentially lets us increase the allowable curvature of the path slowly as the tree leads away from its startpoint.
      */
+
+    // TODO: update docs, this is now a multiplier!
+    // TODO: rewrite this in terms of curvature, so it's step-size independent
+    // angleDiff*decay = newAngleDiff
     float maxAngleDiffDecay() const;
     void setMaxAngleDiffDecay(float decay);
 

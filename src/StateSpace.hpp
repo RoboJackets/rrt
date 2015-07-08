@@ -38,7 +38,7 @@ public:
      * 
      * @return The distance between the states
      */
-    virtual double distance(const T &from, const T &to, bool reverse = false) const = 0;
+    virtual float distance(const T &from, const T &to) const = 0;
 
     /**
      * @brief Check if a state is within bounds and obstacle-free
@@ -55,10 +55,8 @@ public:
      * 
      * @param from The start state
      * @param to The destination state
-     * @param reverse Boolean indicating whether or not this transition is in
-     * the Tree rooted at the goal for a bidirectional RRT
      * 
      * @return A boolean indicating validity
      */
-    virtual bool transitionValid(const T &from, const T &to, bool reverse = false) const = 0;
+    virtual bool transitionValid(const T &from, const T &to) const = 0;
 };

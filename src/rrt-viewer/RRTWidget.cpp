@@ -8,6 +8,7 @@
 using namespace RRT;
 using namespace Eigen;
 using namespace std;
+using std::min;
 
 
 const float AccelLimit = 2.0;   //  TODO: make this configurable in the gui
@@ -31,7 +32,7 @@ float maxAngleDiffForSpeed(float speed, float accelLimit, float stepSize, float 
     //  stepSize = 2*speed^2/accelLimit * sin(maxAngleDiff/2)
     //  maxAngleDiff = 2*asin(stepSize*accelLimit/(2*speed^2))
     float maxAngleDiff = 2.0*asinf(stepSize*accelLimit/(2.0*powf(speed, 2.0)));
-    return min<float>(maxAngleDiff, maxValue);
+    return min(maxAngleDiff, maxValue);
 }
 
 RRTWidget::RRTWidget() {
@@ -129,6 +130,10 @@ void RRTWidget::slot_stepBig() {
 
 void RRTWidget::slot_setStepSize(double step) {
     _biRRT->setStepSize(step);
+}
+
+void RRTWidget::slot_setMaxAngleDiffDecayFactor(double maxAngleDiffDecayFactor) {
+    _stateSpace->setMaxAngleDiffDecay(maxAngleDiffDecayFactor);
 }
 
 void RRTWidget::slot_run() {
