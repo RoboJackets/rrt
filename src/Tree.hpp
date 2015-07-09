@@ -98,7 +98,6 @@ namespace RRT
     template<typename T>
     class Tree {
     public:
-        // TODO: make @reverse a template parameter
         Tree(std::shared_ptr<StateSpace<T>> stateSpace, bool reverse = false) {
             _stateSpace = stateSpace;
             _reverse = reverse;
