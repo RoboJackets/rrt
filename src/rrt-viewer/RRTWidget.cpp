@@ -169,7 +169,7 @@ void RRTWidget::run_step() {
 
 void RRTWidget::printPath(const vector<AngleLimitedState> path) {
     for (auto &state : path) {
-        cout << "Pos=(" << state.pos().x() << ", " << state.pos().y() << "); angle=" << state.angle() << "; hasAngle=" << state.hasAngle() << "; maxAngleDiff=" << state.maxAngleDiff() << ";" << endl;
+        cout << state << endl;
     }
 }
 

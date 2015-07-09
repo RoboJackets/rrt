@@ -13,8 +13,6 @@ public:
         setAngle(angle);
         setHasAngle(hasAngle);
         setMaxAngleDiff(M_PI / 6.0);
-
-        reverse = false;
     }
 
     void setAngle(float angle) {
@@ -44,8 +42,6 @@ public:
     void setMaxAngleDiff(float maxAngleDiff) {
         _maxAngleDiff = maxAngleDiff;
     }
-
-    bool reverse;
 
 private:
     Eigen::Vector2f _pos;

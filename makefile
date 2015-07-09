@@ -7,6 +7,9 @@ run: all
 	build/rrt-viewer
 
 debug: all
+	gdb build/rrt-viewer -ex run
+
+debug: all
 	gdb build/rrt-viewer
 
 tests: test-cpp

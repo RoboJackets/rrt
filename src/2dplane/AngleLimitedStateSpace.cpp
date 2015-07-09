@@ -21,7 +21,7 @@ AngleLimitedStateSpace::AngleLimitedStateSpace(float width, float height,
                                                float discretizedWidth,
                                                float discretizedHeight)
     : _obstacleGrid(width, height, discretizedWidth, discretizedHeight) {
-    setMaxAngleDiffDecay(M_PI / 50.0f);
+    setMaxAngleDiffDecay(1.1);
 }
 
 AngleLimitedState AngleLimitedStateSpace::randomState() const {
@@ -63,7 +63,6 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
         reverse ? fixAngleRadians(newAngle + M_PI) : fixAngleRadians(newAngle);
 
     AngleLimitedState newState(newPos, newAngle, true);
-    newState.reverse = reverse;
     newState.setMaxAngleDiff(min(newState.maxAngleDiff(),
                                  source.maxAngleDiff() * maxAngleDiffDecay()));
 
