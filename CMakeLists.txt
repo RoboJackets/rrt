@@ -101,6 +101,7 @@ set(GTEST_LIBS_DIR ${binary_dir})
 # test srcs
 file(GLOB tests_SRC
     "src/BiRRTTest.cpp"
+    "src/planning/PathTest.cpp"
     "src/TreeTest.cpp"
     "src/2dplane/AngleLimitedStateSpaceTest.cpp"
 )
