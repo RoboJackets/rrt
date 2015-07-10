@@ -42,9 +42,7 @@ void SmoothPath(
     std::function<bool(const T &from, const T &to)> const &transitionValidator,
     std::function<void(std::vector<T> &pts, int start, int end)> const &
         modifier = [](std::vector<T> &pts, int start, int end) {
-            for (int x = 1; x < end - start; x++) {
-                pts.erase(pts.begin() + start + 1);
-            }
+            pts.erase(pts.begin() + start + 1, pts.begin() + end);
         }) {
     int span = 2;
     while (span + 1 <= pts.size()) {
