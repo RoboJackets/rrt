@@ -7,6 +7,7 @@
 #include <functional>
 #include <stdexcept>
 #include <stdlib.h>
+#include <iostream>
 
 
 namespace RRT
@@ -211,7 +212,7 @@ namespace RRT
             for (int i = 0; i < _maxIterations; i++) {
                 Node<T> *newNode = grow();
 
-                if (!newNode) return false;
+                if (!newNode) continue;
 
                 float dist;
                 if (_reverse) {
