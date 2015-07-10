@@ -24,7 +24,7 @@ TEST(Tree, Example_2dplane) {
 	tree->setMaxIterations(maxIterations);
 
 	tree->setStartState(Vector2f(10, 10));
-	ASSERT_TRUE(tree->run());
+	EXPECT_TRUE(tree->run());
 }
 
 TEST(Tree, GetPath) {
@@ -38,15 +38,15 @@ TEST(Tree, GetPath) {
 	tree->setMaxIterations(maxIterations);
 
 	tree->setStartState(Vector2f(10, 10));
-	bool success = tree->run();	//	run with the given starting point
+	EXPECT_TRUE(tree->run());	//	run with the given starting point
 
 	//	get path in reverse order (end -> root)
 	vector<Vector2f> path;
 	tree->getPath(path, tree->lastNode(), true);
-	ASSERT_TRUE(path.size() > 1);
+	EXPECT_TRUE(path.size() > 1);
 
 	//	get path in regular order (root -> end)
 	path.clear();
 	tree->getPath(path, tree->lastNode(), false);
-	ASSERT_TRUE(path.size() > 1);
+	EXPECT_TRUE(path.size() > 1);
 }

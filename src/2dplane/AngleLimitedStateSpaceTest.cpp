@@ -8,7 +8,7 @@ using namespace std;
 using namespace Eigen;
 
 
-TEST(AngleLimitedStateSpace, Distance) {
+TEST(AngleLimitedStateSpace, distance) {
     AngleLimitedStateSpace env(100, 100, 20, 20);
 
     AngleLimitedState s1(Vector2f(10, 10), 0, true);
@@ -22,8 +22,12 @@ TEST(AngleLimitedStateSpace, Distance) {
     EXPECT_TRUE(env.transitionValid(s1, intermediate));
 
     intermediate = env.intermediateState(s1, s3, 10, true);
-    cout << "s1: " << s1 << endl;
-    cout << "s3: " << s3 << endl;
-    cout << "intermediate state: " << intermediate << endl;
+    // cout << "s1: " << s1 << endl;
+    // cout << "s3: " << s3 << endl;
+    // cout << "intermediate state: " << intermediate << endl;
     EXPECT_TRUE(env.transitionValid(intermediate, s1));
+}
+
+TEST(AngleLimitedStateSpace, transitionValid) {
+    // AngleLimitedState s0(Eigen::Vector2f(0, 0));
 }

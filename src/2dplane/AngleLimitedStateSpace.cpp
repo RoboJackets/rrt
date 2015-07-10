@@ -99,7 +99,7 @@ bool AngleLimitedStateSpace::stateValid(const AngleLimitedState &state) const {
 
 bool AngleLimitedStateSpace::transitionValid(
     const AngleLimitedState &from, const AngleLimitedState &to) const {
-    float maxAngleDiff = min(to.maxAngleDiff(), from.maxAngleDiff());
+    float maxAngleDiff = min(from.maxAngleDiff(), to.maxAngleDiff());
     // float angleDiff = from.hasAngle() && to.hasAngle() ?
     // abs(fixAngleRadians(from.angle() - to.angle())) : 0;
 
