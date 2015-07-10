@@ -45,7 +45,6 @@ message(STATUS "Found Qt5: ${Qt5Widgets_DIR}")
 ################################################################################
 
 set(lib_SRC
-    "src/2dplane/2dplane.cpp"
     "src/2dplane/AngleLimitedStateSpace.cpp"
     "src/2dplane/GridStateSpace.cpp"
     "src/2dplane/ObstacleGrid.cpp"
