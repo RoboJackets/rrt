@@ -14,7 +14,7 @@ using std::min;
 const float AccelLimit = 2.0;   //  TODO: make this configurable in the gui
 const float MaxMaxAngleDiff = M_PI / 6.0;
 
-
+// TODO: move this function into AngleLimitedStateSpace
 float maxAngleDiffForSpeed(float speed, float accelLimit, float stepSize, float maxValue) {
     //  Think of the segments of an rrt forming a polygon inscribed
     //  in a circle if each segment is at the max angle diff from the previous segment.
@@ -187,9 +187,9 @@ void RRTWidget::step(int numTimes) {
         cout << "Raw path" << "------------------" << endl;
         printPath(prevSolutionStates);
 
-        Planning::SmoothPath<AngleLimitedState>(prevSolutionStates, [&](const AngleLimitedState &from, const AngleLimitedState &to) {
-            return _stateSpace->transitionValid(from, to);
-        });
+        Planning::SmoothPath<AngleLimitedState>(
+            prevSolutionStates, *_stateSpace,
+            &AngleLimitedStateSpace::PathModifier);
 
         cout << endl << "Smoothed Path" << "-------------------" << endl;
         printPath(prevSolutionStates);

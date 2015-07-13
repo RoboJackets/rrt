@@ -29,5 +29,31 @@ TEST(AngleLimitedStateSpace, distance) {
 }
 
 TEST(AngleLimitedStateSpace, transitionValid) {
-    // AngleLimitedState s0(Eigen::Vector2f(0, 0));
+    // Initialize states:
+    //
+    // 1--->2
+    // ^
+    // |
+    // 0
+    //
+    // State 0 is given a start angle of pi/2, the other two have angles
+    // calculated as atan2(pos - prev.pos).
+    vector<AngleLimitedState> states = {
+        AngleLimitedState(Vector2f(0, 0), M_PI/2, true),
+        AngleLimitedState(Vector2f(0, 1), M_PI/2, true),
+        AngleLimitedState(Vector2f(1, 1), 0, true)
+    };
+    AngleLimitedStateSpace ss(10, 10, 10, 10);
+
+    for (auto& state : states) state.setMaxAngleDiff(M_PI/4-0.1);
+    EXPECT_TRUE(ss.transitionValid(states[0], states[1]));
+    EXPECT_FALSE(ss.transitionValid(states[1], states[2]));
+    EXPECT_FALSE(ss.transitionValid(states[0], states[2]));
+
+    for (auto& state : states) state.setMaxAngleDiff(M_PI);
+    EXPECT_TRUE(ss.transitionValid(states[0], states[1]));
+    EXPECT_TRUE(ss.transitionValid(states[1], states[2]));
+    EXPECT_TRUE(ss.transitionValid(states[0], states[2]));
+
+    for (auto& state : states) state.setMaxAngleDiff(M_PI/4 + 0.1);
 }

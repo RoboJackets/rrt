@@ -96,6 +96,7 @@ namespace RRT
      * the tree is searching.  This could be a 2D Point or something else,
      * but will generally be some sort of vector.
      */
+    // TODO: make @reverse a template parameter
     template<typename T>
     class Tree {
     public:

@@ -73,6 +73,19 @@ class AngleLimitedStateSpace : public StateSpace<AngleLimitedState> {
     float maxAngleDiffDecay() const;
     void setMaxAngleDiffDecay(float decay);
 
+    /// A function for use with SmoothPath() that deletes states between (but
+    /// not including) the start and end indexes and adjusts the angle property
+    /// of the start state.
+    static void PathModifier(std::vector<AngleLimitedState> &states, int start,
+                        int end);
+
+
+    // static float MaxAngleDiffForCurvature(float curvatureLimit, float stepSize);
+
+    // /// Same as above, but uses @accelLimit to calculate the curvature limit
+    // static float MaxAngleDiffForSpeed(float speed, float accelLimit,
+    //                                   float stepSize);
+
    private:
     ObstacleGrid _obstacleGrid;
     float _maxAngleDiffDecay;

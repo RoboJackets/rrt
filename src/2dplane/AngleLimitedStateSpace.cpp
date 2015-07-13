@@ -1,4 +1,6 @@
 #include "AngleLimitedStateSpace.hpp"
+#include <planning/Path.hpp>
+
 #include <cmath>
 #include <cfloat>
 #include <algorithm>
@@ -132,4 +134,14 @@ float AngleLimitedStateSpace::maxAngleDiffDecay() const {
 
 void AngleLimitedStateSpace::setMaxAngleDiffDecay(float decay) {
     _maxAngleDiffDecay = decay;
+}
+
+void AngleLimitedStateSpace::PathModifier(std::vector<AngleLimitedState> &states,
+                                     int start, int end) {
+    // Use the default implementation to remove the intermediate states
+    Planning::DefaultPathModifier<AngleLimitedState>(states, start, end);
+
+    // TODO: update angles!!!!!!!!
+
+    #warning unimplemented!
 }

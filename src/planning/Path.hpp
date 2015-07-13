@@ -29,21 +29,25 @@ void DownSampleVector(std::vector<T> &states, size_t maxSize) {
     }
 }
 
+/// Default function used in SmoothPath below.  It simply erases points between
+/// (but not including) the start and end indexes.
+template<typename T>
+inline void DefaultPathModifier(std::vector<T> &pts, int start, int end) {
+    pts.erase(pts.begin() + start + 1, pts.begin() + end);
+}
+
 /// Removes unnecessary waypoints along the path.  If A->B->C is the path and
 /// A->C is valid, we can cut out B.  The modifier function is responsible for
 /// removing the intermediate states and fixing up the the start and end points
-/// for the subpath if necessary.  The default modifier function simply deletes
-/// the intermediate waypoints.
-/// @param modifier A function that should delete the points between @start and
-///   @end (but leave @start and @end) and fix up @start and @end as needed.
+/// for the subpath if necessary.
+/// @param modifier A function that should delete the points (but not including)
+/// the start and end indexes and adjust the start and end points as needed.
 template <typename T>
 void SmoothPath(
     std::vector<T> &pts,
     std::function<bool(const T &from, const T &to)> const &transitionValidator,
     std::function<void(std::vector<T> &pts, int start, int end)> const &
-        modifier = [](std::vector<T> &pts, int start, int end) {
-            pts.erase(pts.begin() + start + 1, pts.begin() + end);
-        }) {
+        modifier = &DefaultPathModifier<T>) {
     int span = 2;
     while (span + 1 <= pts.size()) {
         bool changed = false;
@@ -58,19 +62,15 @@ void SmoothPath(
     }
 }
 
-/**
- * @brief Deletes waypoints from @pts
- *
- * @param pts A vector of states that constitutes the path
- */
+/// @brief Same as the above SmoothPath function, but uses the StateSpace to
+/// provide the transition validator.
+/// TODO: make this templated by StateSpace and require that state spaces
+/// provide their own path modifier?
 template <typename T>
 void SmoothPath(
     std::vector<T> &pts, const StateSpace<T> &stateSpace,
     std::function<void(std::vector<T> &pts, int start, int end)> const &
-        modifier = [](std::vector<T> &pts, int start, int end) {
-            for (int x = 1; x < end - start; x++)
-                pts.erase(pts.begin() + start + 1);
-        }) {
+        modifier = &DefaultPathModifier<T>) {
     SmoothPath<T>(pts, [&stateSpace](const T &from, const T &to) {
         return stateSpace.transitionValid(from, to);
     }, modifier);
