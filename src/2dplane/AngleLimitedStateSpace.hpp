@@ -49,6 +49,9 @@ class AngleLimitedStateSpace : public StateSpace<AngleLimitedState> {
                                         float stepSize,
                                         bool reverse = false) const;
 
+    /// Returns infinity if the angle between @from and @to is beyond the angle
+    /// bounds of either state or the distance between the two positions
+    /// otherwise.
     float distance(const AngleLimitedState &from,
                    const AngleLimitedState &to) const;
 

@@ -21,10 +21,12 @@ TEST(AngleLimitedStateSpace, distance) {
     AngleLimitedState intermediate = ss.intermediateState(s1, s3, 10);
     EXPECT_TRUE(ss.transitionValid(s1, intermediate));
 
-    intermediate = ss.intermediateState(s1, s3, 10, true);
-    // cout << "s1: " << s1 << endl;
-    // cout << "s3: " << s3 << endl;
-    // cout << "intermediate state: " << intermediate << endl;
+    intermediate = ss.intermediateState(s1, s3, 10, false);
+    cout << "s1: " << s1 << endl;
+    cout << "s3: " << s3 << endl;
+    cout << "intermediate state: " << intermediate << endl;
+    Vector2f diff = intermediate.pos() - s1.pos();
+    cout << "angle s1->intermediate = " << atan2f(diff.y(), diff.x()) << endl;
     EXPECT_TRUE(ss.transitionValid(intermediate, s1));
 }
 
