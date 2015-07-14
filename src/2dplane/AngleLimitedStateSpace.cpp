@@ -42,31 +42,23 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
 
     Vector2f dir = (target.pos() - source.pos()).normalized();  // unit vector
     float newAngle = atan2f(dir.y(), dir.x());
-
-    // rotate prev angle so we can handle saturation once for both reverse and
-    // non-reverse
-    float prevAngle =
-        reverse ? fixAngleRadians(source.angle() + M_PI) : source.angle();
+    if (reverse) newAngle = fixAngleRadians(newAngle + M_PI);
 
     //  if this new intermediate state would violate the max angle rule, we
     //  rotate it so that it falls just within our constraints.
     //  this goes a long ways towards allowing the rrt to explore as much area
     //  as possible rather than getting stuck because of its angle restrictions
-    float angleDiff = fixAngleRadians(newAngle - prevAngle);
+    float angleDiff = fixAngleRadians(newAngle - source.angle());
     if (abs(angleDiff) > source.maxAngleDiff()) {
-        // cout << "\n\toldAngle too big: " << newAngle;
         newAngle =
-            fixAngleRadians(prevAngle +
+            fixAngleRadians(source.angle() +
                             source.maxAngleDiff() * 0.99 *
-                                (fixAngleRadians(angleDiff) > 0 ? 1 : -1));
+                                (angleDiff > 0 ? 1 : -1));
     }
 
-    newAngle =
-        reverse ? fixAngleRadians(newAngle + M_PI) : fixAngleRadians(newAngle);
-
-    Vector2f newPos =
-        source.pos() +
-        Vector2f(cosf(newAngle), sinf(newAngle)).normalized() * stepSize;
+    Vector2f newPos = source.pos() +
+                      Vector2f(cosf(newAngle), sinf(newAngle)).normalized() *
+                          stepSize * (reverse ? -1 : 1);
 
     AngleLimitedState newState(newPos, newAngle, true);
     newState.setMaxAngleDiff(source.maxAngleDiff() * maxAngleDiffDecay());
@@ -77,7 +69,8 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
 
 float AngleLimitedStateSpace::distance(const AngleLimitedState &from,
                                        const AngleLimitedState &to) const {
-    if (!transitionValid(from, to)) return std::numeric_limits<float>::infinity();
+    if (!transitionValid(from, to))
+        return std::numeric_limits<float>::infinity();
 
     return (from.pos() - to.pos()).norm();
 }

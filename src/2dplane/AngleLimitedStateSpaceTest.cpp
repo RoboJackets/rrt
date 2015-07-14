@@ -62,6 +62,17 @@ TEST(AngleLimitedState, intermediateState) {
     EXPECT_FALSE(ss.transitionValid(from, to));
 }
 
+TEST(AngleLimitedStateSpace, reverse) {
+    AngleLimitedStateSpace ss(100, 100, 100, 100);
+
+    AngleLimitedState goal(Vector2f(1, 1), 0, true);
+    goal.setReverse(true);
+
+    AngleLimitedState r = ss.randomState();
+    AngleLimitedState intermediate = ss.intermediateState(goal, r, 1, true);
+    EXPECT_TRUE(ss.transitionValid(goal, intermediate));
+}
+
 TEST(AngleLimitedStateSpace, transitionValid) {
     // Initialize states:
     //

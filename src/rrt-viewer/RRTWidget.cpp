@@ -65,6 +65,7 @@ RRTWidget::RRTWidget() {
         atan2f(_goalVel.y(), _goalVel.x()), true);
     goal.setMaxAngleDiff(maxAngleDiffForSpeed(
         _goalVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
+    goal.setReverse(true);
     _biRRT->setGoalState(goal);
 
     _biRRT->setStepSize(0.2);
@@ -441,6 +442,7 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
         bool goalVelMatters = _goalVel.norm() > minMatterableEndpointVel;
         AngleLimitedState goal(point, atan2f(_goalVel.y(), _goalVel.x()), goalVelMatters);
         goal.setMaxAngleDiff(maxAngleDiffForSpeed(_goalVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
+        goal.setReverse(true);
         _biRRT->setGoalState(goal);
     } else if (_draggingItem == DraggingStartVel) {
         _startVel = (point - _biRRT->startState().pos());
@@ -453,6 +455,7 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
         bool goalVelMatters = _goalVel.norm() > minMatterableEndpointVel;
         AngleLimitedState goal(_biRRT->goalState().pos(), atan2f(_goalVel.y(), _goalVel.x()), goalVelMatters);
         goal.setMaxAngleDiff(maxAngleDiffForSpeed(_goalVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
+        goal.setReverse(true);
         _biRRT->setGoalState(goal);
     } else if (_editingObstacles) {
         Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForLocation(point);
