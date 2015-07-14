@@ -8,11 +8,9 @@
 class AngleLimitedState {
    public:
     AngleLimitedState(const Eigen::Vector2f &pos = Eigen::Vector2f(0, 0),
-                      float angle = 0, bool hasAngle = false) {
-        setPos(pos);
-        setAngle(angle);
-        setHasAngle(hasAngle);
+                      float angle = 0, bool hasAngle = true) : _pos(pos), _angle(angle), _hasAngle(hasAngle) {
         setMaxAngleDiff(M_PI / 6.0);
+        setReverse(false);
     }
 
     void setAngle(float angle) { _angle = fixAngleRadians(angle); }
@@ -27,11 +25,15 @@ class AngleLimitedState {
     float maxAngleDiff() const { return _maxAngleDiff; }
     void setMaxAngleDiff(float maxAngleDiff) { _maxAngleDiff = maxAngleDiff; }
 
+    bool reverse() const { return _reverse; }
+    void setReverse(bool reverse) { _reverse = reverse; }
+
    private:
     Eigen::Vector2f _pos;
     float _angle;
     float _maxAngleDiff;
     bool _hasAngle;
+    bool _reverse;
 };
 
 std::ostream &operator<<(std::ostream &os, const AngleLimitedState &st);

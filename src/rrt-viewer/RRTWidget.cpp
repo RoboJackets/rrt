@@ -1,7 +1,6 @@
 
 #include "RRTWidget.hpp"
 #include <planning/Path.hpp>
-#include <2dplane/2dplane.hpp>
 #include <iostream>
 
 
@@ -53,14 +52,19 @@ RRTWidget::RRTWidget() {
     _goalVel = Vector2f(0, 2);
 
     //  setup birrt
-    AngleLimitedState start(Vector2f(1, 1), atan2f(_startVel.y(), _startVel.x()), true);
-    start.setMaxAngleDiff(maxAngleDiffForSpeed(_startVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
+    AngleLimitedState start(Vector2f(1, 1),
+                            atan2f(_startVel.y(), _startVel.x()), true);
+    start.setMaxAngleDiff(maxAngleDiffForSpeed(
+        _startVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
     _biRRT->setStartState(start);
 
     //  TODO: set curvature limits and decay rates for endpoint states
 
-    AngleLimitedState goal(Vector2f(_stateSpace->width() / 2.0, _stateSpace->height() / 2.0), atan2f(_goalVel.y(), _goalVel.x()), true);
-    goal.setMaxAngleDiff(maxAngleDiffForSpeed(_goalVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
+    AngleLimitedState goal(
+        Vector2f(_stateSpace->width() / 2.0, _stateSpace->height() / 2.0),
+        atan2f(_goalVel.y(), _goalVel.x()), true);
+    goal.setMaxAngleDiff(maxAngleDiffForSpeed(
+        _goalVel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
     _biRRT->setGoalState(goal);
 
     _biRRT->setStepSize(0.2);

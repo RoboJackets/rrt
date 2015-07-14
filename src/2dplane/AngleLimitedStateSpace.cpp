@@ -13,9 +13,8 @@ using std::abs;
 
 ostream &operator<<(ostream &os, const AngleLimitedState &st) {
     os << "AngleLimitedState: pos=(" << st.pos().x() << ", " << st.pos().y()
-       << "); angle=";
-    os << st.angle() << "; maxAngleDiff=" << st.maxAngleDiff()
-       << "; hasAngle=" << st.hasAngle();
+       << "); angle=" << st.angle() << "; maxAngleDiff=" << st.maxAngleDiff()
+       << "; hasAngle=" << st.hasAngle() << "; reverse=" << st.reverse();
     return os;
 }
 
@@ -37,6 +36,9 @@ AngleLimitedState AngleLimitedStateSpace::randomState() const {
 AngleLimitedState AngleLimitedStateSpace::intermediateState(
     const AngleLimitedState &source, const AngleLimitedState &target,
     float stepSize, bool reverse) const {
+    if (target.hasAngle())
+        throw std::invalid_argument("target state must be angle-less");
+
     Vector2f dir = (target.pos() - source.pos()).normalized();  // unit vector
     Vector2f newPos = source.pos() + dir * stepSize;
 
@@ -68,6 +70,8 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
     newState.setMaxAngleDiff(min(newState.maxAngleDiff(),
                                  source.maxAngleDiff() * maxAngleDiffDecay()));
 
+    newState.setReverse(reverse);
+
     // cout << "\n\tfrom=" << source << "\n\tto=" << target << "\n\tresult=" <<
     // newState << endl;
 
@@ -76,6 +80,9 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
 
 float AngleLimitedStateSpace::distance(const AngleLimitedState &from,
                                        const AngleLimitedState &to) const {
+
+#warning this method doesn't respect the @reverse property
+
     Vector2f diff = to.pos() - from.pos();
     float angleDiff = (from.hasAngle() && to.hasAngle())
                           ? abs(fixAngleRadians(to.angle() - from.angle()))
@@ -101,21 +108,34 @@ bool AngleLimitedStateSpace::stateValid(const AngleLimitedState &state) const {
 
 bool AngleLimitedStateSpace::transitionValid(
     const AngleLimitedState &from, const AngleLimitedState &to) const {
-    float maxAngleDiff = min(from.maxAngleDiff(), to.maxAngleDiff());
+    // float maxAngleDiff = min(from.maxAngleDiff(), to.maxAngleDiff());
     // float angleDiff = from.hasAngle() && to.hasAngle() ?
     // abs(fixAngleRadians(from.angle() - to.angle())) : 0;
 
+    // check for obstacles
+    if (!_obstacleGrid.transitionValid(from.pos(), to.pos())) return false;
+
+    //  Calculate angle between states and ensure it's within the maxAngleDiff
+    //  constraints of both @from and @to, taking into account the @reverse
+    //  property.
     Vector2f diff = to.pos() - from.pos();
     float angle2 = atan2f(diff.y(), diff.x());
 
-    float angleDiff = from.hasAngle() && to.hasAngle()
-                          ? abs(fixAngleRadians(from.angle() - angle2))
-                          : 0;
+    if (from.hasAngle()) {
+        float angleDiff = from.reverse() ? from.angle() - angle2 + M_PI
+                                         : from.angle() - angle2;
+        angleDiff = fixAngleRadians(angleDiff);
+        if (abs(angleDiff) > from.maxAngleDiff()) return false;
+    }
 
-    bool valid = _obstacleGrid.transitionValid(from.pos(), to.pos()) &&
-                 angleDiff < maxAngleDiff;
+    if (to.hasAngle()) {
+        float angleDiff =
+            to.reverse() ? to.angle() - angle2 + M_PI : to.angle() - angle2;
+        angleDiff = fixAngleRadians(angleDiff);
+        if (abs(angleDiff) > to.maxAngleDiff()) return false;
+    }
 
-    return valid;
+    return true;
 }
 
 const ObstacleGrid &AngleLimitedStateSpace::obstacleGrid() const {
