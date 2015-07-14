@@ -30,6 +30,7 @@ AngleLimitedState AngleLimitedStateSpace::randomState() const {
     //  determined later based on its position relative to another state)
     AngleLimitedState state;
     state.setPos(Vector2f(drand48() * width(), drand48() * height()));
+    state.setHasAngle(false);
     return state;
 }
 
@@ -70,9 +71,6 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
     AngleLimitedState newState(newPos, newAngle, true);
     newState.setMaxAngleDiff(source.maxAngleDiff() * maxAngleDiffDecay());
     newState.setReverse(reverse);
-
-    // cout << "\n\tfrom=" << source << "\n\tto=" << target << "\n\tresult=" <<
-    // newState << endl;
 
     return newState;
 }
@@ -139,7 +137,14 @@ void AngleLimitedStateSpace::PathModifier(std::vector<AngleLimitedState> &states
     // Use the default implementation to remove the intermediate states
     Planning::DefaultPathModifier<AngleLimitedState>(states, start, end);
 
-    // TODO: update angles!!!!!!!!
+    Vector2f diff = states[start+1].pos() - states[start].pos();
+    float newAngle = atan2f(diff.y(), diff.x());
 
-    #warning unimplemented!
+    if (states[start].reverse()) {
+        states[start].setAngle(fixAngleRadians(newAngle));
+    }
+
+    if (!states[start+1].reverse()) {
+        states[start+1].setAngle(fixAngleRadians(newAngle));
+    }
 }

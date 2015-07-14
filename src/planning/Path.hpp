@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 
+// TODO: rename to Path
 namespace Planning {
 
 /**
@@ -42,6 +43,7 @@ inline void DefaultPathModifier(std::vector<T> &pts, int start, int end) {
 /// for the subpath if necessary.
 /// @param modifier A function that should delete the points (but not including)
 /// the start and end indexes and adjust the start and end points as needed.
+// TODO: modifier should take in a pointer to @pts, not a reference
 template <typename T>
 void SmoothPath(
     std::vector<T> &pts,
