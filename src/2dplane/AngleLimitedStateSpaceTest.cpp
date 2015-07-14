@@ -15,19 +15,14 @@ TEST(AngleLimitedStateSpace, distance) {
     AngleLimitedState s2(Vector2f(10, 20), 0, false);
     AngleLimitedState s3(Vector2f(10, 80), 0, false);
 
-    //  because the angles are too far apart, their distance is in "tier 2"
-    EXPECT_LT((s1.pos()-s2.pos()).norm(), ss.distance(s1, s2));
+    //  because the angles are too far apart, their "distance" is infinity
+    EXPECT_EQ(std::numeric_limits<float>::infinity(), ss.distance(s1, s2));
 
     AngleLimitedState intermediate = ss.intermediateState(s1, s3, 10);
     EXPECT_TRUE(ss.transitionValid(s1, intermediate));
 
     intermediate = ss.intermediateState(s1, s3, 10, false);
-    cout << "s1: " << s1 << endl;
-    cout << "s3: " << s3 << endl;
-    cout << "intermediate state: " << intermediate << endl;
-    Vector2f diff = intermediate.pos() - s1.pos();
-    cout << "angle s1->intermediate = " << atan2f(diff.y(), diff.x()) << endl;
-    EXPECT_TRUE(ss.transitionValid(intermediate, s1));
+    EXPECT_TRUE(ss.transitionValid(s1, intermediate));
 }
 
 TEST(AngleLimitedState, intermediateState) {
@@ -94,6 +89,6 @@ TEST(AngleLimitedStateSpace, transitionValid) {
     EXPECT_TRUE(ss.transitionValid(states[1], states[2]));
     EXPECT_TRUE(ss.transitionValid(states[0], states[2]));
 
-    for (auto& state : states) state.setMaxAngleDiff(M_PI/4 + 0.1);
+    // for (auto& state : states) state.setMaxAngleDiff(M_PI/4 + 0.1);
     // TODO
 }

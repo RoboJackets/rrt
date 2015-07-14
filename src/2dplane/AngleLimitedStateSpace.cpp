@@ -97,18 +97,18 @@ bool AngleLimitedStateSpace::transitionValid(
     //  constraints of both @from and @to, taking into account the @reverse
     //  property.
     Vector2f diff = to.pos() - from.pos();
-    float angle2 = atan2f(diff.y(), diff.x());
+    float newAngle = atan2f(diff.y(), diff.x());
 
     if (from.hasAngle()) {
-        float angleDiff = from.reverse() ? from.angle() - angle2 + M_PI
-                                         : from.angle() - angle2;
-        angleDiff = fixAngleRadians(angleDiff);
+        float angleDiff =
+            fixAngleRadians(from.reverse() ? from.angle() - newAngle + M_PI
+                                           : from.angle() - newAngle);
         if (abs(angleDiff) > from.maxAngleDiff()) return false;
     }
 
     if (to.hasAngle()) {
         float angleDiff =
-            to.reverse() ? to.angle() - angle2 + M_PI : to.angle() - angle2;
+            to.reverse() ? to.angle() - newAngle + M_PI : to.angle() - newAngle;
         angleDiff = fixAngleRadians(angleDiff);
         if (abs(angleDiff) > to.maxAngleDiff()) return false;
     }
