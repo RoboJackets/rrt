@@ -1,3 +1,9 @@
 * kinks in middle of path
 * custom path smoothing function for angle limited path
+* define things in terms of curvature
 
+* merge into robocup-software
+* create planner class that wraps up BiRRT and AngleLimitedStateSpace
+* tune parameters
+* multithreading?
+* in intermediateState, select new angle using a gaussian?

@@ -29,7 +29,7 @@ ostream &operator<<(ostream &os, const AngleLimitedState &st) {
     os << "*";
   }
 
-  os << "; maxAngleDiff=" << st.maxAngleDiff();
+  os << "; maxCurvature=" << st.maxCurvature();
 
   return os;
 }
@@ -38,12 +38,12 @@ AngleLimitedStateSpace::AngleLimitedStateSpace(float width, float height,
                                                float discretizedWidth,
                                                float discretizedHeight)
     : _obstacleGrid(width, height, discretizedWidth, discretizedHeight) {
-  setMaxAngleDiffDecay(1.1);
-  setMaxAngleDiff(M_PI);
+  setCurvatureIncreaseFactor(1.1);
+  setMaxCurvature(3);
 }
 
 AngleLimitedState AngleLimitedStateSpace::randomState() const {
-  //  note that the generated state has no angle set (its angle will be
+  //  note that the generated state has no angles set (its angle will be
   //  determined later based on its position relative to another state)
   Eigen::Vector2f randPos(drand48() * width(), drand48() * height());
   return AngleLimitedState(randPos);
@@ -58,17 +58,22 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
   Vector2f dir = (target.pos() - source.pos()).normalized();  // unit vector
   float newAngle = atan2f(dir.y(), dir.x());
 
-  //  if this new intermediate state would violate the max angle rule, we
-  //  rotate it so that it falls just within our constraints.
-  //  this goes a long ways towards allowing the rrt to explore as much area
-  //  as possible rather than getting stuck because of its angle restrictions
-  float sourceAngle =
-      reverse ? fixAngleRadians(*source.outAngle() + M_PI) : *source.inAngle();
-  float angleDiff = fixAngleRadians(newAngle - sourceAngle);
-  if (abs(angleDiff) > source.maxAngleDiff()) {
-    newAngle = fixAngleRadians(sourceAngle +
-                               source.maxAngleDiff() * 0.99 *
-                                   (angleDiff > 0 ? 1 : -1));
+  if ((!reverse && source.inAngle()) || (reverse && source.outAngle())) {
+    //  if this new intermediate state would violate the max angle rule, we
+    //  rotate it so that it falls just within our constraints.
+    //  this goes a long ways towards allowing the rrt to explore as much area
+    //  as possible rather than getting stuck because of its angle restrictions
+    float sourceAngle =
+        reverse ? fixAngleRadians(*source.outAngle() + M_PI) : *source.inAngle();
+    float angleDiff = fixAngleRadians(newAngle - sourceAngle);
+    float maxAngleDiff = CalculateExteriorAngleForCurvature(
+                                            source.maxCurvature(),
+                                            stepSize);
+    if (abs(angleDiff) > maxAngleDiff) {
+      newAngle = fixAngleRadians(sourceAngle +
+                                 maxAngleDiff * 0.99 *
+                                     (angleDiff > 0 ? 1 : -1));
+    }
   }
 
   Vector2f newPos = source.pos() +
@@ -81,8 +86,8 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
   } else {
     newState.inAngle() = newAngle;
   }
-  newState.setMaxAngleDiff(
-      min(source.maxAngleDiff() * maxAngleDiffDecay(), _maxAngleDiff));
+  newState.setMaxCurvature(
+      min(source.maxCurvature() * curvatureIncreaseFactor(), _maxCurvature));
 
   return newState;
 }
@@ -122,17 +127,21 @@ bool AngleLimitedStateSpace::transitionValid(
   // cout << "diff: (" << diff.x() << ", " << diff.y() << ")" << endl;
   // cout << "newAngle: " << newAngle << endl;
 
+  float dist = diff.norm();
+
   if (from.inAngle()) {
     float angleDiff =
         fixAngleRadians(newAngle - *from.inAngle());
     // cout << "angleDiff w/from: " << angleDiff << endl;
-    if (abs(angleDiff) > from.maxAngleDiff()) return false;
+    float maxAngleDiff = CalculateExteriorAngleForCurvature(from.maxCurvature(), dist);
+    if (abs(angleDiff) > maxAngleDiff) return false;
   }
 
   if (to.outAngle()) {
     float angleDiff = fixAngleRadians(*to.outAngle() - newAngle);
     // cout << "angleDiff w/to: " << angleDiff << endl;
-    if (abs(angleDiff) > to.maxAngleDiff()) return false;
+    float maxAngleDiff = CalculateExteriorAngleForCurvature(to.maxCurvature(), dist);
+    if (abs(angleDiff) > maxAngleDiff) return false;
   }
 
   return true;
@@ -147,14 +156,6 @@ ObstacleGrid &AngleLimitedStateSpace::obstacleGrid() { return _obstacleGrid; }
 float AngleLimitedStateSpace::width() const { return _obstacleGrid.width(); }
 
 float AngleLimitedStateSpace::height() const { return _obstacleGrid.height(); }
-
-float AngleLimitedStateSpace::maxAngleDiffDecay() const {
-  return _maxAngleDiffDecay;
-}
-
-void AngleLimitedStateSpace::setMaxAngleDiffDecay(float decay) {
-  _maxAngleDiffDecay = decay;
-}
 
 void AngleLimitedStateSpace::PathModifier(
     std::vector<AngleLimitedState> &states, int start, int end) {

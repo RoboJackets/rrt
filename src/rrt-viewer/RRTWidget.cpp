@@ -8,12 +8,12 @@ using namespace Eigen;
 using namespace std;
 using std::min;
 
-const float AccelLimit = 2.0;  //  TODO: make this configurable in the gui
-const float MaxMaxAngleDiff = M_PI / 6.0;
+constexpr float AccelLimit = 2.0;  //  TODO: make this configurable in the gui
+constexpr float MaxCurvature = 3;
 
 RRTWidget::RRTWidget() {
   _stateSpace = make_shared<AngleLimitedStateSpace>(8.09, 6.05, 40, 30);
-  _stateSpace->setMaxAngleDiff(MaxMaxAngleDiff);
+  _stateSpace->setMaxCurvature(MaxCurvature);
   _biRRT = new BiRRT<AngleLimitedState>(_stateSpace);
 
   const float drawingScaleFactor = 100;
@@ -94,9 +94,9 @@ void RRTWidget::slot_stepBig() { step(100); }
 
 void RRTWidget::slot_setStepSize(double step) { _biRRT->setStepSize(step); }
 
-void RRTWidget::slot_setMaxAngleDiffDecayFactor(
-    double maxAngleDiffDecayFactor) {
-  _stateSpace->setMaxAngleDiffDecay(maxAngleDiffDecayFactor);
+void RRTWidget::slot_setCurvatureIncreaseFactor(
+    double factor) {
+  _stateSpace->setCurvatureIncreaseFactor(factor);
 }
 
 void RRTWidget::slot_run() {
@@ -406,9 +406,9 @@ AngleLimitedState RRTWidget::calculateEndpointState(const Eigen::Vector2f &pos,
       state.inAngle() = angle;
     }
   }
-  float maxAngleDiff = AngleLimitedStateSpace::CalculateMaxAngleDiff(vel.norm(),
-    AccelLimit, _biRRT->stepSize());
-  state.setMaxAngleDiff(std::min(maxAngleDiff, MaxMaxAngleDiff));
+
+  float maxCurvature = AccelLimit / powf(vel.norm(), 2);
+  state.setMaxCurvature(std::min(maxCurvature, MaxCurvature));
   return state;
 }
 
