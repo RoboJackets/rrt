@@ -68,30 +68,8 @@ target_link_libraries("rrt-viewer" RRT)
 # gtest
 ################################################################################
 
-include(ExternalProject)
-
-ExternalProject_Add(googletest
-    GIT_REPOSITORY https://git.chromium.org/git/external/googletest.git
-    CMAKE_ARGS -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG:PATH=DebugLibs
-               -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE:PATH=ReleaseLibs
-    PREFIX "${CMAKE_CURRENT_BINARY_DIR}"
-    # disable install step
-    INSTALL_COMMAND ""
-)
-set_target_properties(googletest PROPERTIES EXCLUDE_FROM_ALL TRUE)
-
-# specify include dir
-ExternalProject_Get_Property(googletest source_dir)
-set(GTEST_INCLUDE_DIRS ${source_dir}/include)
-
-# specify link libraries
-ExternalProject_Get_Property(googletest binary_dir)
-set(GTEST_LIBS_DIR ${binary_dir})
-
-
-
-# test-cpp
-################################################################################
+enable_testing()
+include(SetupGTest)
 
 # test srcs
 file(GLOB tests_SRC
@@ -101,18 +79,9 @@ file(GLOB tests_SRC
     "src/2dplane/*.cpp"
 )
 
-# stup gtest
-enable_testing()
-include_directories(${GTEST_INCLUDE_DIRS})
-
-# test-runner
+# test-cpp
 add_executable(test-cpp ${tests_SRC})
-target_link_libraries(test-cpp
-    ${GTEST_LIBS_DIR}/libgtest.a
-    ${GTEST_LIBS_DIR}/libgtest_main.a
-    pthread
-)
+target_link_libraries(test-cpp ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(test-cpp pthread)
 set_target_properties(test-cpp PROPERTIES EXCLUDE_FROM_ALL TRUE)
 add_dependencies(test-cpp googletest)
-
-add_test(test1 test-cpp)
