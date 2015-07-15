@@ -75,7 +75,7 @@ enable_testing()
 include(SetupGTest)
 
 # test srcs
-file(GLOB tests_SRC
+set(tests_SRC
     "src/BiRRTTest.cpp"
     "src/TreeTest.cpp"
 )
