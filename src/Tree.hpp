@@ -270,7 +270,7 @@ namespace RRT
          * @state.
          */
         Node<T> *nearest(const T &state, float *distanceOut = nullptr) {
-            float bestDistance = -1;
+            float bestDistance = std::numeric_limits<float>::infinity();
             Node<T> *best = nullptr;
             
             for (Node<T> *other : _nodes) {
@@ -281,7 +281,7 @@ namespace RRT
                     dist = _stateSpace->distance(other->state(), state);
                 }
 
-                if (bestDistance < 0 || dist < bestDistance) {
+                if (dist < bestDistance) {
                     bestDistance = dist;
                     best = other;
                 }
@@ -309,26 +309,37 @@ namespace RRT
             }
 
             //  if they're the same point, don't add it to the tree again
-            if (_stateSpace->distance(source->state(), target) < 0.0001) {
+            float dist;
+            if (_reverse) {
+                dist = _stateSpace->distance(target, source->state());
+            } else {
+                dist = _stateSpace->distance(source->state(), target);
+            }
+            // FIXME: this distance check should be against a relative, not
+            // absolute threshold
+            if (dist < 0.0001) {
                 return nullptr;
             }
 
             //  Get a state that's in the direction of @target from @source.
             //  This should take a step in that direction, but not go all the
             //  way unless the they're really close together.
-            T intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize(), _reverse);
+            T intermediateState = _stateSpace->intermediateState(
+                source->state(), target, stepSize(), _reverse);
 
             //  Make sure there's actually a direct path from @source to
             //  @intermediateState.  If not, abort
             bool transitionValid;
             if (_reverse) {
-                transitionValid = _stateSpace->transitionValid(intermediateState, source->state());
+                transitionValid = _stateSpace->transitionValid(
+                    intermediateState, source->state());
             } else {
-                transitionValid = _stateSpace->transitionValid(source->state(), intermediateState);
+                transitionValid = _stateSpace->transitionValid(
+                    source->state(), intermediateState);
             }
             if (!transitionValid) return nullptr;
 
-            // Add a node to the tree for this state
+            //  Add a node to the tree for this state
             Node<T> *n = new Node<T>(intermediateState, source);
             _nodes.push_back(n);
             return n;

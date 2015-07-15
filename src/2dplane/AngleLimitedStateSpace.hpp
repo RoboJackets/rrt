@@ -4,94 +4,108 @@
 #include <2dplane/ObstacleGrid.hpp>
 #include <Eigen/Dense>
 #include <util.hpp>
+#include <boost/optional.hpp>
 
 class AngleLimitedState {
-   public:
-    AngleLimitedState(const Eigen::Vector2f &pos = Eigen::Vector2f(0, 0),
-                      float angle = 0, bool hasAngle = true) : _pos(pos), _angle(angle), _hasAngle(hasAngle) {
-        setMaxAngleDiff(M_PI / 6.0);
-        setReverse(false);
-    }
+ public:
+  AngleLimitedState(const Eigen::Vector2f &pos = Eigen::Vector2f(0, 0))
+      : _pos(pos) {
+    setMaxAngleDiff(M_PI / 6.0);
+  }
 
-    void setAngle(float angle) { _angle = fixAngleRadians(angle); }
-    float angle() const { return _angle; }
+  void setPos(const Eigen::Vector2f &pos) { _pos = pos; }
+  const Eigen::Vector2f &pos() const { return _pos; }
 
-    void setPos(const Eigen::Vector2f &pos) { _pos = pos; }
-    const Eigen::Vector2f &pos() const { return _pos; }
+  const boost::optional<float> &inAngle() const { return _inAngle; }
+  boost::optional<float> &inAngle() { return _inAngle; }
 
-    void setHasAngle(bool hasAngle) { _hasAngle = hasAngle; }
-    bool hasAngle() const { return _hasAngle; }
+  const boost::optional<float> &outAngle() const { return _outAngle; }
+  boost::optional<float> &outAngle() { return _outAngle; }
 
-    float maxAngleDiff() const { return _maxAngleDiff; }
-    void setMaxAngleDiff(float maxAngleDiff) { _maxAngleDiff = maxAngleDiff; }
+  float maxAngleDiff() const { return _maxAngleDiff; }
+  void setMaxAngleDiff(float maxAngleDiff) { _maxAngleDiff = maxAngleDiff; }
 
-    bool reverse() const { return _reverse; }
-    void setReverse(bool reverse) { _reverse = reverse; }
-
-   private:
-    Eigen::Vector2f _pos;
-    float _angle;
-    float _maxAngleDiff;
-    bool _hasAngle;
-    bool _reverse;
+ private:
+  Eigen::Vector2f _pos;
+  boost::optional<float> _inAngle;
+  boost::optional<float> _outAngle;
+  float _maxAngleDiff;
 };
 
 std::ostream &operator<<(std::ostream &os, const AngleLimitedState &st);
 
 class AngleLimitedStateSpace : public StateSpace<AngleLimitedState> {
-   public:
-    AngleLimitedStateSpace(float width, float height, float discretizedWidth,
-                           float discretizedHeight);
+ public:
+  AngleLimitedStateSpace(float width, float height, float discretizedWidth,
+                         float discretizedHeight);
 
-    AngleLimitedState randomState() const;
-    AngleLimitedState intermediateState(const AngleLimitedState &source,
-                                        const AngleLimitedState &target,
-                                        float stepSize,
-                                        bool reverse = false) const;
+  AngleLimitedState randomState() const;
+  AngleLimitedState intermediateState(const AngleLimitedState &source,
+                                      const AngleLimitedState &target,
+                                      float stepSize,
+                                      bool reverse = false) const;
 
-    /// Returns infinity if the angle between @from and @to is beyond the angle
-    /// bounds of either state or the distance between the two positions
-    /// otherwise.
-    float distance(const AngleLimitedState &from,
-                   const AngleLimitedState &to) const;
+  /// Returns infinity if the angle between @from and @to is beyond the angle
+  /// bounds of either state or the distance between the two positions
+  /// otherwise.
+  // TODO: document "second tier"
+  /// note: distance() is NOT commutative
+  float distance(const AngleLimitedState &from,
+                 const AngleLimitedState &to) const;
 
-    bool stateValid(const AngleLimitedState &state) const;
-    bool transitionValid(const AngleLimitedState &from,
-                         const AngleLimitedState &to) const;
+  bool stateValid(const AngleLimitedState &state) const;
 
-    const ObstacleGrid &obstacleGrid() const;
-    ObstacleGrid &obstacleGrid();
+  /// note: transitionValid() is NOT commutative
+  bool transitionValid(const AngleLimitedState &from,
+                       const AngleLimitedState &to) const;
 
-    float width() const;
-    float height() const;
+  const ObstacleGrid &obstacleGrid() const;
+  ObstacleGrid &obstacleGrid();
 
-    /**
-     * @brief How much the maxAngleDiff increases for each subsequent node.
-     * Note that this increase is limited to a max value.
-     * @details This essentially lets us increase the allowable curvature of the
-     * path slowly as the tree leads away from its startpoint.
-     */
+  float width() const;
+  float height() const;
 
-    // TODO: update docs, this is now a multiplier!
-    // TODO: rewrite this in terms of curvature, so it's step-size independent
-    // angleDiff*decay = newAngleDiff
-    float maxAngleDiffDecay() const;
-    void setMaxAngleDiffDecay(float decay);
+  /**
+   * @brief How much the maxAngleDiff increases for each subsequent node.
+   * Note that this increase is limited to a max value.
+   * @details This essentially lets us increase the allowable curvature of the
+   * path slowly as the tree leads away from its startpoint.
+   */
 
-    /// A function for use with SmoothPath() that deletes states between (but
-    /// not including) the start and end indexes and adjusts the angle property
-    /// of the start state.
-    static void PathModifier(std::vector<AngleLimitedState> &states, int start,
-                        int end);
+  // TODO: update docs, this is now a multiplier!
+  // TODO: rewrite this in terms of curvature, so it's step-size independent
+  // angleDiff*decay = newAngleDiff
+  float maxAngleDiffDecay() const;
+  void setMaxAngleDiffDecay(float decay);
 
+  // TODO: define in terms of curvature
+  float maxAngleDiff() const { return _maxAngleDiff; }
+  void setMaxAngleDiff(float diff) { _maxAngleDiff = diff; }
 
-    // static float MaxAngleDiffForCurvature(float curvatureLimit, float stepSize);
+  /// A function for use with SmoothPath() that deletes states between (but
+  /// not including) the start and end indexes and adjusts the angle property
+  /// of the start state.
+  static void PathModifier(std::vector<AngleLimitedState> &states, int start,
+                           int end);
 
-    // /// Same as above, but uses @accelLimit to calculate the curvature limit
-    // static float MaxAngleDiffForSpeed(float speed, float accelLimit,
-    //                                   float stepSize);
+  static void RecalculateAngles(std::vector<AngleLimitedState> &states) {
+    for (int i = 0; i < states->size()-1; ++i) {
+      Eigen::Vector2f diff = states[i+1].pos() - states[i].pos();
+      float angle = atan2f(diff.y(), diff.x());
+      states[i].outAngle() = angle;
+      states[i+1].inAngle() = angle;
+    }
+  }
 
-   private:
-    ObstacleGrid _obstacleGrid;
-    float _maxAngleDiffDecay;
+  // static float MaxAngleDiffForCurvature(float curvatureLimit, float
+  // stepSize);
+
+  // /// Same as above, but uses @accelLimit to calculate the curvature limit
+  // static float MaxAngleDiffForSpeed(float speed, float accelLimit,
+  //                                   float stepSize);
+
+ private:
+  ObstacleGrid _obstacleGrid;
+  float _maxAngleDiffDecay;
+  float _maxAngleDiff;
 };
