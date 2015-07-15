@@ -11,34 +11,6 @@ using std::min;
 const float AccelLimit = 2.0;  //  TODO: make this configurable in the gui
 const float MaxMaxAngleDiff = M_PI / 6.0;
 
-// TODO: move this function into AngleLimitedStateSpace
-float maxAngleDiffForSpeed(float speed, float accelLimit, float stepSize,
-                           float maxValue) {
-  //  Think of the segments of an rrt forming a polygon inscribed
-  //  in a circle if each segment is at the max angle diff from the previous
-  //  segment.
-  //  The max acceleration allowed and current speed limit the curvature of our
-  //  path,
-  //  so we use these to determine the min radius of this circle.
-  //  accelCentripetal = speed^2 / radius = accelLimit
-  //  for inscribed polygons, sideLength = 2*radius*sin(pi/numSides)
-  //  for regular polygons (equal side lengths), numSides*exteriorAngle = 2*pi
-  //  the exterior angle is equal to the maxAngleDiff, which is what we're
-  //  trying to find
-  //  maxAngleDiff = 2*pi / numSides
-  //  sideLength = RRT step size
-  //  numSides = 2*pi/maxAngleDiff
-  //  stepSize = 2*radius*sin(maxAngleDiff/2)
-  //  radius = speed^2 / accelLimit
-  //  stepSize = 2*speed^2/accelLimit * sin(maxAngleDiff/2)
-  //  maxAngleDiff = 2*asin(stepSize*accelLimit/(2*speed^2))
-  // TODO: why is maxAngleDiff becoming NaN?????
-  float maxAngleDiff =
-      2.0 * asinf(stepSize * accelLimit / (2.0 * powf(speed, 2.0)));
-  if (isnan(maxAngleDiff)) return maxValue;
-  return min(maxAngleDiff, maxValue);
-}
-
 RRTWidget::RRTWidget() {
   _stateSpace = make_shared<AngleLimitedStateSpace>(8.09, 6.05, 40, 30);
   _stateSpace->setMaxAngleDiff(MaxMaxAngleDiff);
@@ -434,8 +406,9 @@ AngleLimitedState RRTWidget::calculateEndpointState(const Eigen::Vector2f &pos,
       state.inAngle() = angle;
     }
   }
-  state.setMaxAngleDiff(maxAngleDiffForSpeed(
-      vel.norm(), AccelLimit, _biRRT->stepSize(), MaxMaxAngleDiff));
+  float maxAngleDiff = AngleLimitedStateSpace::CalculateMaxAngleDiff(vel.norm(),
+    AccelLimit, _biRRT->stepSize());
+  state.setMaxAngleDiff(std::min(maxAngleDiff, MaxMaxAngleDiff));
   return state;
 }
 

@@ -99,12 +99,31 @@ class AngleLimitedStateSpace : public StateSpace<AngleLimitedState> {
     }
   }
 
-  // static float MaxAngleDiffForCurvature(float curvatureLimit, float
-  // stepSize);
+  /// Calculates the exterior angle for a regular polygon with the given step
+  /// size inscribed in a circle with the given curvature.
+  static float CalculateExteriorAngleForCurvature(float curvature, float sideLength) {
+    // for inscribed polygons, sideLength = 2*radius*sin(pi/numSides)
+    // for regular polygons (equal side lengths), numSides*exteriorAngle = 2*pi
+    // extAngle = 2*pi/numSides
+    // numSides = 2*pi/extAngle
+    // sideLength = 2*radius*sin(extAngle/2)
+    // radius = 1/curvature
+    // sideLength = 2*(1/curvature)*sin(extAngle/2)
+    // extAngle = 2*asin(sideLength*curvature/2)
+    return 2.0 * asinf(sideLength * curvature / 2.0);
+  }
 
-  // /// Same as above, but uses @accelLimit to calculate the curvature limit
-  // static float MaxAngleDiffForSpeed(float speed, float accelLimit,
-  //                                   float stepSize);
+  /// Calculates the maximum that the angles between two states can differ if
+  /// they are @stepSize distance apart
+  static float CalculateMaxAngleDiff(float speed, float accelLimit, float stepSize) {
+    // accelCentripetal = speed^2 / radius
+    // accelCentripetal = accelLimit
+    // radius = speed^2 / accelLimit
+    // curvature = 1 / radius = accelLimit / speed^2
+    float curvature = accelLimit / powf(speed, 2);
+    return CalculateExteriorAngleForCurvature(curvature, stepSize);
+  }
+
 
  private:
   ObstacleGrid _obstacleGrid;
