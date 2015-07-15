@@ -25,6 +25,7 @@ include_directories(${EIGEN_INCLUDE_DIR})
 
 # boost
 find_package(Boost REQUIRED)
+include_directories(/usr/local/Cellar/boost/1.58.0/include/) # TODO: remove this OSX-only hack
 
 # debug
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")

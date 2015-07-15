@@ -10,33 +10,38 @@ using namespace Eigen;
 TEST(AngleLimitedStateSpace, distance) {
   AngleLimitedStateSpace ss(100, 100, 100, 100);
 
-  AngleLimitedState s1(Vector2f(10, 10), 0, true);
-  AngleLimitedState s2(Vector2f(10, 20), 0, false);
-  AngleLimitedState s3(Vector2f(10, 80), 0, false);
+  AngleLimitedState s1(Vector2f(10, 10), 0);
+  AngleLimitedState s2(Vector2f(10, 20), 0);
+  AngleLimitedState s3(Vector2f(20, 10), 0);
+
+
+  // normal distance calculation
+  EXPECT_FLOAT_EQ((s3.pos() - s1.pos()).norm(), ss.distance(s1, s3));
 
   //  because the angles are too far apart, their distance is in "tier 2"
   EXPECT_GT(ss.distance(s1, s2), (s1.pos() - s2.pos()).norm());
 
-  AngleLimitedState intermediate = ss.intermediateState(s1, s3, 10);
-  EXPECT_TRUE(ss.transitionValid(s1, intermediate));
 
-  intermediate = ss.intermediateState(s1, s3, 10, false);
-  EXPECT_TRUE(ss.transitionValid(s1, intermediate));
+  // AngleLimitedState intermediate = ss.intermediateState(s1, s2, 5);
+  // EXPECT_TRUE(ss.transitionValid(s1, intermediate));
+
+  // intermediate = ss.intermediateState(s1, s3, 10, false);
+  // EXPECT_TRUE(ss.transitionValid(s1, intermediate));
 }
 
 TEST(AngleLimitedState, intermediateState) {
   AngleLimitedStateSpace ss(100, 100, 100, 100);
 
-  AngleLimitedState from(Vector2f(1, 1), 0, true);
+  AngleLimitedState from(Vector2f(1, 1), 0);
+  AngleLimitedState to(Vector2f(5, 1));
 
-  AngleLimitedState to(Vector2f(5, 1), 0, false);
   EXPECT_TRUE(ss.transitionValid(from, to));
 
   // @from and @to are on the same line, so @intermediate should be as well
   AngleLimitedState intermediate = ss.intermediateState(from, to, 1);
   EXPECT_FLOAT_EQ(1, (intermediate.pos() - from.pos()).norm());
   EXPECT_TRUE(ss.transitionValid(from, intermediate));
-  EXPECT_FLOAT_EQ(0, intermediate.angle());
+  EXPECT_FLOAT_EQ(0, *intermediate.inAngle());
 
   // @to is greater than max angle diff away from @to's angle
   to.setPos(5 * Vector2f(cosf(from.maxAngleDiff() + 0.2),
@@ -44,7 +49,7 @@ TEST(AngleLimitedState, intermediateState) {
   intermediate = ss.intermediateState(from, to, 1);
   EXPECT_FLOAT_EQ(1, (intermediate.pos() - from.pos()).norm());
   EXPECT_TRUE(ss.transitionValid(from, intermediate));
-  EXPECT_GE(from.maxAngleDiff(), intermediate.angle());
+  EXPECT_GE(from.maxAngleDiff(), *intermediate.inAngle());
 
   // @to is greater than max angle diff away from @to's angle (but opposite
   // the direction in the above test)
@@ -53,23 +58,21 @@ TEST(AngleLimitedState, intermediateState) {
   intermediate = ss.intermediateState(from, to, 1);
   EXPECT_FLOAT_EQ(1, (intermediate.pos() - from.pos()).norm());
   EXPECT_TRUE(ss.transitionValid(from, intermediate));
-  EXPECT_GE(from.maxAngleDiff(), -intermediate.angle());
+  EXPECT_GE(from.maxAngleDiff(), -*intermediate.inAngle());
 
-  // reverse transitions
-  from.setReverse(true);
-  to.setPos(to.pos() + Vector2f(2, 1));
-  EXPECT_FALSE(ss.transitionValid(from, to));
+  // // reverse transitions
+  // to.setPos(to.pos() + Vector2f(2, 1));
+  // EXPECT_FALSE(ss.transitionValid(from, to));
 }
 
 TEST(AngleLimitedStateSpace, reverse) {
   AngleLimitedStateSpace ss(100, 100, 100, 100);
 
-  AngleLimitedState goal(Vector2f(1, 1), 0, true);
-  goal.setReverse(true);
+  AngleLimitedState goal(Vector2f(1, 1), boost::none, 0);
 
   AngleLimitedState r = ss.randomState();
   AngleLimitedState intermediate = ss.intermediateState(goal, r, 1, true);
-  EXPECT_TRUE(ss.transitionValid(goal, intermediate));
+  EXPECT_TRUE(ss.transitionValid(intermediate, goal));
 }
 
 TEST(AngleLimitedStateSpace, transitionValid) {
@@ -105,12 +108,10 @@ TEST(AngleLimitedStateSpace, transitionValidForwardToReverseTree) {
   // a test-case pulled from a crappy run in the rrt-viewer
   // it created a connection here and it shouldn't have, so it makes a good
   // test case
-  AngleLimitedState ff(Vector2f(5.52986, 1.15213), -0.252489, true);
+  AngleLimitedState ff(Vector2f(5.52986, 1.15213), -0.252489);
   ff.setMaxAngleDiff(0.523599);
-  ff.setReverse(false);
-  AngleLimitedState rr(Vector2f(5.53339, 1.14981), 2.92843, true);
+  AngleLimitedState rr(Vector2f(5.53339, 1.14981), boost::none, 2.92843);
   rr.setMaxAngleDiff(0.523599);
-  rr.setReverse(true);
   cout << "ff: " << ff << endl;
   cout << "rr: " << rr << endl;
   cout << endl;

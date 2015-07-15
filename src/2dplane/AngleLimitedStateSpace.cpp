@@ -19,7 +19,7 @@ ostream &operator<<(ostream &os, const AngleLimitedState &st) {
   if (st.inAngle()) {
     os << *st.inAngle();
   } else {
-    os "*";
+    os << "*";
   }
 
   os << "; outAngle=";
@@ -74,7 +74,7 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
 
   Vector2f newPos = source.pos() +
                     Vector2f(cosf(newAngle), sinf(newAngle)).normalized() *
-                        stepSize);
+                        stepSize;
 
   AngleLimitedState newState(newPos);
   if (reverse) {
@@ -131,7 +131,7 @@ bool AngleLimitedStateSpace::transitionValid(
   }
 
   if (to.outAngle()) {
-    float angleDiff = fixAngleRadians(to.angle() - newAngle);
+    float angleDiff = fixAngleRadians(*to.outAngle() - newAngle);
     cout << "angleDiff w/to: " << angleDiff << endl;
     if (abs(angleDiff) > to.maxAngleDiff()) return false;
   }
@@ -165,11 +165,6 @@ void AngleLimitedStateSpace::PathModifier(
   Vector2f diff = states[start + 1].pos() - states[start].pos();
   float newAngle = atan2f(diff.y(), diff.x());
 
-  if (states[start].reverse()) {
-    states[start].setAngle(fixAngleRadians(newAngle));
-  }
-
-  if (!states[start + 1].reverse()) {
-    states[start + 1].setAngle(fixAngleRadians(newAngle));
-  }
+  states[start].outAngle() = newAngle;
+  states[start+1].inAngle() = newAngle;
 }

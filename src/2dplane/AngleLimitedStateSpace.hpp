@@ -1,15 +1,19 @@
 #pragma once
 
-#include <StateSpace.hpp>
 #include <2dplane/ObstacleGrid.hpp>
-#include <Eigen/Dense>
+#include <StateSpace.hpp>
 #include <util.hpp>
+
 #include <boost/optional.hpp>
+#include <Eigen/Dense>
+#include <vector>
 
 class AngleLimitedState {
  public:
-  AngleLimitedState(const Eigen::Vector2f &pos = Eigen::Vector2f(0, 0))
-      : _pos(pos) {
+  AngleLimitedState(const Eigen::Vector2f &pos = Eigen::Vector2f(0, 0),
+    boost::optional<float> inAngle = boost::none,
+    boost::optional<float> outAngle = boost::none)
+      : _pos(pos), _inAngle(inAngle), _outAngle(outAngle) {
     setMaxAngleDiff(M_PI / 6.0);
   }
 
@@ -87,9 +91,7 @@ class AngleLimitedStateSpace : public StateSpace<AngleLimitedState> {
   /// of the start state.
   static void PathModifier(std::vector<AngleLimitedState> &states, int start,
                            int end);
-
-  static void RecalculateAngles(std::vector<AngleLimitedState> &states) {
-    for (int i = 0; i < states->size()-1; ++i) {
+ static void RecalculateAngles(std::vector<AngleLimitedState> &states) {for (int i = 0; i < states.size()-1; ++i) {
       Eigen::Vector2f diff = states[i+1].pos() - states[i].pos();
       float angle = atan2f(diff.y(), diff.x());
       states[i].outAngle() = angle;
