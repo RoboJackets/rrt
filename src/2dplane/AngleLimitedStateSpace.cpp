@@ -57,7 +57,6 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
 
   Vector2f dir = (target.pos() - source.pos()).normalized();  // unit vector
   float newAngle = atan2f(dir.y(), dir.x());
-  // if (reverse) newAngle = fixAngleRadians(newAngle + M_PI);
 
   //  if this new intermediate state would violate the max angle rule, we
   //  rotate it so that it falls just within our constraints.
@@ -78,7 +77,7 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
 
   AngleLimitedState newState(newPos);
   if (reverse) {
-    newState.outAngle() = newAngle;
+    newState.outAngle() = fixAngleRadians(newAngle + M_PI);
   } else {
     newState.inAngle() = newAngle;
   }
@@ -120,19 +119,19 @@ bool AngleLimitedStateSpace::transitionValid(
   Vector2f diff = to.pos() - from.pos();
   float newAngle = atan2f(diff.y(), diff.x());
 
-  cout << "diff: (" << diff.x() << ", " << diff.y() << ")" << endl;
-  cout << "newAngle: " << newAngle << endl;
+  // cout << "diff: (" << diff.x() << ", " << diff.y() << ")" << endl;
+  // cout << "newAngle: " << newAngle << endl;
 
   if (from.inAngle()) {
     float angleDiff =
         fixAngleRadians(newAngle - *from.inAngle());
-    cout << "angleDiff w/from: " << angleDiff << endl;
+    // cout << "angleDiff w/from: " << angleDiff << endl;
     if (abs(angleDiff) > from.maxAngleDiff()) return false;
   }
 
   if (to.outAngle()) {
     float angleDiff = fixAngleRadians(*to.outAngle() - newAngle);
-    cout << "angleDiff w/to: " << angleDiff << endl;
+    // cout << "angleDiff w/to: " << angleDiff << endl;
     if (abs(angleDiff) > to.maxAngleDiff()) return false;
   }
 

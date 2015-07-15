@@ -65,6 +65,13 @@ TEST(AngleLimitedState, intermediateState) {
   // EXPECT_FALSE(ss.transitionValid(from, to));
 }
 
+// TEST(AngleLimitedStateSpace, intermediateState_reverse) {
+//   AngleLimitedStateSpace ss(100, 100, 100, 100);
+//   AngleLimitedState s0(Vector2f(1, 1), boost::none, -M_PI/2);
+
+//   AngleLimitedState r = 
+// }
+
 TEST(AngleLimitedStateSpace, reverse) {
   AngleLimitedStateSpace ss(100, 100, 100, 100);
 
@@ -72,6 +79,8 @@ TEST(AngleLimitedStateSpace, reverse) {
 
   AngleLimitedState r = ss.randomState();
   AngleLimitedState intermediate = ss.intermediateState(goal, r, 1, true);
+  cout << "r = " << r << endl;
+  cout << "inter: " << intermediate << endl;
   EXPECT_TRUE(ss.transitionValid(intermediate, goal));
 }
 
@@ -102,7 +111,7 @@ TEST(AngleLimitedStateSpace, transitionValid) {
   EXPECT_TRUE(ss.transitionValid(states[0], states[2]));
 }
 
-TEST(AngleLimitedStateSpace, transitionValidForwardToReverseTree) {
+TEST(AngleLimitedStateSpace, transitionValid_forwardToReverseTree) {
   AngleLimitedStateSpace ss(100, 100, 100, 100);
 
   // a test-case pulled from a crappy run in the rrt-viewer

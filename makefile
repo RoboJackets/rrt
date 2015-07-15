@@ -1,3 +1,4 @@
+DEBUGGER=lldb
 
 all:
 	mkdir -p build
@@ -7,10 +8,10 @@ run: all
 	build/rrt-viewer
 
 debug: all
-	gdb build/rrt-viewer -ex run
+	$(DEBUGGER) build/rrt-viewer -ex run
 
 debug: all
-	gdb build/rrt-viewer
+	$(DEBUGGER) build/rrt-viewer
 
 tests: test-cpp
 

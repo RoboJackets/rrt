@@ -55,6 +55,7 @@ MainWindow::MainWindow() {
     stepSizeBox->setMinimum(0.01);
     stepSizeBox->setMaximum(1);
     stepSizeBox->setValue(0.1);
+    stepSizeBox->setSingleStep(0.01);
 
     QLabel *stepSizeLabel = new QLabel("Step Size:");
 
@@ -62,6 +63,7 @@ MainWindow::MainWindow() {
     angleDiffDecayFactorBox->setMinimum(1);
     angleDiffDecayFactorBox->setMaximum(5);
     angleDiffDecayFactorBox->setValue(1.1);
+    angleDiffDecayFactorBox->setSingleStep(0.01);
 
     QLabel *angleDiffDecayFactorLabel = new QLabel("Angle Decay factor");
 
