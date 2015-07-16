@@ -10,18 +10,18 @@ using namespace Eigen;
 TEST(AngleLimitedStateSpace, distance) {
   AngleLimitedStateSpace ss(100, 100, 100, 100);
 
-  AngleLimitedState s1(Vector2f(10, 10), 0);
-  AngleLimitedState s2(Vector2f(10, 20), 0);
-  AngleLimitedState s3(Vector2f(20, 10), 0);
+  // AngleLimitedState s1(Vector2f(10, 10), 0);
+  // AngleLimitedState s2(Vector2f(10, 20), 0);
+  // AngleLimitedState s3(Vector2f(20, 10), 0);
 
 
   // normal distance calculation
-  s1.setMaxCurvature(4);
-  EXPECT_FLOAT_EQ((s3.pos() - s1.pos()).norm(), ss.distance(s1, s3));
+  // s1.setMaxCurvature(4);
+  // EXPECT_FLOAT_EQ((s3.pos() - s1.pos()).norm(), ss.distance(s1, s3));
 
   //  because the angles are too far apart, their distance is in "tier 2"
-  s1.setMaxCurvature(0.1);
-  EXPECT_GT(ss.distance(s1, s2), (s1.pos() - s2.pos()).norm());
+  // s1.setMaxCurvature(0.1);
+  // EXPECT_GT(ss.distance(s1, s2), (s1.pos() - s2.pos()).norm());
 
 
   // AngleLimitedState intermediate = ss.intermediateState(s1, s2, 5);

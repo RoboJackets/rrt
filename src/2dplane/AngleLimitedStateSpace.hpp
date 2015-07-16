@@ -11,14 +11,17 @@
 class AngleLimitedState {
  public:
   AngleLimitedState(const Eigen::Vector2f &pos = Eigen::Vector2f(0, 0),
+    float speed = 0,
     boost::optional<float> inAngle = boost::none,
     boost::optional<float> outAngle = boost::none)
-      : _pos(pos), _inAngle(inAngle), _outAngle(outAngle) {
-    setMaxCurvature(3);
+      : _speed(speed), _pos(pos), _inAngle(inAngle), _outAngle(outAngle) {
   }
 
   void setPos(const Eigen::Vector2f &pos) { _pos = pos; }
   const Eigen::Vector2f &pos() const { return _pos; }
+
+  float speed() const { return _speed; }
+  void setSpeed(float speed) { _speed = speed; }
 
   const boost::optional<float> &inAngle() const { return _inAngle; }
   boost::optional<float> &inAngle() { return _inAngle; }
@@ -26,14 +29,11 @@ class AngleLimitedState {
   const boost::optional<float> &outAngle() const { return _outAngle; }
   boost::optional<float> &outAngle() { return _outAngle; }
 
-  float maxCurvature() const { return _maxCurvature; }
-  void setMaxCurvature(float maxCurvature) { _maxCurvature = maxCurvature; }
-
  private:
   Eigen::Vector2f _pos;
   boost::optional<float> _inAngle;
   boost::optional<float> _outAngle;
-  float _maxCurvature;
+  float _speed;
 };
 
 std::ostream &operator<<(std::ostream &os, const AngleLimitedState &st);
@@ -69,19 +69,22 @@ class AngleLimitedStateSpace : public StateSpace<AngleLimitedState> {
   float width() const;
   float height() const;
 
-  /// Each subsequent state has a maxCurvature equal to the parent state's
-  /// maxCurvature multiplied by this factor.  It is limited to the
-  /// maxCurvature defined for the state space.
-  float curvatureIncreaseFactor() const {
-    return _curvatureIncreaseFactor;
-  }
-  void setCurvatureIncreaseFactor(float factor) {
-    _curvatureIncreaseFactor = factor;
-  }
+  // /// Each subsequent state has a maxCurvature equal to the parent state's
+  // /// maxCurvature multiplied by this factor.  It is limited to the
+  // /// maxCurvature defined for the state space.
+  // float curvatureIncreaseFactor() const {
+  //   return _curvatureIncreaseFactor;
+  // }
+  // void setCurvatureIncreaseFactor(float factor) {
+  //   _curvatureIncreaseFactor = factor;
+  // }
 
-  /// The maximum allowed curvature in this state space.
-  float maxCurvature() const { return _maxCurvature; }
-  void setMaxCurvature(float diff) { _maxCurvature = diff; }
+  // /// The maximum allowed curvature in this state space.
+  // float maxCurvature() const { return _maxCurvature; }
+  // void setMaxCurvature(float diff) { _maxCurvature = diff; }
+
+  float maxAccel() const { return _maxAccel; }
+  void setMaxAccel(float maxAccel) { _maxAccel = maxAccel; }
 
   /// A function for use with SmoothPath() that deletes states between (but
   /// not including) the start and end indexes and adjusts the angle property
@@ -131,5 +134,5 @@ class AngleLimitedStateSpace : public StateSpace<AngleLimitedState> {
  private:
   ObstacleGrid _obstacleGrid;
   float _curvatureIncreaseFactor;
-  float _maxCurvature;
+  float _maxAccel;
 };

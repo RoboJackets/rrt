@@ -13,7 +13,8 @@ constexpr float MaxCurvature = 3;
 
 RRTWidget::RRTWidget() {
   _stateSpace = make_shared<AngleLimitedStateSpace>(8.09, 6.05, 40, 30);
-  _stateSpace->setMaxCurvature(MaxCurvature);
+  // _stateSpace->setMaxCurvature(MaxCurvature);
+  _stateSpace->setMaxAccel(AccelLimit);
   _biRRT = new BiRRT<AngleLimitedState>(_stateSpace);
 
   const float drawingScaleFactor = 100;
@@ -44,6 +45,8 @@ RRTWidget::RRTWidget() {
 }
 
 void RRTWidget::slot_reset() {
+  // TODO: store states as waypoints, not points
+
   //  store waypoint cache
   vector<AngleLimitedState> waypoints;
   if (_biRRT->startSolutionNode() && _biRRT->goalSolutionNode()) {
@@ -409,7 +412,7 @@ AngleLimitedState RRTWidget::calculateEndpointState(const Eigen::Vector2f &pos,
                                                     Eigen::Vector2f &vel) {
   constexpr float MinMatterableEndpointVel = 0.1;
 
-  AngleLimitedState state(pos);
+  AngleLimitedState state(pos, vel.norm());
   if (vel.norm() > MinMatterableEndpointVel) {
     float angle = atan2f(vel.y(), vel.x());
     if (reverse) {
@@ -419,8 +422,8 @@ AngleLimitedState RRTWidget::calculateEndpointState(const Eigen::Vector2f &pos,
     }
   }
 
-  float maxCurvature = AccelLimit / powf(vel.norm(), 2);
-  state.setMaxCurvature(std::min(maxCurvature, MaxCurvature));
+  // float maxCurvature = AccelLimit / powf(vel.norm(), 2);
+  // state.setMaxCurvature(std::min(maxCurvature, MaxCurvature));
   return state;
 }
 

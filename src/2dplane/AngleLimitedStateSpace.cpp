@@ -15,6 +15,8 @@ ostream &operator<<(ostream &os, const AngleLimitedState &st) {
   os << "AngleLimitedState: pos=(" << st.pos().x() << ", " << st.pos().y()
      << ")";
 
+  os << "; speed=" << st.speed();
+
   os << "; inAngle=";
   if (st.inAngle()) {
     os << *st.inAngle();
@@ -29,8 +31,6 @@ ostream &operator<<(ostream &os, const AngleLimitedState &st) {
     os << "*";
   }
 
-  os << "; maxCurvature=" << st.maxCurvature();
-
   return os;
 }
 
@@ -39,12 +39,14 @@ AngleLimitedStateSpace::AngleLimitedStateSpace(float width, float height,
                                                float discretizedHeight)
     : _obstacleGrid(width, height, discretizedWidth, discretizedHeight) {
   setCurvatureIncreaseFactor(1.1);
-  setMaxCurvature(3);
+  // setMaxCurvature(3);
+  setMaxAccel(2);
 }
 
 AngleLimitedState AngleLimitedStateSpace::randomState() const {
   //  note that the generated state has no angles set (its angle will be
   //  determined later based on its position relative to another state)
+  #warning use speed here
   Eigen::Vector2f randPos(drand48() * width(), drand48() * height());
   return AngleLimitedState(randPos);
 }
@@ -54,6 +56,9 @@ AngleLimitedState AngleLimitedStateSpace::intermediateState(
     float stepSize, bool reverse) const {
   // if (target.inAngle() || target.outAngle())
   //   throw std::invalid_argument("target state must not have any angles set");
+
+  #warning use speed here
+
 
   Vector2f dir = (target.pos() - source.pos()).normalized();  // unit vector
   float newAngle = atan2f(dir.y(), dir.x());
@@ -96,6 +101,8 @@ float AngleLimitedStateSpace::distance(const AngleLimitedState &from,
                                        const AngleLimitedState &to) const {
   float dist = (from.pos() - to.pos()).norm();
 
+  #warning use speed here
+  
   // if the angles don't line up, the distance is in a "second tier"
   if (!transitionValid(from, to)) {
     const float max_dist = sqrtf(width() * width() + height() * height());
@@ -106,6 +113,7 @@ float AngleLimitedStateSpace::distance(const AngleLimitedState &from,
 }
 
 bool AngleLimitedStateSpace::stateValid(const AngleLimitedState &state) const {
+  #warning use speed here
   return _obstacleGrid.pointInBounds(state.pos());
 }
 
@@ -115,6 +123,7 @@ bool AngleLimitedStateSpace::stateValid(const AngleLimitedState &state) const {
 
 bool AngleLimitedStateSpace::transitionValid(
     const AngleLimitedState &from, const AngleLimitedState &to) const {
+  #warning use speed here
   // check for obstacles
   if (!_obstacleGrid.transitionValid(from.pos(), to.pos())) return false;
 
@@ -163,6 +172,7 @@ float AngleLimitedStateSpace::width() const { return _obstacleGrid.width(); }
 float AngleLimitedStateSpace::height() const { return _obstacleGrid.height(); }
 
 void AngleLimitedStateSpace::PathModifier(
+  #warning use speed here
     std::vector<AngleLimitedState> &states, int start, int end) {
   // Use the default implementation to remove the intermediate states
   Planning::DefaultPathModifier<AngleLimitedState>(states, start, end);
