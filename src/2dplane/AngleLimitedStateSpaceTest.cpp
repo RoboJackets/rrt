@@ -16,6 +16,7 @@ TEST(AngleLimitedStateSpace, distance) {
 
 
   // normal distance calculation
+  s1.setMaxCurvature(4);
   EXPECT_FLOAT_EQ((s3.pos() - s1.pos()).norm(), ss.distance(s1, s3));
 
   //  because the angles are too far apart, their distance is in "tier 2"
@@ -80,8 +81,8 @@ TEST(AngleLimitedStateSpace, reverse) {
 
   AngleLimitedState r = ss.randomState();
   AngleLimitedState intermediate = ss.intermediateState(goal, r, 1, true);
-  cout << "r = " << r << endl;
-  cout << "inter: " << intermediate << endl;
+  // cout << "r = " << r << endl;
+  // cout << "inter: " << intermediate << endl;
   EXPECT_TRUE(ss.transitionValid(intermediate, goal));
 }
 
@@ -112,18 +113,26 @@ TEST(AngleLimitedStateSpace, reverse) {
 //   EXPECT_TRUE(ss.transitionValid(states[0], states[2]));
 // }
 
-// TEST(AngleLimitedStateSpace, transitionValid_forwardToReverseTree) {
-//   AngleLimitedStateSpace ss(100, 100, 100, 100);
+TEST(AngleLimitedStateSpace, transitionValid_forwardToReverseTree) {
+  AngleLimitedStateSpace ss(100, 100, 100, 100);
 
-//   // a test-case pulled from a crappy run in the rrt-viewer
-//   // it created a connection here and it shouldn't have, so it makes a good
-//   // test case
-//   AngleLimitedState ff(Vector2f(5.52986, 1.15213), -0.252489);
-//   ff.setMaxAngleDiff(0.523599);
-//   AngleLimitedState rr(Vector2f(5.53339, 1.14981), boost::none, 2.92843);
-//   rr.setMaxAngleDiff(0.523599);
-//   cout << "ff: " << ff << endl;
-//   cout << "rr: " << rr << endl;
-//   cout << endl;
-//   EXPECT_FALSE(ss.transitionValid(ff, rr));
-// }
+  AngleLimitedState ff(Vector2f(1, 1), 0);
+  AngleLimitedState rr(Vector2f(2, 1), boost::none, 0.1);
+
+  EXPECT_TRUE(ss.transitionValid(ff, rr));
+
+
+
+
+  // // a test-case pulled from a crappy run in the rrt-viewer
+  // // it created a connection here and it shouldn't have, so it makes a good
+  // // test case
+  // AngleLimitedState ff(Vector2f(5.52986, 1.15213), -0.252489);
+  // ff.setMaxAngleDiff(0.523599);
+  // AngleLimitedState rr(Vector2f(5.53339, 1.14981), boost::none, 2.92843);
+  // rr.setMaxAngleDiff(0.523599);
+  // cout << "ff: " << ff << endl;
+  // cout << "rr: " << rr << endl;
+  // cout << endl;
+  // EXPECT_FALSE(ss.transitionValid(ff, rr));
+}

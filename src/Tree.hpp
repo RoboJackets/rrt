@@ -408,7 +408,7 @@ namespace RRT
         /**
          * All the nodes
          */
-        const std::vector<Node<T> *> allNodes() const {
+        const std::vector<Node<T> *>& allNodes() const {
             return _nodes;
         }
 

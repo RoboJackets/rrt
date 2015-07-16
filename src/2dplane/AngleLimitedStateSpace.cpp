@@ -52,8 +52,8 @@ AngleLimitedState AngleLimitedStateSpace::randomState() const {
 AngleLimitedState AngleLimitedStateSpace::intermediateState(
     const AngleLimitedState &source, const AngleLimitedState &target,
     float stepSize, bool reverse) const {
-  if (target.inAngle() || target.outAngle())
-    throw std::invalid_argument("target state must not have any angles set");
+  // if (target.inAngle() || target.outAngle())
+  //   throw std::invalid_argument("target state must not have any angles set");
 
   Vector2f dir = (target.pos() - source.pos()).normalized();  // unit vector
   float newAngle = atan2f(dir.y(), dir.x());
@@ -128,19 +128,24 @@ bool AngleLimitedStateSpace::transitionValid(
   // cout << "newAngle: " << newAngle << endl;
 
   float dist = diff.norm();
+  // dist = std::max(dist, 0.1f);
+  // dist = std::min(dist, 0.5f);
+  // dist = std::min(dist, 0.5f);
 
   if (from.inAngle()) {
     float angleDiff =
         fixAngleRadians(newAngle - *from.inAngle());
     // cout << "angleDiff w/from: " << angleDiff << endl;
-    float maxAngleDiff = CalculateExteriorAngleForCurvature(from.maxCurvature(), dist);
+    float maxAngleDiff = CalculateExteriorAngleForCurvature(from.maxCurvature(),
+      dist);
     if (abs(angleDiff) > maxAngleDiff) return false;
   }
 
   if (to.outAngle()) {
     float angleDiff = fixAngleRadians(*to.outAngle() - newAngle);
     // cout << "angleDiff w/to: " << angleDiff << endl;
-    float maxAngleDiff = CalculateExteriorAngleForCurvature(to.maxCurvature(), dist);
+    float maxAngleDiff = CalculateExteriorAngleForCurvature(to.maxCurvature(),
+      dist);
     if (abs(angleDiff) > maxAngleDiff) return false;
   }
 

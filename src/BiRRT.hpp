@@ -113,6 +113,7 @@ namespace RRT
                     _startSolutionNode = newStartNode;
                     _goalSolutionNode = otherNode;
                     _solutionLength = newStartNode->depth() + depth;
+                    // std::cout << "NEW SOLUTION" << std::endl;
                 }
             }
 
@@ -123,6 +124,7 @@ namespace RRT
                     _startSolutionNode = otherNode;
                     _goalSolutionNode = newGoalNode;
                     _solutionLength = newGoalNode->depth() + depth;
+                    // std::cout << "NEW SOLUTION" << std::endl;
                 }
             }
 
@@ -187,16 +189,27 @@ namespace RRT
                     dist = _startTree.stateSpace().distance(other->state(), targetState);
                 }
 
-                if (dist < goalMaxDist() && other->depth() < depth) {
-                    bool transitionValid;
-                    if (treeToSearch.isReverse()) {
-                        transitionValid = _startTree.stateSpace().transitionValid(targetState, other->state());
-                    } else {
-                        transitionValid = _startTree.stateSpace().transitionValid(other->state(), targetState);
-                    }
+                // std::cout << "dist: " << dist << std::endl;
+                // std::cout << "maxGoalDist = " << goalMaxDist() << endl;
 
-                    bestNode = other;
-                    depth = other->depth();
+                if (dist < goalMaxDist()) {
+                    // cout << "close enough:" << endl;
+                    // cout << "   " << other->state() << endl;
+                    // cout << "   " << targetState << endl;
+
+                    if (other->depth() < depth) {
+                        bool transitionValid;
+                        if (treeToSearch.isReverse()) {
+                            transitionValid = _startTree.stateSpace().transitionValid(targetState, other->state());
+                        } else {
+                            transitionValid = _startTree.stateSpace().transitionValid(other->state(), targetState);
+                        }
+
+                        // cout << "valid transition? " << transitionValid << endl << endl;
+
+                        bestNode = other;
+                        depth = other->depth();
+                    }
                 }
             }
 

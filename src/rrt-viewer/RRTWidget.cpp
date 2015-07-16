@@ -8,7 +8,7 @@ using namespace Eigen;
 using namespace std;
 using std::min;
 
-constexpr float AccelLimit = 2.0;  //  TODO: make this configurable in the gui
+constexpr float AccelLimit = 1.5;  //  TODO: make this configurable in the gui
 constexpr float MaxCurvature = 3;
 
 RRTWidget::RRTWidget() {
@@ -33,7 +33,7 @@ RRTWidget::RRTWidget() {
   _biRRT->setGoalState(calculateEndpointState<true>(initialGoalPos, _goalVel));
 
   _biRRT->setStepSize(0.2);
-  _biRRT->setGoalMaxDist(0.1);
+  _biRRT->setGoalMaxDist(0.3);
 
   //  register for mouse events
   setMouseTracking(true);
@@ -92,7 +92,10 @@ void RRTWidget::slot_step() { step(1); }
 
 void RRTWidget::slot_stepBig() { step(100); }
 
-void RRTWidget::slot_setStepSize(double step) { _biRRT->setStepSize(step); }
+void RRTWidget::slot_setStepSize(double step) {
+  _biRRT->setStepSize(step);
+  _biRRT->setGoalMaxDist(step*1.3); // TODO: do better
+}
 
 void RRTWidget::slot_setCurvatureIncreaseFactor(
     double factor) {
@@ -164,6 +167,15 @@ void RRTWidget::step(int numTimes) {
     for (auto &state : prevSolutionStates)
       _previousSolution.push_back(state.pos());
   }
+
+  // cout << "All nodes in start tree------------------" << endl;
+  // for (auto node : _biRRT->startTree().allNodes()) {
+  //   cout << node->state() << endl;
+  // }
+  // cout << "All nodes in goal tree------------------" << endl;
+  // for (auto node : _biRRT->goalTree().allNodes()) {
+  //   cout << node->state() << endl;
+  // }
 
   emit signal_stepped(_biRRT->iterationCount());
 
