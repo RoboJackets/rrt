@@ -7,8 +7,9 @@
 #include <functional>
 #include <stdexcept>
 #include <stdlib.h>
+#include <iostream>
 
-
+using namespace std;
 namespace RRT
 {
     /**
@@ -20,10 +21,11 @@ namespace RRT
     template<typename T>
     class Node {
     public:
-        Node(const T &state, Node<T> *parent = nullptr) {
+        Node(const T &state, Node<T> *parent = nullptr, int dist = 0) {
             _parent = parent;
             _state = state;
-            
+            _dist = dist;
+
             if (_parent) {
                 _parent->_children.push_back(this);
             }
@@ -54,12 +56,20 @@ namespace RRT
             return _state;
         }
 
+        /**
+         * The distance from this node to its parent.
+         */
+        int distance() const {
+            return _dist;
+        }
+
     private:
         T _state;
         std::list<Node<T> *> _children;
         Node<T> *_parent;
         int _error = 50;
         int _boundSize = 30;
+        int _dist;
     };
 
 
@@ -287,17 +297,20 @@ namespace RRT
         Node<T> *nearest(const T &state, float *distanceOut = nullptr) {
             float bestDistance = -1;
             Node<T> *best = nullptr;
-            
-            for (Node<T> *other : _nodes) {
-                float dist = _stateSpace->distance(other->state(), state);
-                if (bestDistance < 0 || dist < bestDistance) {
-                    bestDistance = dist;
-                    best = other;
+            if (_nodes.size() != 0) {
+                for (Node<T> *other : _nodes) {
+                    float dist = _stateSpace->distance(other->state(), state);
+                    if (bestDistance < 0 || dist < bestDistance) {
+                        bestDistance = dist;
+                        best = other;
+                    }
                 }
+            } else {
+                //first point
             }
 
             if (distanceOut) *distanceOut = bestDistance;
-
+            cout << distanceOut << endl;
             return best;
         }
 
@@ -305,13 +318,14 @@ namespace RRT
          * Grow the tree in the direction of @state
          *
          * @return the new tree Node (may be nullptr if we hit Obstacles)
+         * @param target The point to extend the tree to
          * @param source The Node to connect from.  If source == nullptr, then
          *             the closest tree point is used
          */
         virtual Node<T> *extend(const T &target, Node<T> *source = nullptr) {
             //  if we weren't given a source point, try to find a close node
             if (!source) {
-                source = nearest(target);
+                source = nearest(target, nullptr);
                 if (!source) {
                     return nullptr;
                 }
@@ -322,9 +336,9 @@ namespace RRT
             //  way unless the they're really close together.
             T intermediateState;
             if (_isASCEnabled) {
-                intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize(), _ascLimit);
+                intermediateState = _stateSpace->intermediateState(source->state(), target, source->distance(), _ascLimit);
             } else {
-                intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
+                intermediateState = _stateSpace->intermediateState(source->state(), target, source->distance());
             }
 
             //  Make sure there's actually a direct path from @source to
@@ -334,7 +348,7 @@ namespace RRT
             }
 
             // Add a node to the tree for this state
-            Node<T> *n = new Node<T>(intermediateState, source);
+            Node<T> *n = new Node<T>(intermediateState, source, _stateSpace->distance(intermediateState, source->state()));
             _nodes.push_back(n);
             return n;
         }
