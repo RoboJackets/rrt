@@ -297,20 +297,17 @@ namespace RRT
         Node<T> *nearest(const T &state, float *distanceOut = nullptr) {
             float bestDistance = -1;
             Node<T> *best = nullptr;
-            if (_nodes.size() != 0) {
-                for (Node<T> *other : _nodes) {
-                    float dist = _stateSpace->distance(other->state(), state);
-                    if (bestDistance < 0 || dist < bestDistance) {
-                        bestDistance = dist;
-                        best = other;
-                    }
+            
+            for (Node<T> *other : _nodes) {
+                float dist = _stateSpace->distance(other->state(), state);
+                if (bestDistance < 0 || dist < bestDistance) {
+                    bestDistance = dist;
+                    best = other;
                 }
-            } else {
-                //first point
             }
 
             if (distanceOut) *distanceOut = bestDistance;
-            cout << distanceOut << endl;
+
             return best;
         }
 
@@ -350,6 +347,7 @@ namespace RRT
             // Add a node to the tree for this state
             Node<T> *n = new Node<T>(intermediateState, source, _stateSpace->distance(intermediateState, source->state()));
             _nodes.push_back(n);
+            cout << _nodes.size() << endl;
             return n;
         }
 
