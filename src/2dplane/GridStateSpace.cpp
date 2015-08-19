@@ -2,6 +2,7 @@
 #include <util.hpp>
 #include <stdexcept>
 #include <math.h>
+#include <iostream>
 
 using namespace Eigen;
 using namespace std;
@@ -29,6 +30,7 @@ Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2
     }
 
     Vector2f val = source + delta * stepSize;
+    cout << stepSize << endl;
     return val;
 }
 

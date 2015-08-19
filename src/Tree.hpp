@@ -21,7 +21,7 @@ namespace RRT
     template<typename T>
     class Node {
     public:
-        Node(const T &state, Node<T> *parent = nullptr, int dist = 0) {
+        Node(const T &state, Node<T> *parent = nullptr, float dist = 0.1) {
             _parent = parent;
             _state = state;
             _dist = dist;
@@ -59,7 +59,7 @@ namespace RRT
         /**
          * The distance from this node to its parent.
          */
-        int distance() const {
+        float distance() const {
             return _dist;
         }
 
@@ -335,7 +335,7 @@ namespace RRT
             if (_isASCEnabled) {
                 intermediateState = _stateSpace->intermediateState(source->state(), target, source->distance(), _ascLimit);
             } else {
-                intermediateState = _stateSpace->intermediateState(source->state(), target, source->distance());
+                intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
             }
 
             //  Make sure there's actually a direct path from @source to
@@ -347,7 +347,6 @@ namespace RRT
             // Add a node to the tree for this state
             Node<T> *n = new Node<T>(intermediateState, source, _stateSpace->distance(intermediateState, source->state()));
             _nodes.push_back(n);
-            cout << _nodes.size() << endl;
             return n;
         }
 
