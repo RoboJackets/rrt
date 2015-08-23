@@ -20,17 +20,22 @@ bool GridStateSpace::stateValid(const Vector2f &pt) const {
 Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float stepSize, float limit) const {
     Vector2f delta = target - source;
     delta = delta / delta.norm();   //  unit vector
+    if (stepSize == 0) {
+        stepSize = 0.1;
+    }
 
     //stepSize = stepSize*pow(_obstacleGrid.nearestObstacleDist(target), 0.2); //for more subtle changes
     float n = _obstacleGrid.nearestObstacleDist(target);
     if (n > 1) {
+        cout << "StepsizeI: " << stepSize << endl;
         stepSize = stepSize*limit;
     } else if (n < 1) {
+        cout << "near";
         stepSize = stepSize*0.5;
     }
 
     Vector2f val = source + delta * stepSize;
-    cout << stepSize << endl;
+    cout << "StepsizeF: " << stepSize << endl;
     return val;
 }
 
