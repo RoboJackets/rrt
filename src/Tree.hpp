@@ -7,7 +7,6 @@
 #include <functional>
 #include <stdexcept>
 #include <stdlib.h>
-#include <iostream>
 
 using namespace std;
 namespace RRT
@@ -120,8 +119,7 @@ namespace RRT
             setGoalBias(0);
             setWaypointBias(0);
             setGoalMaxDist(0.1);
-            //nearbyObstacle = false;
-            _ascLimit = 1.2;
+            setASCLimit(1.2);
         }
 
         virtual ~Tree() {
@@ -155,7 +153,7 @@ namespace RRT
         int ascLimit() const {
             return _ascLimit;
         }
-        void setASCLimit(int lim) {
+        void setASCLimit(float lim) {
             _ascLimit = lim;
         }
 
@@ -333,7 +331,6 @@ namespace RRT
             //  way unless the they're really close together.
             T intermediateState;
             if (_isASCEnabled) {
-                cout << source->distance() << endl;
                 intermediateState = _stateSpace->intermediateState(source->state(), target, source->distance(), _ascLimit);
             } else {
                 intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
@@ -346,7 +343,6 @@ namespace RRT
             }
 
             // Add a node to the tree for this state
-            // cout << _stateSpace->distance(intermediateState, source->state()) << endl;
             Node<T> *n = new Node<T>(intermediateState, source, _stateSpace->distance(intermediateState, source->state()));
             _nodes.push_back(n);
             return n;

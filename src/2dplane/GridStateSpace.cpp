@@ -2,7 +2,6 @@
 #include <util.hpp>
 #include <stdexcept>
 #include <math.h>
-#include <iostream>
 
 using namespace Eigen;
 using namespace std;

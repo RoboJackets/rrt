@@ -70,5 +70,10 @@ TEST(ASC, Tree) {
 
 	vector<Vector2f> path;
 	tree->getPath(path, tree->lastNode(), true);
-	ASSERT_EQ(path[0], path[path.size() - 1]);
+
+	bool varied = false;
+	for (int i = 0; i < path.size() - 2 && !varied; i++) {
+		if (path[i] != path[i + 1]) varied = true;
+	}
+	ASSERT_EQ(false, varied);
 }
