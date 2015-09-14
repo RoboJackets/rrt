@@ -51,7 +51,28 @@ set(lib_SRC
     "src/2dplane/PlaneStateSpace.cpp"
 )
 
-add_library("RRT" ${lib_SRC})
+add_library(RRT ${lib_SRC})
+install(TARGETS RRT DESTINATION lib)
+
+# Install rrt library headers
+set(lib_HEADERS
+    "src/Tree.hpp"
+    "src/BiRRT.hpp"
+    "src/2dplane/2dplane.hpp"
+    "src/2dplane/GridStateSpace.hpp"
+    "src/2dplane/ObstacleGrid.hpp"
+    "src/2dplane/PlaneStateSpace.hpp"
+    "src/planning/Path.hpp"
+    "src/StateSpace.hpp"
+)
+# For each header, we get the subdirectory (minus the leading "src/") and place
+# it in the appropriate subfolder of the output include directory
+foreach(HEADER ${lib_HEADERS})
+    message(STATUS "header: ${HEADER}")
+    string(REGEX MATCH "src/(.*)/" DIR ${HEADER})
+    set(DIR "${CMAKE_MATCH_1}")
+    install(FILES ${HEADER} DESTINATION include/rrt/${DIR})
+endforeach()
 
 
 # rrt-viewer

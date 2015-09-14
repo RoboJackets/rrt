@@ -2,7 +2,11 @@ MAKE_FLAGS=--no-print-directory
 
 all:
 	mkdir -p build
-	cd build && cmake .. && make $(MAKE_FLAGS)
+	cd build && cmake -DCMAKE_INSTALL_PREFIX="./install" .. && make $(MAKE_FLAGS)
+
+# "Install" to a directory inside the build dir
+install-test: all
+	cd build && make install $(MAKE_FLAGS)
 
 run: all
 	build/rrt-viewer
