@@ -13,18 +13,21 @@
 include(ExternalProject)
 ExternalProject_Add(rrt_lib
     GIT_REPOSITORY ${PROJECT_SOURCE_DIR}/external/rrt
-    BUILD_COMMAND make
-    INSTALL_COMMAND ""
+    PREFIX "${CMAKE_CURRENT_BINARY_DIR}"
 )
 set_target_properties(rrt_lib PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # specify include dir
-ExternalProject_Get_Property(rrt_lib source_dir)
-include_directories(${source_dir}/include)
+# ExternalProject_Get_Property(rrt_lib source_dir)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
 # specify link libraries
-ExternalProject_Get_Property(rrt_lib binary_dir)
+# ExternalProject_Get_Property(rrt_lib binary_dir)
 set(rrt_LIBRARY
-    ${binary_dir}/librrt.a
+    ${CMAKE_CURRENT_BINARY_DIR}/lib/librrt.a
 )
-link_directories(${binary_dir})
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/lib)
+
+add_custom_command(OUTPUT ${rrt_LIBRARY}
+    DEPENDS rrt_lib
+)
