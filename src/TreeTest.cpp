@@ -9,11 +9,7 @@ using namespace Eigen;
 using namespace std;
 
 
-TEST(Instantiation, Tree) {
-	Tree<Vector2f> tree(make_shared<GridStateSpace>(50, 50, 50, 50));
-}
-
-TEST(Example_2dplane, Tree) {
+TEST(Tree, Example_2dplane) {
 	Tree<Vector2f> *tree = TreeFor2dPlane(
 		make_shared<GridStateSpace>(50, 50, 50, 50),
 		Vector2f(90, 90),	//	goal point
@@ -29,7 +25,7 @@ TEST(Example_2dplane, Tree) {
 	ASSERT_EQ(success, true);
 }
 
-TEST(GetPath, Tree) {
+TEST(Tree, GetPath) {
 	Tree<Vector2f> *tree = TreeFor2dPlane(
 		make_shared<GridStateSpace>(50, 50, 50, 50),
 		Vector2f(90, 90),	//	goal point
