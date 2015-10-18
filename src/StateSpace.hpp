@@ -42,11 +42,12 @@ public:
     virtual void setASCScale(float stepSizeScale);
 
     /**
-     * Sets the cutoff for successful vs failed iterations of adaptive stepsize control.
+     * When running adaptive stepsize control, determines the maximum distance an obstacle
+     * can be from a source node for the stepSize to grow instead of shrink.
      *
-     * @param ascCutoff How close the obstacles can be to the path to force a shrink
+     * @param maxDist How close the obstacles can be to the path to cause a shrink in stepsize
      */
-    virtual void setASCCutoff(float ascCutoff);
+    virtual void setMaxDist(float maxDist);
 
     /**
      * @brief Calculate the distance between two states
@@ -80,5 +81,5 @@ public:
 
 protected:
     float _ascScale;
-    float _ascCutoff;
+    float _maxDist;
 };

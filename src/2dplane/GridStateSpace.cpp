@@ -24,14 +24,14 @@ Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2
         stepSize = defaultStepSize;
     } else {
         float dist = _obstacleGrid.nearestObstacleDist(source);
-        if (dist > ascCutoff()) { //grows if dist > 1
+        if (dist > maxDist()) { //grows if dist > maxDist
             stepSize = prevStepSize * ascGrowthRate;
-        } else if (dist < ascCutoff()) { //shrinks if dist < 1
+        } else if (dist < maxDist()) { //shrinks if dist < maxDist
             stepSize = prevStepSize * (ascGrowthRate - 1);
         }
         // stepSize = stepSize * pow(dist, 0.25); // this is an alternative to the if block that is more elegant but more computationally intensive because exponents
     }
-    
+
     if (stepSize > ascScale() * defaultStepSize) { 
         //sets max limit for stepsize
         stepSize = ascScale() * defaultStepSize;

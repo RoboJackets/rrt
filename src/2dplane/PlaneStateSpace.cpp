@@ -26,8 +26,8 @@ void StateSpace<Vector2f>::setASCScale(float ascScale) {
 }
 
 template<>
-void StateSpace<Vector2f>::setASCCutoff(float ascCutoff) {
-    _ascCutoff = ascCutoff;
+void StateSpace<Vector2f>::setMaxDist(float maxDist) {
+    _maxDist = maxDist;
 }
 
 double PlaneStateSpace::distance(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const {
@@ -54,6 +54,6 @@ float PlaneStateSpace::ascScale() const {
     return _ascScale;
 }
 
-float PlaneStateSpace::ascCutoff() const {
-    return _ascCutoff;
+float PlaneStateSpace::maxDist() const {
+    return _maxDist;
 }

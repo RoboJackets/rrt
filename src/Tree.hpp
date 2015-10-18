@@ -120,7 +120,7 @@ namespace RRT
             setGoalMaxDist(0.1);
             setASCLimit(1.2);
             _stateSpace->setASCScale(5);
-            _stateSpace->setASCCutoff(1);
+            _stateSpace->setMaxDist(1);
         }
 
         virtual ~Tree() {
