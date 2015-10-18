@@ -27,7 +27,7 @@ Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2
         if (dist > maxDist()) { //grows if dist > maxDist
             stepSize = prevStepSize * ascGrowthRate;
         } else if (dist < maxDist()) { //shrinks if dist < maxDist
-            stepSize = prevStepSize * (ascGrowthRate - 1);
+            stepSize = prevStepSize / (ascGrowthRate * 2);
         }
         // stepSize = stepSize * pow(dist, 0.25); // this is an alternative to the if block that is more elegant but more computationally intensive because exponents
     }
