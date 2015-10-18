@@ -80,9 +80,9 @@ void RRTWidget::slot_setWaypointBias(int bias) {
 
 void RRTWidget::slot_setASC(int checked) {
     if (checked == 0) {
-        _biRRT->setASC(false);
+        _biRRT->setASCEnabled(false);
     } else {
-        _biRRT->setASC(true);
+        _biRRT->setASCEnabled(true);
     }
 }
 

@@ -39,7 +39,7 @@ namespace RRT
         bool isASCEnabled() const {
             return _startTree.isASCEnabled();
         }
-        void setASC(bool checked) {
+        void setASCEnabled(bool checked) {
             _startTree.setASC(checked);
             _goalTree.setASC(checked);
         }

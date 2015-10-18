@@ -67,8 +67,6 @@ namespace RRT
         T _state;
         std::list<Node<T> *> _children;
         Node<T> *_parent;
-        int _error = 50;
-        int _boundSize = 30;
         float _dist;
     };
 
@@ -116,7 +114,7 @@ namespace RRT
             //  default values
             setStepSize(0.1);
             setMaxIterations(1000);
-            setASC(0);
+            setASC(false);
             setGoalBias(0);
             setWaypointBias(0);
             setGoalMaxDist(0.1);

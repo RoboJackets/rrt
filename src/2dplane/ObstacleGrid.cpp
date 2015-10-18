@@ -45,7 +45,7 @@ float ObstacleGrid::nearestObstacleDist(const Vector2f &state) const {
         }
     }
 
-    return c; //we require a fraction not the actual value
+    return c;
 }
 
 

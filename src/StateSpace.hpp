@@ -23,7 +23,7 @@ public:
      * Finds a state in the direction of @target from @source.state().
      * This new state will potentially be added to the tree.  No need to do
      * any validation on the state before returning, the tree will handle
-     * that. A negative stepSize tells it to implement adaptive stepsize control.
+     * that.
      */
     virtual T intermediateState(const T &source, const T &target, float stepSize) const = 0;
 
@@ -32,7 +32,7 @@ public:
      *
      * @param ascLimit The maximum size that the stepsize can be, even when there are no nearby obstacles
      */
-    virtual T intermediateState(const T &source, const T &target, float stepSize, float ascLimit, float defaultStepSize) const = 0;
+    virtual T intermediateState(const T &source, const T &target, float prevStepSize, float ascGrowthRate, float defaultStepSize) const = 0;
 
     /**
      * Sets the aggresiveness of successful iterations of adaptive stepsize control.
