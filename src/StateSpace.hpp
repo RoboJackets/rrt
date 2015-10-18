@@ -32,7 +32,21 @@ public:
      *
      * @param ascLimit The maximum size that the stepsize can be, even when there are no nearby obstacles
      */
-    virtual T intermediateState(const T &source, const T &target, float stepSize, float ascLimit) const = 0;
+    virtual T intermediateState(const T &source, const T &target, float stepSize, float ascLimit, float defaultStepSize) const = 0;
+
+    /**
+     * Sets the aggresiveness of successful iterations of adaptive stepsize control.
+     *
+     * @param stepSizeScale How large the stepsize is scaled upon a successful iteration
+     */
+    virtual void setASCScale(float stepSizeScale);
+
+    /**
+     * Sets the cutoff for successful vs failed iterations of adaptive stepsize control.
+     *
+     * @param ascCutoff How close the obstacles can be to the path to force a shrink
+     */
+    virtual void setASCCutoff(float ascCutoff);
 
     /**
      * @brief Calculate the distance between two states
@@ -63,4 +77,8 @@ public:
      * @return A boolean indicating validity
      */
     virtual bool transitionValid(const T &from, const T &to) const = 0;
+
+protected:
+    float _ascScale;
+    float _ascCutoff;
 };

@@ -7,6 +7,7 @@
 #include <functional>
 #include <stdexcept>
 #include <stdlib.h>
+#include <iostream>
 
 using namespace std;
 namespace RRT
@@ -20,7 +21,7 @@ namespace RRT
     template<typename T>
     class Node {
     public:
-        Node(const T &state, Node<T> *parent = nullptr, float dist = 0.1) {
+        Node(const T &state, Node<T> *parent = nullptr, float dist = 0) {
             _parent = parent;
             _state = state;
             _dist = dist;
@@ -120,6 +121,8 @@ namespace RRT
             setWaypointBias(0);
             setGoalMaxDist(0.1);
             setASCLimit(1.2);
+            _stateSpace->setASCScale(5);
+            _stateSpace->setASCCutoff(1);
         }
 
         virtual ~Tree() {
@@ -331,7 +334,7 @@ namespace RRT
             //  way unless the they're really close together.
             T intermediateState;
             if (_isASCEnabled) {
-                intermediateState = _stateSpace->intermediateState(source->state(), target, source->distance(), _ascLimit);
+                intermediateState = _stateSpace->intermediateState(source->state(), target, source->distance(), _ascLimit, stepSize());
             } else {
                 intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
             }

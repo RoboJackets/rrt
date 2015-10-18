@@ -20,6 +20,16 @@ Vector2f PlaneStateSpace::intermediateState(const Vector2f &source, const Vector
     return val;
 }
 
+template<>
+void StateSpace<Vector2f>::setASCScale(float ascScale) {
+    _ascScale = ascScale;
+}
+
+template<>
+void StateSpace<Vector2f>::setASCCutoff(float ascCutoff) {
+    _ascCutoff = ascCutoff;
+}
+
 double PlaneStateSpace::distance(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const {
     Vector2f delta = from - to;
     return sqrtf(powf(delta.x(), 2) + powf(delta.y(), 2));
@@ -38,4 +48,12 @@ float PlaneStateSpace::width() const {
 
 float PlaneStateSpace::height() const {
     return _height;
+}
+
+float PlaneStateSpace::ascScale() const {
+    return _ascScale;
+}
+
+float PlaneStateSpace::ascCutoff() const {
+    return _ascCutoff;
 }

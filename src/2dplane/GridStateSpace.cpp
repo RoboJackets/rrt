@@ -16,23 +16,23 @@ bool GridStateSpace::stateValid(const Vector2f &pt) const {
     return PlaneStateSpace::stateValid(pt) && !_obstacleGrid.obstacleAt(_obstacleGrid.gridSquareForLocation(pt));
 }
 
-Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float stepSize, float limit) const {
+Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float stepSize, float limit, float defaultStepSize) const {
     Vector2f delta = target - source;
     delta = delta / delta.norm();   //  unit vector
     if (stepSize == 0) {
-        stepSize = 0.1;
+        stepSize = defaultStepSize;
     }
 
-    float n = _obstacleGrid.nearestObstacleDist(target);
-    if (stepSize > 50) {
+    float n = _obstacleGrid.nearestObstacleDist(source);
+    if (stepSize > ascScale() * defaultStepSize) { //sets max limit for stepsize
         Vector2f val = source + delta * stepSize;
         return val;
-    } else if (n > 1) {
+    } else if (n > ascCutoff()) { //grows if dist > 1
         stepSize = stepSize * limit;
-    } else if (n < 1) {
+    } else if (n < ascCutoff()) { //shrinks if dist < 1
         stepSize = stepSize * (limit - 1);
     }
-    // stepSize = stepSize * pow(n, 0.25); //grows if dist>1, shrinks if dist<1
+    // stepSize = stepSize * pow(n, 0.25); // this is an alternative to the if block that is more elegant but more computationally intensive because exponents
 
     Vector2f val = source + delta * stepSize;
     return val;
