@@ -16,16 +16,16 @@ bool GridStateSpace::stateValid(const Vector2f &pt) const {
 }
 
 Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float prevStepSize, float ascGrowthRate, float defaultStepSize) const {
-    float stepSize;
+    float stepSize = prevStepSize;
     Vector2f delta = target - source;
     delta = delta / delta.norm();   //  unit vector
     if (prevStepSize == 0) {
         stepSize = defaultStepSize;
     } else {
         float dist = _obstacleGrid.nearestObstacleDist(source);
-        if (dist > prevStepSize * maxDist()) { //grows if dist > maxDist
+        if (dist > prevStepSize * distScale()) { //grows if dist > max tolerable dist
             stepSize = prevStepSize * ascGrowthRate;
-        } else if (dist < prevStepSize * maxDist()) { //shrinks if dist < maxDist
+        } else if (dist < prevStepSize * distScale()) { //shrinks if dist < max tolerable dist
             stepSize = prevStepSize / (ascGrowthRate * 2);
         }
         // stepSize = stepSize * pow(dist, 0.25); // this is an alternative to the if block that is more elegant but more computationally intensive because exponents
@@ -136,15 +136,15 @@ float GridStateSpace::maxStepSize() const {
     return _maxStepSize;
 }
 
-float GridStateSpace::maxDist() const {
-    return _maxDist;
+float GridStateSpace::distScale() const {
+    return _distScale;
 }
 
 void GridStateSpace::setMaxStepSize(float maxStepSize) {
     _maxStepSize = maxStepSize;
 }
 
-void GridStateSpace::setMaxDist(float maxDist) {
-    _maxDist = maxDist;
-    _obstacleGrid.setMaxDist(20 * maxDist); // how far should obstaclegrid search for nearby obstacles
+void GridStateSpace::setDistScale(float distScale) {
+    _distScale = distScale;
+    _obstacleGrid.setMaxDist(20 * distScale); // how far should obstaclegrid search for nearby obstacles
 }

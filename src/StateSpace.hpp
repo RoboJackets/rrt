@@ -60,12 +60,12 @@ public:
      *
      * @param maxDist How close the obstacles can be to the path to cause a shrink in stepsize
      */
-    virtual void setMaxDist(float maxDist) = 0;
+    virtual void setDistScale(float distScale) = 0;
 
     /**
      * Returns the maximum distance an obstacle can be from a source node when running adaptive stepsize control
      */
-    virtual float maxDist() const = 0;
+    virtual float distScale() const = 0;
 
     /**
      * @brief Calculate the distance between two states
@@ -99,5 +99,5 @@ public:
     
 protected:
     float _maxStepSize;
-    float _maxDist;
+    float _distScale;
 };

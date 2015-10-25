@@ -13,7 +13,11 @@ using namespace std;
 namespace RRT
 {
     /**
-     * Base class for an rrt tree node
+     * Base class for an RRT tree node. If adaptive stepsize control (ASC) is enabled, then
+     * the stepsize for extending new nodes from the tree will be dynamically updated depending
+     * on how close the nearest obstacle is. If there are no nearby obstacles, then the stepsize will
+     * be extended in order to safely cover more ground. If there are nearby obstacles, then the
+     * stepsize will shrink so that the RRT can take more precise steps.
      *
      * @param T The datatype representing the state in the space the RRT
      * will be searching.
@@ -118,9 +122,9 @@ namespace RRT
             setGoalBias(0);
             setWaypointBias(0);
             setGoalMaxDist(0.1);
-            setASCLimit(1.5);
+            setASCGrowthRate(1.5);
             _stateSpace->setMaxStepSize(5);
-            _stateSpace->setMaxDist(1);
+            _stateSpace->setDistScale(1);
         }
 
         virtual ~Tree() {
@@ -151,11 +155,11 @@ namespace RRT
         /**
          * A coefficient that determines how much we want to expand our stepsize when adaptive stepsize control.
          */
-        int ascLimit() const {
-            return _ascLimit;
+        int ascGrowthRate() const {
+            return _ascGrowthRate;
         }
-        void setASCLimit(float lim) {
-            _ascLimit = lim;
+        void setASCGrowthRate(float lim) {
+            _ascGrowthRate = lim;
         }
 
 
@@ -332,7 +336,7 @@ namespace RRT
             //  way unless the they're really close together.
             T intermediateState;
             if (_isASCEnabled) {
-                intermediateState = _stateSpace->intermediateState(source->state(), target, source->distance(), _ascLimit, stepSize());
+                intermediateState = _stateSpace->intermediateState(source->state(), target, source->distance(), _ascGrowthRate, stepSize());
             } else {
                 intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
             }
@@ -452,8 +456,6 @@ namespace RRT
 
         T _goalState;
 
-        //bool nearbyObstacle;
-
         int _maxIterations;
 
         bool _isASCEnabled;
@@ -468,7 +470,7 @@ namespace RRT
 
         float _stepSize;
 
-        float _ascLimit;
+        float _ascGrowthRate;
 
         std::shared_ptr<StateSpace<T>> _stateSpace;
     };

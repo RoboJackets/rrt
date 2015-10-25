@@ -25,9 +25,9 @@ public:
     ObstacleGrid &obstacleGrid();
 
     float maxStepSize() const;
-    float maxDist() const;
     void setMaxStepSize(float maxStepSize);
-    void setMaxDist(float maxDist);
+    float distScale() const;
+    void setDistScale(float distScale);
 
 private:
     ObstacleGrid _obstacleGrid;
