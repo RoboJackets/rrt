@@ -24,8 +24,6 @@ public:
 
     float width() const;
     float height() const;
-    float ascScale() const;
-    float maxDist() const;
 
 
 private:

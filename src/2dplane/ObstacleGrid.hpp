@@ -20,6 +20,7 @@ public:
     bool obstacleAt(int x, int y) const;
     bool &obstacleAt(const Eigen::Vector2i &gridLoc);
     bool obstacleAt(const Eigen::Vector2i &gridLoc) const;
+    void setMaxDist(float maxDist);
 
     int discretizedWidth() const;
     int discretizedHeight() const;
@@ -30,6 +31,7 @@ public:
 private:
     int _discretizedWidth, _discretizedHeight;
     float _width, _height;
+    float _maxDist;
 
     /// 2d array of obstacles
     bool *_obstacles;
