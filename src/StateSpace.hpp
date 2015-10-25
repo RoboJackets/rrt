@@ -39,12 +39,12 @@ public:
      *
      * @param stepSizeScale How large the stepsize is scaled upon a successful iteration
      */
-    virtual void setASCScale(float stepSizeScale) = 0;
+    virtual void setMaxStepSize(float stepSizeScale) = 0;
 
     /**
      * Returns how aggressively adaptive stepsize control scales the stepSize when there are no nearby obstacles
      */
-    virtual float ascScale() const = 0;
+    virtual float maxStepSize() const = 0;
 
     /**
      * When running adaptive stepsize control, determines the maximum distance an obstacle
@@ -90,6 +90,6 @@ public:
     virtual bool transitionValid(const T &from, const T &to) const = 0;
     
 protected:
-    float _ascScale;
+    float _maxStepSize;
     float _maxDist;
 };

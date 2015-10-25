@@ -40,8 +40,8 @@ namespace RRT
             return _startTree.isASCEnabled();
         }
         void setASCEnabled(bool checked) {
-            _startTree.setASC(checked);
-            _goalTree.setASC(checked);
+            _startTree.setASCEnabled(checked);
+            _goalTree.setASCEnabled(checked);
         }
 
         float goalBias() const {

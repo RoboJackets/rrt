@@ -59,7 +59,7 @@ TEST(ASC, Tree) {
 	//	give it plenty of iterations so it's not likely to fail
 	const int maxIterations = 10000;
 	tree->setMaxIterations(maxIterations);
-	tree->setASC(true);
+	tree->setASCEnabled(true);
 
 	tree->setStartState(Vector2f(10, 10));
 	bool success = tree->run();	//	run with the given starting point

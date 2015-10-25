@@ -114,12 +114,12 @@ namespace RRT
             //  default values
             setStepSize(0.1);
             setMaxIterations(1000);
-            setASC(false);
+            setASCEnabled(false);
             setGoalBias(0);
             setWaypointBias(0);
             setGoalMaxDist(0.1);
             setASCLimit(1.5);
-            _stateSpace->setASCScale(5);
+            _stateSpace->setMaxStepSize(5);
             _stateSpace->setMaxDist(1);
         }
 
@@ -165,7 +165,7 @@ namespace RRT
         bool isASCEnabled() const {
             return _isASCEnabled;
         }
-        void setASC(bool checked) {
+        void setASCEnabled(bool checked) {
             _isASCEnabled = checked;
         }
 

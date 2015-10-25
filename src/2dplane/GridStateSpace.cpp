@@ -2,7 +2,6 @@
 #include <util.hpp>
 #include <stdexcept>
 #include <math.h>
-#include <iostream>
 using namespace Eigen;
 using namespace std;
 
@@ -24,22 +23,17 @@ Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2
         stepSize = defaultStepSize;
     } else {
         float dist = _obstacleGrid.nearestObstacleDist(source);
-        cout << "Dist: " << dist << endl;
-        cout << "Step: " << prevStepSize << endl;
         if (dist > prevStepSize * maxDist()) { //grows if dist > maxDist
             stepSize = prevStepSize * ascGrowthRate;
-            cout << "Grow" << endl;
         } else if (dist < prevStepSize * maxDist()) { //shrinks if dist < maxDist
             stepSize = prevStepSize / (ascGrowthRate * 2);
-            cout << "Shrink" << endl;
         }
-        cout << prevStepSize * maxDist() << endl;
         // stepSize = stepSize * pow(dist, 0.25); // this is an alternative to the if block that is more elegant but more computationally intensive because exponents
     }
 
-    if (stepSize > ascScale() * defaultStepSize) { 
+    if (stepSize > maxStepSize() * defaultStepSize) { 
         //sets max limit for stepsize
-        stepSize = ascScale() * defaultStepSize;
+        stepSize = maxStepSize() * defaultStepSize;
     }
     Vector2f val = source + delta * stepSize;
     return val;
@@ -138,16 +132,16 @@ ObstacleGrid &GridStateSpace::obstacleGrid() {
     return _obstacleGrid;
 }
 
-float GridStateSpace::ascScale() const {
-    return _ascScale;
+float GridStateSpace::maxStepSize() const {
+    return _maxStepSize;
 }
 
 float GridStateSpace::maxDist() const {
     return _maxDist;
 }
 
-void GridStateSpace::setASCScale(float ascScale) {
-    _ascScale = ascScale;
+void GridStateSpace::setMaxStepSize(float maxStepSize) {
+    _maxStepSize = maxStepSize;
 }
 
 void GridStateSpace::setMaxDist(float maxDist) {

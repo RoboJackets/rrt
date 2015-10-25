@@ -24,9 +24,9 @@ public:
     const ObstacleGrid &obstacleGrid() const;
     ObstacleGrid &obstacleGrid();
 
-    float ascScale() const;
+    float maxStepSize() const;
     float maxDist() const;
-    void setASCScale(float ascScale);
+    void setMaxStepSize(float maxStepSize);
     void setMaxDist(float maxDist);
 
 private:
