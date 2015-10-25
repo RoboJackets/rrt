@@ -152,5 +152,5 @@ void GridStateSpace::setASCScale(float ascScale) {
 
 void GridStateSpace::setMaxDist(float maxDist) {
     _maxDist = maxDist;
-    _obstacleGrid.setMaxDist(maxDist);
+    _obstacleGrid.setMaxDist(20 * maxDist); // how far should obstaclegrid search for nearby obstacles
 }

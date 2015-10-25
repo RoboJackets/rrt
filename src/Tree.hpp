@@ -118,7 +118,7 @@ namespace RRT
             setGoalBias(0);
             setWaypointBias(0);
             setGoalMaxDist(0.1);
-            setASCLimit(1.2);
+            setASCLimit(1.5);
             _stateSpace->setASCScale(5);
             _stateSpace->setMaxDist(1);
         }
