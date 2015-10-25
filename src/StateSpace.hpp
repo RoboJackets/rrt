@@ -28,9 +28,15 @@ public:
     virtual T intermediateState(const T &source, const T &target, float stepSize) const = 0;
 
     /**
-     * An overloaded version designed for use in adaptive stepsize control.
+     * An overloaded version designed for use in adaptive stepsize control. A previous
+     * stepsize of 0 will indicate that the this is the first iteration of the tree and will
+     * automatically set the stepsize to defaultStepSize.
      *
-     * @param ascLimit The maximum size that the stepsize can be, even when there are no nearby obstacles
+     * @param source The node in the tree to extend from
+     * @param target The point in the space to extend to
+     * @param prevStepSize The stepsize taken to reach source
+     * @param ascGrowthRate How aggressively the RRT grows or shrinks
+     * @param defaultStepSize The default stepsize of the RRT
      */
     virtual T intermediateState(const T &source, const T &target, float prevStepSize, float ascGrowthRate, float defaultStepSize) const = 0;
 
