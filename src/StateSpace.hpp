@@ -36,7 +36,9 @@ public:
      * @param target The point in the space to extend to
      * @param prevStepSize The stepsize taken to reach source
      * @param ascGrowthRate How aggressively the RRT grows or shrinks
-     * @param defaultStepSize The default stepsize of the RRT
+     * @param defaultStepSize The default stepsize of the RRT\
+     *
+     * @return A state in the direction of @target from @source.state()
      */
     virtual T intermediateState(const T &source, const T &target, float prevStepSize, float ascGrowthRate, float defaultStepSize) const = 0;
 
