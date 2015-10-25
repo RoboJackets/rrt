@@ -21,7 +21,7 @@ include_directories(src)
 
 # Eigen - used for linear algebra
 find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN_INCLUDE_DIR})
+include_directories(SYSTEM ${EIGEN_INCLUDE_DIR})
 
 # debug
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
@@ -75,7 +75,7 @@ enable_testing()
 include(SetupGTest)
 
 # test srcs
-file(GLOB tests_SRC
+set(tests_SRC
     "src/BiRRTTest.cpp"
     "src/TreeTest.cpp"
 )
