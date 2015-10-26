@@ -9,15 +9,22 @@
 #include <stdlib.h>
 #include <iostream>
 
+/* If adaptive stepsize control (ASC) is enabled, then the stepsize for extending new nodes from 
+ * the tree will be dynamically updated depending on how close the nearest obstacle is. If there are
+ * no nearby obstacles, then the stepsize will be extended in order to safely cover more ground. If
+ * there are nearby obstacles, then the stepsize will shrink so that the RRT can take more precise steps.
+ *
+ * setASCGrowthRate determines how strongly the stepsize changes in response to a growth or shrink.
+ * _stateSpace->setMaxStepSize sets how many times larger than the default stepsize the RRT is allowed
+ *      to make the next stepsize.
+ * _stateSpace->setMaxDistScale sets the maximum distance an obstacle can be to cause the RRT to shrink
+ *      instead of grow, scaled to the stepsize of the node being extended from.
+ */
 using namespace std;
 namespace RRT
 {
     /**
-     * Base class for an RRT tree node. If adaptive stepsize control (ASC) is enabled, then
-     * the stepsize for extending new nodes from the tree will be dynamically updated depending
-     * on how close the nearest obstacle is. If there are no nearby obstacles, then the stepsize will
-     * be extended in order to safely cover more ground. If there are nearby obstacles, then the
-     * stepsize will shrink so that the RRT can take more precise steps.
+     * Base class for an RRT tree node.
      *
      * @param T The datatype representing the state in the space the RRT
      * will be searching.
