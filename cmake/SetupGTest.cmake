@@ -2,7 +2,7 @@
 include(ExternalProject)
 
 ExternalProject_Add(googletest
-    URL ${PROJECT_SOURCE_DIR}/third_party/googletest
+    URL ${PROJECT_SOURCE_DIR}/third_party/googletest/googletest
     CMAKE_ARGS -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG:PATH=DebugLibs
                -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE:PATH=ReleaseLibs
     PREFIX "${CMAKE_CURRENT_BINARY_DIR}"
