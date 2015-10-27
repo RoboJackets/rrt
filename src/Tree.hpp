@@ -210,7 +210,7 @@ namespace RRT
             for (int i = 0; i < _maxIterations; i++) {
                 Node<T> *newNode = grow();
 
-                if (newNode && _stateSpace->distance(newNode->state(), _goalState)) return true;
+                if (newNode && _stateSpace->distance(newNode->state(), _goalState) < _goalMaxDist) return true;
             }
 
             //  we hit our iteration limit and didn't reach the goal :(
