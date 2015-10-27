@@ -25,6 +25,22 @@ TEST(Tree, Example_2dplane) {
 	ASSERT_TRUE(success);
 }
 
+TEST(Tree, FailOnImpossibleRequest) {
+	Tree<Vector2f> *tree = TreeFor2dPlane(
+		make_shared<GridStateSpace>(50, 50, 50, 50),
+		Vector2f(60, 60),	//	goal point outside the bounds of the state space
+		5);					//	step size
+
+	//	give it plenty of iterations so it's not likely to fail
+	const int maxIterations = 2000;
+	tree->setMaxIterations(maxIterations);
+	tree->setGoalMaxDist(5);
+
+	tree->setStartState(Vector2f(10, 10));
+	bool success = tree->run();	//	run with the given starting point
+	ASSERT_FALSE(success); // the rrt search should fail because the goal isn't reachable
+}
+
 TEST(Tree, GetPath) {
 	Tree<Vector2f> *tree = TreeFor2dPlane(
 		make_shared<GridStateSpace>(50, 50, 50, 50),
