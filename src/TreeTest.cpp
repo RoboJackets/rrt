@@ -4,6 +4,8 @@
 #include <2dplane/GridStateSpace.hpp>
 #include <vector>
 
+#define MAGNITUDE(n) (sqrtf(powf(n.x(), 2) + powf(n.y(), 2)))
+
 using namespace RRT;
 using namespace Eigen;
 using namespace std;
@@ -67,16 +69,17 @@ TEST(Tree, GetPath) {
 	ASSERT_TRUE(path.size() > 1);
 }
 
-TEST(ASC, Tree) {
+TEST(Tree, ASC) {
 	//test adaptive stepsize control
 	Tree<Vector2f> *tree = TreeFor2dPlane(
 		make_shared<GridStateSpace>(50, 50, 50, 50),
-		Vector2f(90, 90),	//	goal point
+		Vector2f(40, 40),	//	goal point
 		5);					//	step size
 
 	//	give it plenty of iterations so it's not likely to fail
 	const int maxIterations = 10000;
 	tree->setMaxIterations(maxIterations);
+	tree->setGoalMaxDist(5);
 	tree->setASCEnabled(true);
 
 	tree->setStartState(Vector2f(10, 10));
@@ -87,8 +90,11 @@ TEST(ASC, Tree) {
 	tree->getPath(path, tree->lastNode(), true);
 
 	bool varied = false;
-	for (int i = 0; i < path.size() - 2 && !varied; i++) {
-		if (path[i]->distance() != path[i + 1]->distance()) varied = true;
+	for (int i = 1; !varied && i < path.size() - 2; i++) {
+		Vector2f x = path[i] - path[i - 1];
+		Vector2f y = path[i] - path[i + 1];
+		float n = MAGNITUDE(x) / MAGNITUDE(y);
+		if (n < 0.99 || n > 1.01) varied = true;
 	}
-	ASSERT_EQ(false, varied);
+	ASSERT_TRUE(varied);
 }
