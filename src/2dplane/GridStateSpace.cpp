@@ -22,19 +22,19 @@ Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2
     if (prevStepSize == 0) {
         stepSize = defaultStepSize;
     } else {
-        float dist = _obstacleGrid.nearestObstacleDist(source);
+        float dist = _obstacleGrid.nearestObstacleDist(source, maxStepSize());
         if (dist > prevStepSize * distScale()) { //grows if dist > max tolerable dist
-            stepSize = prevStepSize * ascGrowthRate;
+            stepSize *= ascGrowthRate;
         } else if (dist < prevStepSize * distScale()) { //shrinks if dist < max tolerable dist
-            stepSize = prevStepSize / (ascGrowthRate * 2);
+            stepSize /= (ascGrowthRate * 2);
         }
+        // if dist == prev * distScale, stepsize remains equal to the prevStepSize
         // stepSize = stepSize * pow(dist, 0.25); // this is an alternative to the if block that is more elegant but more computationally intensive because exponents
     }
 
-    if (stepSize > maxStepSize() * defaultStepSize) { 
-        //sets max limit for stepsize
-        stepSize = maxStepSize() * defaultStepSize;
-    }
+    // makes sure stepsize doesn't get too big or small
+    stepSize = (stepSize < minStepSize()) ? minStepSize() : stepSize;
+    stepSize = (stepSize > maxStepSize()) ? maxStepSize() : stepSize;
     Vector2f val = source + delta * stepSize;
     return val;
 }
@@ -132,6 +132,10 @@ ObstacleGrid &GridStateSpace::obstacleGrid() {
     return _obstacleGrid;
 }
 
+float GridStateSpace::minStepSize() const {
+    return _minStepSize;
+}
+
 float GridStateSpace::maxStepSize() const {
     return _maxStepSize;
 }
@@ -140,11 +144,14 @@ float GridStateSpace::distScale() const {
     return _distScale;
 }
 
+void GridStateSpace::setMinStepSize(float minStepSize) {
+    _minStepSize = minStepSize;
+}
+
 void GridStateSpace::setMaxStepSize(float maxStepSize) {
     _maxStepSize = maxStepSize;
 }
 
 void GridStateSpace::setDistScale(float distScale) {
     _distScale = distScale;
-    _obstacleGrid.setMaxDist(20 * distScale); // how far should obstaclegrid search for nearby obstacles
 }

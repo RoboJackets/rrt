@@ -25,28 +25,23 @@ Vector2i ObstacleGrid::gridSquareForLocation(const Vector2f &loc) const {
                     loc.y() / height() * discretizedHeight());
 }
 
-float ObstacleGrid::nearestObstacleDist(const Vector2f &state) const {
-    float c = _maxDist; // closest distance
+float ObstacleGrid::nearestObstacleDist(const Vector2f &state, float maxDist) const {
     //x and y are the indices of the cell that state is located in
     float x = (state.x() / (_width / _discretizedWidth));
     float y = (state.y() / (_height / _discretizedHeight));
     //here we loop through the cells around (x,y) to find the minimum distance of the point to the nearest obstacle
-    for (int i = x - c; i < x + c && i >= 0 && i < discretizedWidth(); i++) {
-        for (int j = y - c; j < y + c && j >= 0 && j < discretizedHeight(); j++) {
+    for (int i = x - maxDist; i < x + maxDist && i >= 0 && i < discretizedWidth(); i++) {
+        for (int j = y - maxDist; j < y + maxDist && j >= 0 && j < discretizedHeight(); j++) {
             bool obs = obstacleAt(i, j);
             if (obs) {
                 float dist = sqrt((x-i)*(x-i)+(y-j)*(y-j));
-                if (dist < c) {
-                    c = dist;
+                if (dist < maxDist) {
+                    maxDist = dist;
                 }
             }
         }
     }
-    return c;
-}
-
-void ObstacleGrid::setMaxDist(float maxDist) {
-    _maxDist = maxDist;
+    return maxDist;
 }
 
 void ObstacleGrid::clear() {

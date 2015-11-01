@@ -7,19 +7,7 @@
 #include <functional>
 #include <stdexcept>
 #include <stdlib.h>
-#include <iostream>
 
-/* If adaptive stepsize control (ASC) is enabled, then the stepsize for extending new nodes from 
- * the tree will be dynamically updated depending on how close the nearest obstacle is. If there are
- * no nearby obstacles, then the stepsize will be extended in order to safely cover more ground. If
- * there are nearby obstacles, then the stepsize will shrink so that the RRT can take more precise steps.
- *
- * setASCGrowthRate determines how strongly the stepsize changes in response to a growth or shrink.
- * _stateSpace->setMaxStepSize sets how many times larger than the default stepsize the RRT is allowed
- *      to make the next stepsize.
- * _stateSpace->setMaxDistScale sets the maximum distance an obstacle can be to cause the RRT to shrink
- *      instead of grow, scaled to the stepsize of the node being extended from.
- */
 using namespace std;
 namespace RRT
 {
@@ -93,6 +81,11 @@ namespace RRT
      * placed in callbacks (C++ lambdas), which must be supplied by the
      * user of this class.
      *
+     * If adaptive stepsize control (ASC) is enabled, then the stepsize for extending new nodes from 
+     * the tree will be dynamically updated depending on how close the nearest obstacle is. If there are
+     * no nearby obstacles, then the stepsize will be extended in order to safely cover more ground. If
+     * there are nearby obstacles, then the stepsize will shrink so that the RRT can take more precise steps.
+     *
      * USAGE:
      * 1) Create a new Tree with the appropriate StateSpace
      *    RRT::Tree<My2dPoint> tree(stateSpace);
@@ -101,7 +94,16 @@ namespace RRT
      *    tree->setStartState(s);
      *    tree->setGoalState(g);
      *
-     * 3) Run the RRT algorithm!  This can be done in one of two ways:
+     * 3) (Optional) If adaptive stepsize control is enabled:
+     *    setASCGrowthRate determines the magnitude that the stepsize grows by when there are no
+     *      nearby obstacles, as well as the magnitude that the stepsize shrinks by when there are
+     *      nearby obstacles.
+     *    _stateSpace->setMaxStepSize sets how many times larger than the default stepsize the RRT is allowed
+     *      to make the next stepsize.
+     *    _stateSpace->setMaxDistScale sets the maximum distance an obstacle can be to cause the RRT to shrink
+     *      instead of grow, scaled to the stepsize of the node being extended from.
+     *
+     * 4) Run the RRT algorithm!  This can be done in one of two ways:
      *    Option 1) Call the run() method - it will grow the tree
      *              until it finds a solution or runs out of iterations.
      *
@@ -110,7 +112,7 @@ namespace RRT
      *    Either way works fine, just choose whatever works best for your
      *    application.
      *
-     * 4) Use getPath() to get the series of states that make up the solution
+     * 5) Use getPath() to get the series of states that make up the solution
      *
      * @param T The type that represents a state within the state-space that
      * the tree is searching.  This could be a 2D Point or something else,
@@ -130,8 +132,6 @@ namespace RRT
             setWaypointBias(0);
             setGoalMaxDist(0.1);
             setASCGrowthRate(1.5);
-            _stateSpace->setMaxStepSize(5);
-            _stateSpace->setDistScale(1);
         }
 
         virtual ~Tree() {

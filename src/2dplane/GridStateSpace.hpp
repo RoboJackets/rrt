@@ -26,6 +26,8 @@ public:
 
     float maxStepSize() const;
     void setMaxStepSize(float maxStepSize);
+    float minStepSize() const;
+    void setMinStepSize(float minStepSize);
     float distScale() const;
     void setDistScale(float distScale);
 

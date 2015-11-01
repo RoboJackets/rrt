@@ -63,13 +63,14 @@ TEST(ASC, Tree) {
 
 	tree->setStartState(Vector2f(10, 10));
 	bool success = tree->run();	//	run with the given starting point
+	ASSERT_TRUE(success);
 
 	vector<Vector2f> path;
 	tree->getPath(path, tree->lastNode(), true);
 
 	bool varied = false;
 	for (int i = 0; i < path.size() - 2 && !varied; i++) {
-		if (path[i] != path[i + 1]) varied = true;
+		if (path[i]->distance() != path[i + 1]->distance()) varied = true;
 	}
 	ASSERT_EQ(false, varied);
 }

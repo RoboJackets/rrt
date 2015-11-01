@@ -26,6 +26,9 @@ RRTWidget::RRTWidget() {
     _biRRT->setGoalState(Vector2f(width() / 2.0, height() / 2.0));
     _biRRT->setStepSize(10);
     _biRRT->setGoalMaxDist(12);
+    _stateSpace->setMinStepSize(2);
+    _stateSpace->setMaxStepSize(25);
+    _stateSpace->setDistScale(1);
 
     _startVel = Vector2f(1, 0);
     _goalVel = Vector2f(0, 1);
@@ -79,11 +82,7 @@ void RRTWidget::slot_setWaypointBias(int bias) {
 }
 
 void RRTWidget::slot_setASC(int checked) {
-    if (checked == 0) {
-        _biRRT->setASCEnabled(false);
-    } else {
-        _biRRT->setASCEnabled(true);
-    }
+    _biRRT->setASCEnabled(checked != 0);
 }
 
 void RRTWidget::slot_step() {

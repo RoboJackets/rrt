@@ -43,14 +43,26 @@ public:
     virtual T intermediateState(const T &source, const T &target, float prevStepSize, float ascGrowthRate, float defaultStepSize) const = 0;
 
     /**
-     * Sets the aggresiveness of successful iterations of adaptive stepsize control.
+     * Sets the minimum possible stepsize the tree can extend when running adaptive stepsize control.
      *
-     * @param stepSizeScale How large the stepsize is scaled upon a successful iteration
+     * @param minStepSize The minimum stepsize.
      */
-    virtual void setMaxStepSize(float stepSizeScale) = 0;
+    virtual void setMinStepSize(float minStepSize) = 0;
 
     /**
-     * Returns how aggressively adaptive stepsize control scales the stepSize when there are no nearby obstacles
+     * @return The minimum stepsize the tree can extend when running adaptive stepsize control.
+     */
+    virtual float minStepSize() const = 0;
+
+    /**
+     * Sets the maximum possible stepsize the tree can extend when running adaptive stepsize control.
+     *
+     * @param maxStepSize The maximum stepsize.
+     */
+    virtual void setMaxStepSize(float maxStepSize) = 0;
+
+    /**
+     * @return The maximum stepsize the tree can extend when running adaptive stepsize control.
      */
     virtual float maxStepSize() const = 0;
 
@@ -98,6 +110,7 @@ public:
     virtual bool transitionValid(const T &from, const T &to) const = 0;
     
 protected:
+    float _minStepSize;
     float _maxStepSize;
     float _distScale;
 };
