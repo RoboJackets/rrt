@@ -92,7 +92,7 @@ TEST(Tree, ASC) {
 	for (int i = 1; !varied && i < path.size() - 2; i++) {
 		Vector2f x = path[i] - path[i - 1];
 		Vector2f y = path[i] - path[i + 1];
-		float n = norm(x) / norm(y);
+		float n = x.norm() / y.norm();
 		if (n < 0.99 || n > 1.01) varied = true;
 	}
 	ASSERT_TRUE(varied);
