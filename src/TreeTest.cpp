@@ -4,8 +4,6 @@
 #include <2dplane/GridStateSpace.hpp>
 #include <vector>
 
-#define MAGNITUDE(n) (sqrtf(powf(n.x(), 2) + powf(n.y(), 2)))
-
 using namespace RRT;
 using namespace Eigen;
 using namespace std;
@@ -89,11 +87,12 @@ TEST(Tree, ASC) {
 	vector<Vector2f> path;
 	tree->getPath(path, tree->lastNode(), true);
 
+	// Check to see if the nodes in the tree have uniform stepsize or varied. Stepsizes should vary
 	bool varied = false;
 	for (int i = 1; !varied && i < path.size() - 2; i++) {
 		Vector2f x = path[i] - path[i - 1];
 		Vector2f y = path[i] - path[i + 1];
-		float n = MAGNITUDE(x) / MAGNITUDE(y);
+		float n = norm(x) / norm(y);
 		if (n < 0.99 || n > 1.01) varied = true;
 	}
 	ASSERT_TRUE(varied);

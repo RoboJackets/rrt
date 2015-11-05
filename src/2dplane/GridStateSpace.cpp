@@ -9,6 +9,9 @@ using namespace std;
 GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight):
     PlaneStateSpace(width, height),
     _obstacleGrid(width, height, discretizedWidth, discretizedHeight) {
+    setMinStepSize(.1);
+    setMaxStepSize(5);
+    setDistScale(1);
 }
 
 bool GridStateSpace::stateValid(const Vector2f &pt) const {

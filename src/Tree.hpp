@@ -132,9 +132,14 @@ namespace RRT
             setWaypointBias(0);
             setGoalMaxDist(0.1);
             setASCGrowthRate(1.5);
-            _stateSpace->setMinStepSize(.1);
-            _stateSpace->setMaxStepSize(5);
-            _stateSpace->setDistScale(1);
+            // if (_stateSpace->minStepSize() == 0) {
+            //     _stateSpace->setMinStepSize(.1);
+            // }
+            // if (_stateSpace->setMaxStepSize() == 0) {
+            //     _stateSpace->setMaxStepSize(5);
+            // }
+            // if (_stateSpace->)
+            // _stateSpace->setDistScale(1);
         }
 
         virtual ~Tree() {
