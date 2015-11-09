@@ -46,7 +46,7 @@ void RRTWidget::slot_reset() {
         if (waypoints.size() > 0) {
             //  don't keep the start or end states
             waypoints.erase(waypoints.begin());
-            waypoints.erase(waypoints.end());
+            waypoints.erase(waypoints.end()-1);
 
             //  down-sample
             Planning::DownSampleVector<Vector2f>(waypoints, _waypointCacheMaxSize);
