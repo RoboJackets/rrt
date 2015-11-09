@@ -40,44 +40,7 @@ public:
      *
      * @return A state in the direction of @target from @source.state()
      */
-    virtual T intermediateState(const T &source, const T &target, float prevStepSize, float ascGrowthRate, float defaultStepSize) const = 0;
-
-    /**
-     * Sets the minimum possible stepsize the tree can extend when running adaptive stepsize control.
-     *
-     * @param minStepSize The minimum stepsize.
-     */
-    virtual void setMinStepSize(float minStepSize) = 0;
-
-    /**
-     * @return The minimum stepsize the tree can extend when running adaptive stepsize control.
-     */
-    virtual float minStepSize() const = 0;
-
-    /**
-     * Sets the maximum possible stepsize the tree can extend when running adaptive stepsize control.
-     *
-     * @param maxStepSize The maximum stepsize.
-     */
-    virtual void setMaxStepSize(float maxStepSize) = 0;
-
-    /**
-     * @return The maximum stepsize the tree can extend when running adaptive stepsize control.
-     */
-    virtual float maxStepSize() const = 0;
-
-    /**
-     * When running adaptive stepsize control, determines the maximum distance an obstacle
-     * can be from a source node for the stepSize to grow instead of shrink.
-     *
-     * @param maxDist How close the obstacles can be to the path to cause a shrink in stepsize
-     */
-    virtual void setDistScale(float distScale) = 0;
-
-    /**
-     * Returns the maximum distance an obstacle can be from a source node when running adaptive stepsize control
-     */
-    virtual float distScale() const = 0;
+    virtual T intermediateState(const T &source, const T &target, float minStepSize, float maxStepSize) const = 0;
 
     /**
      * @brief Calculate the distance between two states

@@ -29,18 +29,28 @@ float ObstacleGrid::nearestObstacleDist(const Vector2f &state, float maxDist) co
     //x and y are the indices of the cell that state is located in
     float x = (state.x() / (_width / _discretizedWidth));
     float y = (state.y() / (_height / _discretizedHeight));
+    int searchRad = 30;
     //here we loop through the cells around (x,y) to find the minimum distance of the point to the nearest obstacle
-    for (int i = x - maxDist; i < x + maxDist && i >= 0 && i < discretizedWidth(); i++) {
-        for (int j = y - maxDist; j < y + maxDist && j >= 0 && j < discretizedHeight(); j++) {
+    for (int i = 0; i < discretizedWidth(); i++) {
+        for (int j = 0; j < discretizedHeight(); j++) {
             bool obs = obstacleAt(i, j);
             if (obs) {
-                float dist = sqrt((x-i)*(x-i)+(y-j)*(y-j));
+                float xDist = (x-i)*_width / _discretizedWidth;
+                float yDist = (y-j)*_height / _discretizedHeight;
+                float dist = sqrtf(powf(xDist, 2) + powf(yDist, 2));
                 if (dist < maxDist) {
                     maxDist = dist;
                 }
             }
         }
     }
+
+    // the boundaries of the grid count as obstacles
+    maxDist = std::min(maxDist, state.x());               // left boundary
+    maxDist = std::min(maxDist, width() - state.x());     // right boundary
+    maxDist = std::min(maxDist, state.y());               // top boundary
+    maxDist = std::min(maxDist, height() - state.y());    // bottom boundary
+
     return maxDist;
 }
 

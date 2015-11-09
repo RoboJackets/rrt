@@ -126,20 +126,12 @@ namespace RRT
 
             //  default values
             setStepSize(0.1);
+            setMaxStepSize(5);
             setMaxIterations(1000);
             setASCEnabled(false);
             setGoalBias(0);
             setWaypointBias(0);
             setGoalMaxDist(0.1);
-            setASCGrowthRate(1.5);
-            // if (_stateSpace->minStepSize() == 0) {
-            //     _stateSpace->setMinStepSize(.1);
-            // }
-            // if (_stateSpace->setMaxStepSize() == 0) {
-            //     _stateSpace->setMaxStepSize(5);
-            // }
-            // if (_stateSpace->)
-            // _stateSpace->setDistScale(1);
         }
 
         virtual ~Tree() {
@@ -164,17 +156,6 @@ namespace RRT
         }
         void setMaxIterations(int itr) {
             _maxIterations = itr;
-        }
-
-
-        /**
-         * A coefficient that determines how much we want to expand our stepsize when adaptive stepsize control.
-         */
-        int ascGrowthRate() const {
-            return _ascGrowthRate;
-        }
-        void setASCGrowthRate(float lim) {
-            _ascGrowthRate = lim;
         }
 
 
@@ -239,6 +220,15 @@ namespace RRT
         }
         void setStepSize(float stepSize) {
             _stepSize = stepSize;
+            setMaxStepSize(stepSize*3);
+        }
+
+        /// Max step size used in ASC
+        float maxStepSize() const {
+            return _maxStepSize;
+        }
+        void setMaxStepSize(float maxStep) {
+            _maxStepSize = maxStep;
         }
 
 
@@ -351,7 +341,12 @@ namespace RRT
             //  way unless the they're really close together.
             T intermediateState;
             if (_isASCEnabled) {
-                intermediateState = _stateSpace->intermediateState(source->state(), target, source->distance(), _ascGrowthRate, stepSize());
+                intermediateState = _stateSpace->intermediateState(
+                    source->state(),
+                    target,
+                    stepSize(),
+                    maxStepSize()
+                );
             } else {
                 intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
             }
@@ -484,6 +479,7 @@ namespace RRT
         float _goalMaxDist;
 
         float _stepSize;
+        float _maxStepSize;
 
         float _ascGrowthRate;
 

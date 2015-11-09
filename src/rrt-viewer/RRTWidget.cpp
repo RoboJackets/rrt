@@ -26,9 +26,6 @@ RRTWidget::RRTWidget() {
     _biRRT->setGoalState(Vector2f(width() / 2.0, height() / 2.0));
     _biRRT->setStepSize(10);
     _biRRT->setGoalMaxDist(12);
-    _stateSpace->setMinStepSize(2);
-    _stateSpace->setMaxStepSize(25);
-    _stateSpace->setDistScale(1);
 
     _startVel = Vector2f(1, 0);
     _goalVel = Vector2f(0, 1);

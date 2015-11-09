@@ -2,42 +2,39 @@
 #include <util.hpp>
 #include <stdexcept>
 #include <math.h>
+
 using namespace Eigen;
 using namespace std;
+
+#include <iostream>
 
 
 GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight):
     PlaneStateSpace(width, height),
     _obstacleGrid(width, height, discretizedWidth, discretizedHeight) {
-    setMinStepSize(.1);
-    setMaxStepSize(5);
-    setDistScale(1);
 }
 
 bool GridStateSpace::stateValid(const Vector2f &pt) const {
     return PlaneStateSpace::stateValid(pt) && !_obstacleGrid.obstacleAt(_obstacleGrid.gridSquareForLocation(pt));
 }
 
-Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float prevStepSize, float ascGrowthRate, float defaultStepSize) const {
-    float stepSize = prevStepSize;
+Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float minStepSize, float maxStepSize) const {
+    cout << "ASC intermediateState" << endl;
+
     Vector2f delta = target - source;
     delta = delta / delta.norm();   //  unit vector
-    if (prevStepSize == 0) {
-        stepSize = defaultStepSize;
-    } else {
-        float dist = _obstacleGrid.nearestObstacleDist(source, maxStepSize());
-        if (dist > prevStepSize * distScale()) { //grows if dist > max tolerable dist
-            stepSize *= ascGrowthRate;
-        } else if (dist < prevStepSize * distScale()) { //shrinks if dist < max tolerable dist
-            stepSize /= (ascGrowthRate * 2);
-        }
-        // if dist == prev * distScale, stepsize remains equal to the prevStepSize
-        // stepSize = stepSize * pow(dist, 0.25); // this is an alternative to the if block that is more elegant but more computationally intensive because exponents
-    }
+    float dist = _obstacleGrid.nearestObstacleDist(source, 1000);
 
-    // makes sure stepsize doesn't get too big or small
-    stepSize = (stepSize < minStepSize()) ? minStepSize() : stepSize;
-    stepSize = (stepSize > maxStepSize()) ? maxStepSize() : stepSize;
+    cout << "  obs dist: " << dist << endl;
+    cout << "  max step: " << maxStepSize << endl;
+
+    const float thresh = maxStepSize * 2;
+    float stepSize = (dist / thresh) * minStepSize; // scale based on how far we are from obstacles
+    if (stepSize > maxStepSize) stepSize = maxStepSize;
+    if (stepSize < minStepSize) stepSize = minStepSize;
+
+    cout << "  step: " << stepSize << endl;
+
     Vector2f val = source + delta * stepSize;
     return val;
 }
@@ -133,28 +130,4 @@ const ObstacleGrid &GridStateSpace::obstacleGrid() const {
 
 ObstacleGrid &GridStateSpace::obstacleGrid() {
     return _obstacleGrid;
-}
-
-float GridStateSpace::minStepSize() const {
-    return _minStepSize;
-}
-
-float GridStateSpace::maxStepSize() const {
-    return _maxStepSize;
-}
-
-float GridStateSpace::distScale() const {
-    return _distScale;
-}
-
-void GridStateSpace::setMinStepSize(float minStepSize) {
-    _minStepSize = minStepSize;
-}
-
-void GridStateSpace::setMaxStepSize(float maxStepSize) {
-    _maxStepSize = maxStepSize;
-}
-
-void GridStateSpace::setDistScale(float distScale) {
-    _distScale = distScale;
 }
