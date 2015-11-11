@@ -1,0 +1,35 @@
+# RoboCup base editorconfig
+
+# Editorconfig files are recursive, so if you want to add specifc rules for
+# your subdirectory, make a file like this in that directory.
+
+# Lots of configuration is supported, like max line length, and charset.
+
+# for more information look at http://editorconfig.org/. There are
+# plugins available for almost every text editor!
+
+# For an easy install of the sublime editorconfig package, go to:
+# PackageControl -> Install Package -> EditorConfig
+
+root = false
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Use 4 spaces for most files
+indent_style = space
+indent_size = 4
+
+
+# Use 2 spaces for travis files
+[{package.json,*.yml}]
+indent_style = space
+indent_size = 2
+
+# Makefiles are required to use tabs
+[{makefile, Makefile}]
+indent_style = tab
+indent_size = 4
