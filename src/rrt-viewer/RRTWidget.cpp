@@ -344,7 +344,10 @@ void RRTWidget::mouseMoveEvent(QMouseEvent *event) {
         _goalVel = (point - _biRRT->goalState()) / VelocityDrawingMultiplier;
     } else if (_editingObstacles) {
         Vector2i gridLoc = _stateSpace->obstacleGrid().gridSquareForLocation(point);
-        _stateSpace->obstacleGrid().obstacleAt(gridLoc) = !_erasingObstacles;
+		if (gridLoc[1] >= 0 && gridLoc[1] < _stateSpace->obstacleGrid().discretizedHeight()
+						&& gridLoc[0] >= 0 && gridLoc[0] < _stateSpace->obstacleGrid().discretizedWidth()) {
+				_stateSpace->obstacleGrid().obstacleAt(gridLoc) = !_erasingObstacles;
+		}
     }
 
     if (_draggingItem != DraggingNone || _editingObstacles) update();
