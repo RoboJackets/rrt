@@ -16,7 +16,7 @@ public:
 
     // finds the distance from state to its neareset obstacle. Only searches up to maxDist around
     // state so as to not waste time checking far away and irrelevant obstacles.
-    float nearestObstacleDist(const Eigen::Vector2f &state, float maxDist) const;
+    float nearestObstacleDist(const Eigen::Vector2f &state, float maxDist, int searchRad) const;
     void clear();
     bool &obstacleAt(int x, int y);
     bool obstacleAt(int x, int y) const;
