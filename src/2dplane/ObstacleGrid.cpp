@@ -26,15 +26,17 @@ Vector2i ObstacleGrid::gridSquareForLocation(const Vector2f &loc) const {
                     loc.y() / height() * discretizedHeight());
 }
 
-float ObstacleGrid::nearestObstacleDist(const Vector2f &state, float maxDist, int searchRad) const {
+float ObstacleGrid::nearestObstacleDist(const Vector2f &state, float maxDist, float searchRad) const {
     //x and y are the indices of the cell that state is located in
     float x = (state.x() / (_width / _discretizedWidth));
     float y = (state.y() / (_height / _discretizedHeight));
+    int xSearchRad = searchRad * _discretizedWidth / _width;
+    int ySearchRad = searchRad * _discretizedHeight / _height;
     //here we loop through the cells around (x,y) to find the minimum distance of the point to the nearest obstacle
-    cout << "X: " << x << endl;
-    cout << "Y: " << y << endl;
-    for (int i = x - searchRad; i <= x + searchRad; i++) {
-        for (int j = y - searchRad; j <= y + searchRad; j++) {
+    cout << "  X: " << x << endl;
+    cout << "  Y: " << y << endl;
+    for (int i = x - xSearchRad; i <= x + xSearchRad; i++) {
+        for (int j = y - ySearchRad; j <= y + ySearchRad; j++) {
             bool obs = obstacleAt(i, j);
             if (obs) {
                 float xDist = (x-i)*_width / _discretizedWidth;
