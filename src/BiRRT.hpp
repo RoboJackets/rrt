@@ -84,6 +84,14 @@ namespace RRT
             _goalTree.setStepSize(stepSize);
         }
 
+        float maxStepSize() const {
+            return _startTree.maxStepSize();
+        }
+        void setMaxStepSize(float stepSize) {
+            _startTree.setMaxStepSize(stepSize);
+            _goalTree.setMaxStepSize(stepSize);
+        }
+
         float goalMaxDist() const {
             return _startTree.goalMaxDist();
         }

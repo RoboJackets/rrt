@@ -78,6 +78,7 @@ TEST(Tree, ASC) {
 	const int maxIterations = 10000;
 	tree->setMaxIterations(maxIterations);
 	tree->setGoalMaxDist(5);
+	tree->setMaxStepSize(10);
 	tree->setASCEnabled(true);
 
 	tree->setStartState(Vector2f(10, 10));
@@ -90,9 +91,9 @@ TEST(Tree, ASC) {
 	// Check to see if the nodes in the tree have uniform stepsize or varied. Stepsizes should vary
 	bool varied = false;
 	for (int i = 1; !varied && i < path.size() - 2; i++) {
-		Vector2f x = path[i] - path[i - 1];
-		Vector2f y = path[i] - path[i + 1];
-		float n = x.norm() / y.norm();
+		Vector2f pathA = path[i] - path[i - 1];
+		Vector2f pathB = path[i] - path[i + 1];
+		float n = pathA.norm() / pathB.norm();
 		if (n < 0.99 || n > 1.01) varied = true;
 	}
 	ASSERT_TRUE(varied);

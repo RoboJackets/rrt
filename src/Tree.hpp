@@ -7,6 +7,7 @@
 #include <functional>
 #include <stdexcept>
 #include <stdlib.h>
+#include <iostream>
 
 using namespace std;
 namespace RRT
@@ -220,7 +221,6 @@ namespace RRT
         }
         void setStepSize(float stepSize) {
             _stepSize = stepSize;
-            setMaxStepSize(stepSize*3);
         }
 
         /// Max step size used in ASC
