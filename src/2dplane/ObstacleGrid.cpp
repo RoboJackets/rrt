@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+#define SQRT2 1.41421356237
+
 using namespace Eigen;
 using namespace std;
 
@@ -26,12 +28,12 @@ Vector2i ObstacleGrid::gridSquareForLocation(const Vector2f &loc) const {
                     loc.y() / height() * discretizedHeight());
 }
 
-float ObstacleGrid::nearestObstacleDist(const Vector2f &state, float maxDist, float searchRad) const {
+float ObstacleGrid::nearestObstacleDist(const Vector2f &state, float maxDist) const {
     //x and y are the indices of the cell that state is located in
     float x = (state.x() / (_width / _discretizedWidth));
     float y = (state.y() / (_height / _discretizedHeight));
-    int xSearchRad = searchRad * _discretizedWidth / _width;
-    int ySearchRad = searchRad * _discretizedHeight / _height;
+    int xSearchRad = maxDist * _discretizedWidth / (_width * SQRT2);
+    int ySearchRad = maxDist * _discretizedHeight / (_height * SQRT2);
     //here we loop through the cells around (x,y) to find the minimum distance of the point to the nearest obstacle
     cout << "  X: " << x << endl;
     cout << "  Y: " << y << endl;

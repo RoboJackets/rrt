@@ -24,13 +24,12 @@ Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2
     Vector2f delta = target - source;
     delta = delta / delta.norm();   //  unit vector
     cout << "  stepsize: " << minStepSize << endl;
-    float dist = _obstacleGrid.nearestObstacleDist(source, maxStepSize * 10, maxStepSize * 2);
+    float dist = _obstacleGrid.nearestObstacleDist(source, maxStepSize * 2);
 
-    cout << "  obs dist: " << dist << endl;
-    cout << "  max step: " << maxStepSize << endl;
+    cout << "  nearest obs dist: " << dist << endl;
+    cout << "  maximum stepsize: " << maxStepSize << endl;
 
-    const float thresh = maxStepSize * 2;
-    float stepSize = (dist / thresh) * minStepSize; // scale based on how far we are from obstacles
+    float stepSize = (dist / maxStepSize) * minStepSize; // scale based on how far we are from obstacles
     if (stepSize > maxStepSize) stepSize = maxStepSize;
     if (stepSize < minStepSize) stepSize = minStepSize;
 
