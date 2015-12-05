@@ -35,8 +35,6 @@ float ObstacleGrid::nearestObstacleDist(const Vector2f &state, float maxDist) co
     int xSearchRad = maxDist * _discretizedWidth / (_width * SQRT2);
     int ySearchRad = maxDist * _discretizedHeight / (_height * SQRT2);
     //here we loop through the cells around (x,y) to find the minimum distance of the point to the nearest obstacle
-    cout << "  X: " << x << endl;
-    cout << "  Y: " << y << endl;
     for (int i = x - xSearchRad; i <= x + xSearchRad; i++) {
         for (int j = y - ySearchRad; j <= y + ySearchRad; j++) {
             bool obs = obstacleAt(i, j);

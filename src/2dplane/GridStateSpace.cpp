@@ -19,22 +19,24 @@ bool GridStateSpace::stateValid(const Vector2f &pt) const {
 }
 
 Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float minStepSize, float maxStepSize) const {
-    cout << "ASC intermediateState" << endl;
+    bool debug;
 
     Vector2f delta = target - source;
     delta = delta / delta.norm();   //  unit vector
-    cout << "  stepsize: " << minStepSize << endl;
     float dist = _obstacleGrid.nearestObstacleDist(source, maxStepSize * 2);
 
-    cout << "  nearest obs dist: " << dist << endl;
-    cout << "  maximum stepsize: " << maxStepSize << endl;
 
     float stepSize = (dist / maxStepSize) * minStepSize; // scale based on how far we are from obstacles
     if (stepSize > maxStepSize) stepSize = maxStepSize;
     if (stepSize < minStepSize) stepSize = minStepSize;
-
-    cout << "  step: " << stepSize << endl;
-
+    if (debug) {
+        cout << "ASC intermediateState" << endl;
+        cout << "  stepsize: " << minStepSize << endl;
+        cout << "  nearest obs dist: " << dist << endl;
+        cout << "  maximum stepsize: " << maxStepSize << endl;
+        cout << "  new step: " << stepSize << endl;
+    }
+    
     Vector2f val = source + delta * stepSize;
     return val;
 }

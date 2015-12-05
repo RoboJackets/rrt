@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <iostream>
 
-using namespace std;
 namespace RRT
 {
     /**
@@ -21,10 +20,9 @@ namespace RRT
     template<typename T>
     class Node {
     public:
-        Node(const T &state, Node<T> *parent = nullptr, float dist = 0) {
+        Node(const T &state, Node<T> *parent = nullptr) {
             _parent = parent;
             _state = state;
-            _dist = dist;
 
             if (_parent) {
                 _parent->_children.push_back(this);
@@ -59,15 +57,11 @@ namespace RRT
         /**
          * The distance from this node to its parent.
          */
-        float distance() const {
-            return _dist;
-        }
 
     private:
         T _state;
         std::list<Node<T> *> _children;
         Node<T> *_parent;
-        float _dist;
     };
 
 
@@ -96,13 +90,7 @@ namespace RRT
      *    tree->setGoalState(g);
      *
      * 3) (Optional) If adaptive stepsize control is enabled:
-     *    setASCGrowthRate determines the magnitude that the stepsize grows by when there are no
-     *      nearby obstacles, as well as the magnitude that the stepsize shrinks by when there are
-     *      nearby obstacles.
-     *    _stateSpace->setMaxStepSize sets how many times larger than the default stepsize the RRT is allowed
-     *      to make the next stepsize.
-     *    _stateSpace->setMaxDistScale sets the maximum distance an obstacle can be to cause the RRT to shrink
-     *      instead of grow, scaled to the stepsize of the node being extended from.
+     *    _stateSpace->setMaxStepSize sets the maximum stepsize the tree can take for any step.
      *
      * 4) Run the RRT algorithm!  This can be done in one of two ways:
      *    Option 1) Call the run() method - it will grow the tree
@@ -358,7 +346,7 @@ namespace RRT
             }
 
             // Add a node to the tree for this state
-            Node<T> *n = new Node<T>(intermediateState, source, _stateSpace->distance(intermediateState, source->state()));
+            Node<T> *n = new Node<T>(intermediateState, source);
             _nodes.push_back(n);
             return n;
         }
@@ -480,8 +468,6 @@ namespace RRT
 
         float _stepSize;
         float _maxStepSize;
-
-        float _ascGrowthRate;
 
         std::shared_ptr<StateSpace<T>> _stateSpace;
     };
