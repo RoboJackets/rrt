@@ -54,10 +54,6 @@ namespace RRT
             return _state;
         }
 
-        /**
-         * The distance from this node to its parent.
-         */
-
     private:
         T _state;
         std::list<Node<T> *> _children;
