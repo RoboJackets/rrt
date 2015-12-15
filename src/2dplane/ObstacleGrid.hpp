@@ -14,8 +14,13 @@ public:
 
     Eigen::Vector2i gridSquareForLocation(const Eigen::Vector2f &loc) const;
 
-    // finds the distance from state to its neareset obstacle. Only searches up to maxDist around
-    // state so as to not waste time checking far away and irrelevant obstacles.
+    /** 
+     * Finds the distance from state to its neareset obstacle. Only searches up to maxDist around
+     * state so as to not waste time checking far away and irrelevant obstacles.
+     *
+     * @param state The location to search with respect to for the nearest obstacle dist
+     * @param maxDist The maximum vertical and horizontal distance from state to search for obstacles
+     */
     float nearestObstacleDist(const Eigen::Vector2f &state, float maxDist) const;
     void clear();
     bool &obstacleAt(int x, int y);
