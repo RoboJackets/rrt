@@ -28,6 +28,7 @@ private slots:
     void slot_stepBig();
     void slot_setGoalBias(int bias);        //  bias is from 0 to 100
     void slot_setWaypointBias(int bias);    //  bias is from 0 to 100
+    void slot_setASC(int checked);
     void slot_setStepSize(double step);
 
 signals:

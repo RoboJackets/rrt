@@ -39,3 +39,4 @@ float PlaneStateSpace::width() const {
 float PlaneStateSpace::height() const {
     return _height;
 }
+

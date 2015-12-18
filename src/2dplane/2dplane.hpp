@@ -15,7 +15,7 @@
  * trying to find a path to
  *
  * @param step The fixed step size that the tree uses.  This is the
- * maximum distance between nodes.
+ * maximum distance between nodes unless adaptive stepsize control is utilized.
  *
  * @return An RRT::Tree with its callbacks and parameters configured.
  * You'll probably want to override the transitionValidator callback

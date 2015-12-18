@@ -6,6 +6,8 @@
 using namespace Eigen;
 using namespace std;
 
+#include <iostream>
+
 
 GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight):
     PlaneStateSpace(width, height),
@@ -14,6 +16,29 @@ GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, 
 
 bool GridStateSpace::stateValid(const Vector2f &pt) const {
     return PlaneStateSpace::stateValid(pt) && !_obstacleGrid.obstacleAt(_obstacleGrid.gridSquareForLocation(pt));
+}
+
+Vector2f GridStateSpace::intermediateState(const Vector2f &source, const Vector2f &target, float minStepSize, float maxStepSize) const {
+    bool debug;
+
+    Vector2f delta = target - source;
+    delta = delta / delta.norm();   //  unit vector
+    float dist = _obstacleGrid.nearestObstacleDist(source, maxStepSize * 2);
+
+
+    float stepSize = (dist / maxStepSize) * minStepSize; // scale based on how far we are from obstacles
+    if (stepSize > maxStepSize) stepSize = maxStepSize;
+    if (stepSize < minStepSize) stepSize = minStepSize;
+    if (debug) {
+        cout << "ASC intermediateState" << endl;
+        cout << "  stepsize: " << minStepSize << endl;
+        cout << "  nearest obs dist: " << dist << endl;
+        cout << "  maximum stepsize: " << maxStepSize << endl;
+        cout << "  new step: " << stepSize << endl;
+    }
+    
+    Vector2f val = source + delta * stepSize;
+    return val;
 }
 
 bool GridStateSpace::transitionValid(const Vector2f &from, const Vector2f &to) const {

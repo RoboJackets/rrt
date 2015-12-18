@@ -3,7 +3,7 @@
 
 /**
  * A state space represents the set of possible states for a planning problem.
- * This includes the obstacles that may bee present and what state transitions are valid.
+ * This includes the obstacles that may be present and what state transitions are valid.
  * This class is abstract and must be subclassed in order to provide actual functionality.
  */
 template<typename T>
@@ -26,6 +26,18 @@ public:
      * that.
      */
     virtual T intermediateState(const T &source, const T &target, float stepSize) const = 0;
+
+    /**
+     * An overloaded version designed for use in adaptive stepsize control.
+     *
+     * @param source The node in the tree to extend from
+     * @param target The point in the space to extend to
+     * @param minStepSize The minimum allowable stepsize the intermediate state will be extended from source
+     * @param maxStepSize The maximum allowable stepsize the intermediate state will be extended from source
+     *
+     * @return A state in the direction of @target from @source.state()
+     */
+    virtual T intermediateState(const T &source, const T &target, float minStepSize, float maxStepSize) const = 0;
 
     /**
      * @brief Calculate the distance between two states
@@ -56,4 +68,8 @@ public:
      * @return A boolean indicating validity
      */
     virtual bool transitionValid(const T &from, const T &to) const = 0;
+    
+protected:
+    float _minStepSize;
+    float _maxStepSize;
 };

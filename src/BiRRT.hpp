@@ -36,6 +36,14 @@ namespace RRT
             return _goalTree;
         }
 
+        bool isASCEnabled() const {
+            return _startTree.isASCEnabled();
+        }
+        void setASCEnabled(bool checked) {
+            _startTree.setASCEnabled(checked);
+            _goalTree.setASCEnabled(checked);
+        }
+
         float goalBias() const {
             return _startTree.goalBias();
         }
@@ -74,6 +82,14 @@ namespace RRT
         void setStepSize(float stepSize) {
             _startTree.setStepSize(stepSize);
             _goalTree.setStepSize(stepSize);
+        }
+
+        float maxStepSize() const {
+            return _startTree.maxStepSize();
+        }
+        void setMaxStepSize(float stepSize) {
+            _startTree.setMaxStepSize(stepSize);
+            _goalTree.setMaxStepSize(stepSize);
         }
 
         float goalMaxDist() const {

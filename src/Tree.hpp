@@ -7,12 +7,12 @@
 #include <functional>
 #include <stdexcept>
 #include <stdlib.h>
-
+#include <iostream>
 
 namespace RRT
 {
     /**
-     * Base class for an rrt tree node
+     * Base class for an RRT tree node.
      *
      * @param T The datatype representing the state in the space the RRT
      * will be searching.
@@ -23,7 +23,7 @@ namespace RRT
         Node(const T &state, Node<T> *parent = nullptr) {
             _parent = parent;
             _state = state;
-            
+
             if (_parent) {
                 _parent->_children.push_back(this);
             }
@@ -72,6 +72,11 @@ namespace RRT
      * placed in callbacks (C++ lambdas), which must be supplied by the
      * user of this class.
      *
+     * If adaptive stepsize control (ASC) is enabled, then the stepsize for extending new nodes from 
+     * the tree will be dynamically updated depending on how close the nearest obstacle is. If there are
+     * no nearby obstacles, then the stepsize will be extended in order to safely cover more ground. If
+     * there are nearby obstacles, then the stepsize will shrink so that the RRT can take more precise steps.
+     *
      * USAGE:
      * 1) Create a new Tree with the appropriate StateSpace
      *    RRT::Tree<My2dPoint> tree(stateSpace);
@@ -80,7 +85,10 @@ namespace RRT
      *    tree->setStartState(s);
      *    tree->setGoalState(g);
      *
-     * 3) Run the RRT algorithm!  This can be done in one of two ways:
+     * 3) (Optional) If adaptive stepsize control is enabled:
+     *    _stateSpace->setMaxStepSize sets the maximum stepsize the tree can take for any step.
+     *
+     * 4) Run the RRT algorithm!  This can be done in one of two ways:
      *    Option 1) Call the run() method - it will grow the tree
      *              until it finds a solution or runs out of iterations.
      *
@@ -89,7 +97,7 @@ namespace RRT
      *    Either way works fine, just choose whatever works best for your
      *    application.
      *
-     * 4) Use getPath() to get the series of states that make up the solution
+     * 5) Use getPath() to get the series of states that make up the solution
      *
      * @param T The type that represents a state within the state-space that
      * the tree is searching.  This could be a 2D Point or something else,
@@ -103,7 +111,9 @@ namespace RRT
 
             //  default values
             setStepSize(0.1);
+            setMaxStepSize(5);
             setMaxIterations(1000);
+            setASCEnabled(false);
             setGoalBias(0);
             setWaypointBias(0);
             setGoalMaxDist(0.1);
@@ -133,6 +143,16 @@ namespace RRT
             _maxIterations = itr;
         }
 
+
+        /**
+         * Whether or not the tree is to run with adaptive stepsize control.
+         */
+        bool isASCEnabled() const {
+            return _isASCEnabled;
+        }
+        void setASCEnabled(bool checked) {
+            _isASCEnabled = checked;
+        }
 
         /**
          * @brief The chance we extend towards the goal rather than a random point.
@@ -185,6 +205,14 @@ namespace RRT
         }
         void setStepSize(float stepSize) {
             _stepSize = stepSize;
+        }
+
+        /// Max step size used in ASC
+        float maxStepSize() const {
+            return _maxStepSize;
+        }
+        void setMaxStepSize(float maxStep) {
+            _maxStepSize = maxStep;
         }
 
 
@@ -279,22 +307,33 @@ namespace RRT
          * Grow the tree in the direction of @state
          *
          * @return the new tree Node (may be nullptr if we hit Obstacles)
+         * @param target The point to extend the tree to
          * @param source The Node to connect from.  If source == nullptr, then
          *             the closest tree point is used
          */
         virtual Node<T> *extend(const T &target, Node<T> *source = nullptr) {
             //  if we weren't given a source point, try to find a close node
             if (!source) {
-                source = nearest(target);
+                source = nearest(target, nullptr);
                 if (!source) {
                     return nullptr;
                 }
             }
-            
+
             //  Get a state that's in the direction of @target from @source.
             //  This should take a step in that direction, but not go all the
             //  way unless the they're really close together.
-            T intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
+            T intermediateState;
+            if (_isASCEnabled) {
+                intermediateState = _stateSpace->intermediateState(
+                    source->state(),
+                    target,
+                    stepSize(),
+                    maxStepSize()
+                );
+            } else {
+                intermediateState = _stateSpace->intermediateState(source->state(), target, stepSize());
+            }
 
             //  Make sure there's actually a direct path from @source to
             //  @intermediateState.  If not, abort
@@ -413,6 +452,8 @@ namespace RRT
 
         int _maxIterations;
 
+        bool _isASCEnabled;
+
         float _goalBias;
 
         /// used for Extended RRTs where growth is biased towards waypoints from previously grown tree
@@ -422,6 +463,7 @@ namespace RRT
         float _goalMaxDist;
 
         float _stepSize;
+        float _maxStepSize;
 
         std::shared_ptr<StateSpace<T>> _stateSpace;
     };

@@ -19,9 +19,10 @@ public:
     bool stateValid(const Eigen::Vector2f &pt) const;
     bool transitionValid(const Eigen::Vector2f &from, const Eigen::Vector2f &to) const;
 
+    Eigen::Vector2f intermediateState(const Eigen::Vector2f &source, const Eigen::Vector2f &target, float minStepSize, float maxStepSize) const;
+
     const ObstacleGrid &obstacleGrid() const;
     ObstacleGrid &obstacleGrid();
-
 
 private:
     ObstacleGrid _obstacleGrid;
