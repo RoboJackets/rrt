@@ -4,6 +4,9 @@ all:
 	mkdir -p build
 	cd build && cmake .. && make $(MAKE_FLAGS)
 
+install: all
+	cd build && make $(MAKE_FLAGS) install
+
 run: all
 	build/rrt-viewer
 
