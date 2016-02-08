@@ -2,6 +2,7 @@
 
 #include <Eigen/Dense>
 
+namespace RRT {
 
 /**
  * @brief Handles a grid of obstacles laid over a continuous 2d plane.
@@ -41,3 +42,5 @@ private:
     /// 2d array of obstacles
     bool *_obstacles;
 };
+
+}  // namespace RRT

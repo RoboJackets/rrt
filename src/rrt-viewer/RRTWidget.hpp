@@ -56,7 +56,7 @@ protected:
 
 
 private:
-    std::shared_ptr<GridStateSpace> _stateSpace;
+    std::shared_ptr<RRT::GridStateSpace> _stateSpace;
     RRT::BiRRT<Eigen::Vector2f> *_biRRT;
 
     Eigen::Vector2f _startVel, _goalVel;

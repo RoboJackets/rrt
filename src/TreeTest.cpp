@@ -4,10 +4,10 @@
 #include <2dplane/GridStateSpace.hpp>
 #include <vector>
 
-using namespace RRT;
 using namespace Eigen;
 using namespace std;
 
+namespace RRT {
 
 TEST(Tree, Example_2dplane) {
 	Tree<Vector2f> *tree = TreeFor2dPlane(
@@ -98,3 +98,5 @@ TEST(Tree, ASC) {
 	}
 	ASSERT_TRUE(varied);
 }
+
+}  // namespace RRT

@@ -3,6 +3,7 @@
 #include <StateSpace.hpp>
 #include <Eigen/Dense>
 
+namespace RRT {
 
 /**
  * @brief A 2d plane with continuous states and no obstacles.
@@ -29,3 +30,5 @@ public:
 private:
     float _width, _height;
 };
+
+}  // namespace RRT

@@ -5,6 +5,7 @@
 using namespace Eigen;
 using namespace std;
 
+namespace RRT {
 
 ObstacleGrid::ObstacleGrid(float width, float height, int discretizedWidth, int discretizedHeight) {
     _width = width;
@@ -95,3 +96,5 @@ float ObstacleGrid::width() const {
 float ObstacleGrid::height() const {
     return _height;
 }
+
+}  // namespace RRT

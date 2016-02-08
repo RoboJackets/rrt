@@ -8,6 +8,7 @@ using namespace std;
 
 #include <iostream>
 
+namespace RRT {
 
 GridStateSpace::GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight):
     PlaneStateSpace(width, height),
@@ -133,3 +134,5 @@ const ObstacleGrid &GridStateSpace::obstacleGrid() const {
 ObstacleGrid &GridStateSpace::obstacleGrid() {
     return _obstacleGrid;
 }
+
+}  // namespace RRT

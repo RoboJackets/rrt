@@ -4,6 +4,7 @@
 #include <2dplane/ObstacleGrid.hpp>
 #include <Eigen/Dense>
 
+namespace RRT {
 
 /**
  * @brief A 2d plane with continuous states and discretized obstacles.
@@ -27,3 +28,5 @@ public:
 private:
     ObstacleGrid _obstacleGrid;
 };
+
+}  // namespace RRT

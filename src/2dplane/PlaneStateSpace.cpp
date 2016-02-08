@@ -2,6 +2,7 @@
 
 using namespace Eigen;
 
+namespace RRT {
 
 PlaneStateSpace::PlaneStateSpace(float width, float height) {
     _width = width;
@@ -40,3 +41,4 @@ float PlaneStateSpace::height() const {
     return _height;
 }
 
+}  // namespace RRT
