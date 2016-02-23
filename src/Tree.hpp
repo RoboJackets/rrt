@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <stdlib.h>
 #include <iostream>
+#include <flann/src/cpp/flann/flann.hpp>
 
 namespace RRT
 {
