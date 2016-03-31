@@ -1,0 +1,28 @@
+machine:
+  services:
+    - docker
+  environment:
+    GIT_EMAIL: georgeburdell@users.noreply.github.com
+    GIT_USERNAME: georgeburdell
+
+checkout:
+  post:
+    # This is a hack, but it's the only thing that works at the moment :/
+    - git submodule sync && git submodule update --init || true && git submodule sync && git submodule update --init
+
+dependencies:
+  pre:
+      # Fix config file containing direct refrences in ~/.ssh
+    - sed -i 's:/home/ubuntu:~:' ~/.ssh/config
+      # set build status to pending on start
+    - ./external/DoCIF/util/maketest.sh --pending
+    - ./external/DoCIF/commands/buildbaseimage.sh
+      # Actually the test step, but we want to cache it so it can go here.
+    - ./external/DoCIF/commands/runtests.sh
+  cache_directories:
+    - ~/.ccache # See $CACHE_DIRECTORIES in sample_config.docif
+
+# The test phase dosen't actually run tests. We need the caching from the deploy step.
+test:
+  override:
+    - sh -c true
