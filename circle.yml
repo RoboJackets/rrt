@@ -15,10 +15,10 @@ dependencies:
       # Fix config file containing direct refrences in ~/.ssh
     - sed -i 's:/home/ubuntu:~:' ~/.ssh/config
       # set build status to pending on start
-    - ./external/DoCIF/util/maketest.sh --pending
-    - ./external/DoCIF/commands/buildbaseimage.sh
+    - ./third_party/DoCIF/util/maketest.sh --pending
+    - ./third_party/DoCIF/commands/buildbaseimage.sh
       # Actually the test step, but we want to cache it so it can go here.
-    - ./external/DoCIF/commands/runtests.sh
+    - ./third_party/DoCIF/commands/runtests.sh
   cache_directories:
     - ~/.ccache # See $CACHE_DIRECTORIES in sample_config.docif
 
