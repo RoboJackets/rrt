@@ -23,6 +23,12 @@ The following are required in order to build this project:
 
 Run `make` in the main directory to build the `rrt-viewer` program and the `test-runner` program, which are placed in the `build/` folder.
 
+~~~{.sh}
+git submodule update --init
+make
+build/rrt-viewer
+~~~
+
 
 ## Resources
 
