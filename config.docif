@@ -70,7 +70,7 @@ CACHE_DIRECTORIES+=("${CIRCLE_ARTIFACTS}")
 
 # The script to set up the environment, by default ubuntu.
 # YOU WILL NEED TO USE SUDO TO GET ROOT PRIVLEGES HERE
-SETUP_COMMAND="sudo apt-get -y install cmake qt5 libeigen3-dev && git submodule update --init"
+SETUP_COMMAND="sudo apt-get -y install cmake qt5-default libeigen3-dev && git submodule update --init"
 
 # DOCIF can cache baseimages, if you give it files that will force a rebuild if changed.
 # Include the setup script itself, as well as any dependency files
