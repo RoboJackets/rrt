@@ -2,7 +2,7 @@
 #
 # This is just a shell file that is sourced by DoCIF scripts.
 
-BASEIMAGE_REPO="robojackets/rrt"
+BASEIMAGE_REPO="robojackets/rrt-baseimage"
 
 # If true, ${BASEIMAGE_REPO}:master is pushed when on master.
 PUSH_BASEIMAGE="true"
