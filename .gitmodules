@@ -4,6 +4,6 @@
 [submodule "third_party/googletest"]
 	path = third_party/googletest
 	url = https://github.com/google/googletest
-[submodule "third_party/docif"]
-	path = third_party/docif
-	url = https://github.com/jgkamat/docif
+[submodule "third_party/DoCIF"]
+	path = third_party/DoCIF
+	url = https://github.com/jgkamat/DoCIF
