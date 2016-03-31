@@ -20,7 +20,7 @@ PENDING_URL="https://github.com/jgkamat/DoCIF"
 # DO NOT SET THIS IF YOU ARE A FIRST TIME USER.
 # See ./commands/Dockerfile for the default dockerfile
 # This file is in relation to you'r project's root.
-CUSTOM_DOCKERFILE="./util/docker/baseimage/Dockerfile"
+CUSTOM_DOCKERFILE="./ci/baseimage/Dockerfile"
 
 ############################## Variable Names ##################################
 
