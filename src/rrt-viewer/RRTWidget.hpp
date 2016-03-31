@@ -9,7 +9,7 @@
 /**
  * This widget creates an RRT tree for searching a 2d space and draws it.
  * It has methods (slots) for stepping and resetting tree growth.
- * You can also draw and erase obstacles for by clicking and dragging.
+ * You can also draw and erase obstacles by clicking and dragging.
  */
 class RRTWidget : public QWidget {
     Q_OBJECT
