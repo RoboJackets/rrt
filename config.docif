@@ -79,7 +79,7 @@ SETUP_SHA_FILES=()
  # This file should be included unless you leave this variable completely blank, forcing a rebuild when DoCIF is updated
 SETUP_SHA_FILES+=("./.gitmodules")
 SETUP_SHA_FILES+=("./config.docif")
-# SETUP_SHA_FILES+=("./util/docker/baseimage/Dockerfile")
+SETUP_SHA_FILES+=("./ci/baseimage/Dockerfile")
 
 # Commands to run when testing. Each index will have it's own status token
 # Commands are in this format
