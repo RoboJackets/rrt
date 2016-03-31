@@ -70,7 +70,7 @@ CACHE_DIRECTORIES+=("${CIRCLE_ARTIFACTS}")
 
 # The script to set up the environment, by default ubuntu.
 # YOU WILL NEED TO USE SUDO TO GET ROOT PRIVLEGES HERE
-SETUP_COMMAND="sudo apt-get -y install cmake qt5-default libeigen3-dev && git submodule update --init"
+SETUP_COMMAND="./ci/ubuntu-setup.sh"
 
 # DOCIF can cache baseimages, if you give it files that will force a rebuild if changed.
 # Include the setup script itself, as well as any dependency files
@@ -80,6 +80,7 @@ SETUP_SHA_FILES=()
 SETUP_SHA_FILES+=("./.gitmodules")
 SETUP_SHA_FILES+=("./config.docif")
 SETUP_SHA_FILES+=("./ci/baseimage/Dockerfile")
+SETUP_SHA_FILES+=("./ci/ubuntu-setup.sh")
 
 # Commands to run when testing. Each index will have it's own status token
 # Commands are in this format
