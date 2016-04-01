@@ -7,3 +7,6 @@
 [submodule "third_party/DoCIF"]
 	path = third_party/DoCIF
 	url = https://github.com/jgkamat/DoCIF
+[submodule "third_party/style-configs"]
+	path = third_party/style-configs
+	url = https://github.com/robojackets/style-configs
