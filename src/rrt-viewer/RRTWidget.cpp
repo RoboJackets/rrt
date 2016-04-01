@@ -1,7 +1,7 @@
 
 #include "RRTWidget.hpp"
-#include <planning/Path.hpp>
-#include <2dplane/2dplane.hpp>
+#include <rrt/planning/Path.hpp>
+#include <rrt/2dplane/2dplane.hpp>
 
 using namespace RRT;
 using namespace Eigen;

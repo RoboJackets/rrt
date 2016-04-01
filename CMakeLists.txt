@@ -47,10 +47,10 @@ message(STATUS "Found Qt5: ${Qt5Widgets_DIR}")
 ################################################################################
 
 set(lib_SRC
-    "src/2dplane/2dplane.cpp"
-    "src/2dplane/GridStateSpace.cpp"
-    "src/2dplane/ObstacleGrid.cpp"
-    "src/2dplane/PlaneStateSpace.cpp"
+    "src/rrt/2dplane/2dplane.cpp"
+    "src/rrt/2dplane/GridStateSpace.cpp"
+    "src/rrt/2dplane/ObstacleGrid.cpp"
+    "src/rrt/2dplane/PlaneStateSpace.cpp"
 )
 
 add_library("RRT" STATIC ${lib_SRC})
@@ -70,7 +70,7 @@ set(lib_HEADERS
 )
 foreach(file ${lib_HEADERS})
     get_filename_component(dir ${file} DIRECTORY)
-    install(FILES src/${file} DESTINATION include/rrt/${dir})
+    install(FILES src/rrt/${file} DESTINATION include/rrt/${dir})
 endforeach()
 
 # copy library to install directory
@@ -98,8 +98,8 @@ include(SetupGTest)
 
 # test srcs
 set(tests_SRC
-    "src/BiRRTTest.cpp"
-    "src/TreeTest.cpp"
+    "src/rrt/BiRRTTest.cpp"
+    "src/rrt/TreeTest.cpp"
 )
 
 # test-cpp

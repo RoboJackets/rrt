@@ -1,6 +1,6 @@
 
-#include <Tree.hpp>
-#include <StateSpace.hpp>
+#include <rrt/Tree.hpp>
+#include <rrt/StateSpace.hpp>
 #include <Eigen/Dense>
 
 namespace RRT {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <2dplane/PlaneStateSpace.hpp>
-#include <2dplane/ObstacleGrid.hpp>
+#include <rrt/2dplane/PlaneStateSpace.hpp>
+#include <rrt/2dplane/ObstacleGrid.hpp>
 #include <Eigen/Dense>
 
 namespace RRT {
