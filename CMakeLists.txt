@@ -68,7 +68,6 @@ set(lib_HEADERS
     "Tree.hpp"
     "util.hpp"
 )
-set(CMAKE_INSTALL_PREFIX "")
 foreach(file ${lib_HEADERS})
     get_filename_component(dir ${file} DIRECTORY)
     install(FILES src/${file} DESTINATION include/rrt/${dir})

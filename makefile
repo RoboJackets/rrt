@@ -2,7 +2,7 @@ MAKE_FLAGS=--no-print-directory
 
 all:
 	mkdir -p build
-	cd build && cmake .. && make $(MAKE_FLAGS)
+	cd build && cmake .. -DCMAKE_INSTALL_PREFIX:PATH="" && make $(MAKE_FLAGS)
 
 install: all
 	cd build && make $(MAKE_FLAGS) install
