@@ -1,8 +1,6 @@
-MAKE_FLAGS=--no-print-directory
-
 all:
 	mkdir -p build
-	cd build && cmake .. && make $(MAKE_FLAGS)
+	cd build && cmake .. -GNinja && ninja
 
 run: all
 	build/rrt-viewer
@@ -14,7 +12,7 @@ tests: test-cpp
 
 test-cpp:
 	mkdir -p build
-	cd build && cmake --target test-cpp .. && make test-cpp $(MAKE_FLAGS) && cd .. && build/test-cpp
+	cd build && cmake --target test-cpp .. -GNinja && ninja test-cpp
 
 clean:
 	rm -rf build

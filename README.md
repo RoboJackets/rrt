@@ -17,6 +17,7 @@ The following are required in order to build this project:
 * cmake >= 2.8.9
 * Qt 5 (`qt5-default` on Ubuntu)
 * Eigen (`libeigen3-dev` on Ubuntu)
+* ninja
 
 
 ## Building
