@@ -9,6 +9,7 @@ ExternalProject_Add(googletest
     # disable install step
     INSTALL_COMMAND ""
 )
+set_target_properties(googletest PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # specify include dir
 ExternalProject_Get_Property(googletest source_dir)
