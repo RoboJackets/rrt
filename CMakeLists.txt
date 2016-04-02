@@ -50,7 +50,6 @@ set(lib_SRC
     "src/rrt/2dplane/2dplane.cpp"
     "src/rrt/2dplane/GridStateSpace.cpp"
     "src/rrt/2dplane/ObstacleGrid.cpp"
-    "src/rrt/2dplane/PlaneStateSpace.cpp"
 )
 
 add_library("RRT" STATIC ${lib_SRC})

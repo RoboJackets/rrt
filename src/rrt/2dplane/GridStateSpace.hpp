@@ -10,7 +10,7 @@ namespace RRT {
  * @brief A 2d plane with continuous states and discretized obstacles.
  * @details The state space is broken up into a grid with the given discrete height and widths.
  */
-class GridStateSpace : public PlaneStateSpace {
+class GridStateSpace : public PlaneStateSpace<Eigen::Vector2f> {
 public:
     GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight);
 
