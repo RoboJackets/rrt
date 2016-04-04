@@ -9,6 +9,7 @@ debug: all
 	gdb build/rrt-viewer
 
 tests: test-cpp
+	build/test-cpp
 
 test-cpp:
 	mkdir -p build
