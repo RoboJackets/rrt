@@ -5,8 +5,12 @@
 
 git submodule update --init
 
+sudo apt-get -y update
+sudo apt-get -y upgrade
+
 sudo apt-get -y install cmake \
     qt5-default \
     libeigen3-dev \
     g++ \
-    ninja-build
+    ninja-build \
+    cmake
