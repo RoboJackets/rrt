@@ -1,4 +1,4 @@
-# RRT [![Build Status](https://travis-ci.org/RoboJackets/rrt.png?branch=master)](https://travis-ci.org/RoboJackets/rrt)
+# RRT ![Circle CI](https://circleci.com/gh/RoboJackets/rrt.svg?style=svg)](https://circleci.com/gh/RoboJackets/rrt)
 
 C++ RRT (Rapidly-exploring Random Tree) implementation
 
@@ -15,7 +15,7 @@ This project contains an interactive RRT viewer.  The source and destination poi
 The following are required in order to build this project:
 
 * cmake >= 2.8.9
-* Qt 5 (`qt5` on Ubuntu)
+* Qt 5 (`qt5-default` on Ubuntu)
 * Eigen (`libeigen3-dev` on Ubuntu)
 
 

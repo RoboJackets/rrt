@@ -1,0 +1,101 @@
+#!/bin/bash
+#
+# This is just a shell file that is sourced by DoCIF scripts.
+
+BASEIMAGE_REPO="robojackets/rrt-baseimage"
+
+# If true, ${BASEIMAGE_REPO}:master is pushed when on master.
+PUSH_BASEIMAGE="true"
+
+# @REQUIRED
+# The github repository location, for sendings status updates to
+# This is CASE SENSITIVE!!
+GITHUB_REPO='RoboJackets/rrt'
+
+# The url to point to when a status check is pending.
+# Will point to https://github.com/jgkamat/DoCIF if unset.
+PENDING_URL="https://github.com/jgkamat/DoCIF"
+
+# A custom dockerfile, for advanced setup
+# DO NOT SET THIS IF YOU ARE A FIRST TIME USER.
+# See ./commands/Dockerfile for the default dockerfile
+# This file is in relation to you'r project's root.
+CUSTOM_DOCKERFILE="./ci/baseimage/Dockerfile"
+
+############################## Variable Names ##################################
+
+# These are the variables that will hold secrets and such.
+# In this example, DOCKER_PASS needs to be set to the docker hub password
+# This can be done through the CircleCi GUI or Travis CI secrets
+DOCKER_PASSWORD_VAR="DOCKER_PASS"
+DOCKER_EMAIL_VAR="DOCKER_EMAIL"
+DOCKER_USER_VAR="DOCKER_USER"
+# This would be insecure, but you can do it below. You should add these vars to
+# circle protected environment variables if you are concerned about security
+# DOCKER_EMAIL="help@gmail.com"
+
+# Status token is used for updating status
+GH_STATUS_TOKEN_VAR="GH_STATUS_TOKEN"
+# Variable holing the username of the Status Token
+GH_USER_VAR="GIT_USERNAME"
+# Variable holing the email of the Status Token
+GH_EMAIL_VAR="GIT_EMAIL"
+
+# The project root INSIDE THE DOCKER CONTAINER
+# Reccomended to leave as default (not set)
+# This will act as the 'current directory' within the project
+# This will need to be changed in the dockerfile as well to take effect. (use a custom one!)
+DOCKER_PROJECT_ROOT="/home/developer/project"
+
+# The home dir of the user running the docker commands (used for caching when using ~)
+DOCKER_PROJECT_HOME="/home/developer"
+
+# The git clone root INSIDE THE DOCKER CONTAINER
+GIT_CLONE_ROOT="${DOCKER_PROJECT_ROOT}"
+
+################################################################################
+
+# Cache directories, not required.
+# Directories to link to the docker container for each build and persist between builds. Add to circle.yml as well.
+# for caching on their servers
+# YOU MUST USE ~ IN YOUR PATH (NO $HOME), SO WE KNOW WHERE TO LINK TO INSIDE THE CONTAINER.
+# This directory MUST BE ADDED TO circle.yml AS WELL IN ORDER FOR ACTUAL CACHING TO TAKE PLACE
+CACHE_DIRECTORIES=()
+CACHE_DIRECTORIES+=('~/.ccache')
+CACHE_DIRECTORIES+=('~/.ssh')
+CACHE_DIRECTORIES+=("${CIRCLE_ARTIFACTS}")
+
+
+################################# COMMANDS #####################################
+
+# The script to set up the environment, by default ubuntu.
+# YOU WILL NEED TO USE SUDO TO GET ROOT PRIVLEGES HERE
+SETUP_COMMAND="./ci/ubuntu-setup.sh"
+
+# DOCIF can cache baseimages, if you give it files that will force a rebuild if changed.
+# Include the setup script itself, as well as any dependency files
+# Leaving this blank will turn off caching
+SETUP_SHA_FILES=()
+ # This file should be included unless you leave this variable completely blank, forcing a rebuild when DoCIF is updated
+SETUP_SHA_FILES+=("./.gitmodules")
+SETUP_SHA_FILES+=("./config.docif")
+SETUP_SHA_FILES+=("./ci/baseimage/Dockerfile")
+SETUP_SHA_FILES+=("./ci/ubuntu-setup.sh")
+
+# Commands to run when testing. Each index will have it's own status token
+# Commands are in this format
+# COMMAND; SHORT_NAME; DESCRIPTION
+TEST_COMMANDS=()
+TEST_COMMANDS+=( 'make;compile;Compile rrt library and rrt-viewer' )
+TEST_COMMANDS+=( 'make tests;unit-tests;Run unit tests' )
+
+# Clean command. Cleans the build files so there is no way the previous build can interfere. Add if you run
+# into issues
+CLEAN_COMMAND="make clean || true"
+
+# Environmental variables to make available to the build environment
+ENV_VARS=()
+ENV_VARS+=("GH_TOKEN")  # To be used by autoupdating script
+ENV_VARS+=("CIRCLE_BUILD_NUM")
+ENV_VARS+=("CIRCLE_BRANCH")
+ENV_VARS+=("CIRCLE_SHA1")
