@@ -5,6 +5,9 @@
 
 git submodule update --init
 
+# add repo for updated version of cmake
+sudo apt-add-repository -y ppa:packetlost/cmake
+
 sudo apt-get -y update
 sudo apt-get -y upgrade
 
