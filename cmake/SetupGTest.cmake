@@ -18,14 +18,12 @@ include_directories(${source_dir}/include)
 
 add_library(gtest STATIC IMPORTED)
 set_property(TARGET gtest PROPERTY IMPORTED_LOCATION ${lib_dir}/libgtest.a)
-add_dependencies(gtest googletest)
 
 add_library(gtest_main STATIC IMPORTED)
 set_property(TARGET gtest_main PROPERTY IMPORTED_LOCATION ${lib_dir}/libgtest_main.a)
-add_dependencies(gtest_main googletest)
 
 # specify libraries
-set(GTEST_BOTH_LIBRARIES
+set(GTEST_LIBRARIES
     gtest
     gtest_main
     pthread
