@@ -1,6 +1,7 @@
 
 #include "MainWindow.hpp"
 
+using namespace RRT;
 
 MainWindow::MainWindow() {
     _rrtWidget = new RRTWidget();

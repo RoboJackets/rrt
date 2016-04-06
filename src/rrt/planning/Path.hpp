@@ -1,9 +1,10 @@
 #pragma once
 
+#include <rrt/StateSpace.hpp>
 #include <vector>
 
 
-namespace Planning {
+namespace RRT {
 
     /**
      * @brief Reduce the vector to @maxSize length
@@ -52,4 +53,4 @@ namespace Planning {
         }
     }
 
-};
+} // namespace RRT

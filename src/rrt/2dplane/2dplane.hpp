@@ -1,8 +1,9 @@
 
-#include <Tree.hpp>
-#include <StateSpace.hpp>
+#include <rrt/Tree.hpp>
+#include <rrt/StateSpace.hpp>
 #include <Eigen/Dense>
 
+namespace RRT {
 
 /**
  * This creates an instance of an RRT Tree with the callbacks
@@ -25,3 +26,5 @@ RRT::Tree<Eigen::Vector2f> *TreeFor2dPlane(
     std::shared_ptr<StateSpace<Eigen::Vector2f>> stateSpace,
     Eigen::Vector2f goal,
     float step);
+
+}  // namespace RRT

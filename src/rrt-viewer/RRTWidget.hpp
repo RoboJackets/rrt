@@ -1,8 +1,8 @@
 #pragma once
 
 #include <QtWidgets>
-#include <BiRRT.hpp>
-#include <2dplane/GridStateSpace.hpp>
+#include <rrt/BiRRT.hpp>
+#include <rrt/2dplane/GridStateSpace.hpp>
 #include <Eigen/Dense>
 
 
@@ -56,7 +56,7 @@ protected:
 
 
 private:
-    std::shared_ptr<GridStateSpace> _stateSpace;
+    std::shared_ptr<RRT::GridStateSpace> _stateSpace;
     RRT::BiRRT<Eigen::Vector2f> *_biRRT;
 
     Eigen::Vector2f _startVel, _goalVel;

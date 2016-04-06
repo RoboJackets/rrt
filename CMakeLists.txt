@@ -47,14 +47,33 @@ message(STATUS "Found Qt5: ${Qt5Widgets_DIR}")
 ################################################################################
 
 set(lib_SRC
-    "src/2dplane/2dplane.cpp"
-    "src/2dplane/GridStateSpace.cpp"
-    "src/2dplane/ObstacleGrid.cpp"
-    "src/2dplane/PlaneStateSpace.cpp"
+    "src/rrt/2dplane/2dplane.cpp"
+    "src/rrt/2dplane/GridStateSpace.cpp"
+    "src/rrt/2dplane/ObstacleGrid.cpp"
 )
 
-add_library("RRT" ${lib_SRC})
+add_library("RRT" STATIC ${lib_SRC})
 
+
+# copy headers to install directory
+set(lib_HEADERS
+    "2dplane/2dplane.hpp"
+    "2dplane/GridStateSpace.hpp"
+    "2dplane/ObstacleGrid.hpp"
+    "2dplane/PlaneStateSpace.hpp"
+    "BiRRT.hpp"
+    "planning/Path.hpp"
+    "StateSpace.hpp"
+    "Tree.hpp"
+    "util.hpp"
+)
+foreach(file ${lib_HEADERS})
+    get_filename_component(dir ${file} DIRECTORY)
+    install(FILES src/rrt/${file} DESTINATION include/rrt/${dir})
+endforeach()
+
+# copy library to install directory
+install(TARGETS RRT DESTINATION "lib")
 
 # rrt-viewer
 ################################################################################
@@ -78,8 +97,8 @@ include(SetupGTest)
 
 # test srcs
 set(tests_SRC
-    "src/BiRRTTest.cpp"
-    "src/TreeTest.cpp"
+    "src/rrt/BiRRTTest.cpp"
+    "src/rrt/TreeTest.cpp"
 )
 
 # test-cpp

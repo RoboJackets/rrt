@@ -1,15 +1,16 @@
 #pragma once
 
-#include <2dplane/PlaneStateSpace.hpp>
-#include <2dplane/ObstacleGrid.hpp>
+#include <rrt/2dplane/PlaneStateSpace.hpp>
+#include <rrt/2dplane/ObstacleGrid.hpp>
 #include <Eigen/Dense>
 
+namespace RRT {
 
 /**
  * @brief A 2d plane with continuous states and discretized obstacles.
  * @details The state space is broken up into a grid with the given discrete height and widths.
  */
-class GridStateSpace : public PlaneStateSpace {
+class GridStateSpace : public PlaneStateSpace<Eigen::Vector2f> {
 public:
     GridStateSpace(float width, float height, int discretizedWidth, int discretizedHeight);
 
@@ -27,3 +28,5 @@ public:
 private:
     ObstacleGrid _obstacleGrid;
 };
+
+}  // namespace RRT

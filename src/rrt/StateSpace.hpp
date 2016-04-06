@@ -1,5 +1,6 @@
 #pragma once
 
+namespace RRT {
 
 /**
  * A state space represents the set of possible states for a planning problem.
@@ -73,3 +74,5 @@ protected:
     float _minStepSize;
     float _maxStepSize;
 };
+
+}  // namespace RRT

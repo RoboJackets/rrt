@@ -1,13 +1,13 @@
 #include "gtest/gtest.h"
-#include <Tree.hpp>
-#include <2dplane/2dplane.hpp>
-#include <2dplane/GridStateSpace.hpp>
+#include <rrt/Tree.hpp>
+#include <rrt/2dplane/2dplane.hpp>
+#include <rrt/2dplane/GridStateSpace.hpp>
 #include <vector>
 
-using namespace RRT;
 using namespace Eigen;
 using namespace std;
 
+namespace RRT {
 
 TEST(Tree, Example_2dplane) {
 	Tree<Vector2f> *tree = TreeFor2dPlane(
@@ -98,3 +98,5 @@ TEST(Tree, ASC) {
 	}
 	ASSERT_TRUE(varied);
 }
+
+}  // namespace RRT

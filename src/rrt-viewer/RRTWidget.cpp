@@ -1,7 +1,7 @@
 
 #include "RRTWidget.hpp"
-#include <planning/Path.hpp>
-#include <2dplane/2dplane.hpp>
+#include <rrt/planning/Path.hpp>
+#include <rrt/2dplane/2dplane.hpp>
 
 using namespace RRT;
 using namespace Eigen;
@@ -50,7 +50,7 @@ void RRTWidget::slot_reset() {
             waypoints.erase(waypoints.end()-1);
 
             //  down-sample
-            Planning::DownSampleVector<Vector2f>(waypoints, _waypointCacheMaxSize);
+            RRT::DownSampleVector<Vector2f>(waypoints, _waypointCacheMaxSize);
         }
     } else {
         _previousSolution.clear();
@@ -128,7 +128,7 @@ void RRTWidget::step(int numTimes) {
     _previousSolution.clear();
     if (_biRRT->startSolutionNode() != nullptr) {
         _biRRT->getPath(_previousSolution);
-        Planning::SmoothPath<Vector2f>(_previousSolution, *_stateSpace);
+        RRT::SmoothPath<Vector2f>(_previousSolution, *_stateSpace);
     }
 
     emit signal_stepped(_biRRT->iterationCount());

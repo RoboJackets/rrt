@@ -1,6 +1,9 @@
 all:
 	mkdir -p build
-	cd build && cmake .. -GNinja && ninja
+	cd build && cmake .. -DCMAKE_INSTALL_PREFIX:PATH="" -GNinja && ninja
+
+install: all
+	cd build && ninja install
 
 run: all
 	build/rrt-viewer
