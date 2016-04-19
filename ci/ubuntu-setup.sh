@@ -6,12 +6,12 @@
 git submodule update --init
 
 # add repo for updated version of cmake
-sudo apt-add-repository -y ppa:packetlost/cmake
+sudo apt-add-repository -y ppa:george-edison55/cmake-3.x
 
 sudo apt-get -y update
 sudo apt-get -y upgrade
 
-sudo apt-get -y install cmake \
+sudo apt-get -y install \
     qt5-default \
     libeigen3-dev \
     g++ \
