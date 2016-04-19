@@ -5,7 +5,6 @@
 #include <rrt/2dplane/GridStateSpace.hpp>
 #include <Eigen/Dense>
 
-
 /**
  * This widget creates an RRT tree for searching a 2d space and draws it.
  * It has methods (slots) for stepping and resetting tree growth.
@@ -17,7 +16,6 @@ class RRTWidget : public QWidget {
 public:
     RRTWidget();
 
-
 private slots:
     void slot_run();
     void run_step();
@@ -26,38 +24,36 @@ private slots:
     void slot_clearObstacles();
     void slot_step();
     void slot_stepBig();
-    void slot_setGoalBias(int bias);        //  bias is from 0 to 100
-    void slot_setWaypointBias(int bias);    //  bias is from 0 to 100
+    void slot_setGoalBias(int bias);      //  bias is from 0 to 100
+    void slot_setWaypointBias(int bias);  //  bias is from 0 to 100
     void slot_setASC(int checked);
     void slot_setStepSize(double step);
 
 signals:
     void signal_stepped(int iterationCount);
 
-
 protected:
-    void paintEvent(QPaintEvent *p);
-    void drawTree(QPainter &painter,
-        const RRT::Tree<Eigen::Vector2f> &rrt,
-        const RRT::Node<Eigen::Vector2f> *solutionNode = NULL,
-        QColor treeColor = Qt::blue,
-        QColor solutionColor = Qt::red);
-    void drawTerminalState(QPainter &painter, const Eigen::Vector2f &pos, const Eigen::Vector2f &vel, const QColor &color);
+    void paintEvent(QPaintEvent* p);
+    void drawTree(QPainter& painter, const RRT::Tree<Eigen::Vector2f>& rrt,
+                  const RRT::Node<Eigen::Vector2f>* solutionNode = NULL,
+                  QColor treeColor = Qt::blue, QColor solutionColor = Qt::red);
+    void drawTerminalState(QPainter& painter, const Eigen::Vector2f& pos,
+                           const Eigen::Vector2f& vel, const QColor& color);
 
-    QPointF pointFromNode(const RRT::Node<Eigen::Vector2f> *n);
+    QPointF pointFromNode(const RRT::Node<Eigen::Vector2f>* n);
 
     void step(int numTimes);
 
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
 
-    static bool mouseInGrabbingRange(QMouseEvent *event, const Eigen::Vector2f &pt);
-
+    static bool mouseInGrabbingRange(QMouseEvent* event,
+                                     const Eigen::Vector2f& pt);
 
 private:
     std::shared_ptr<RRT::GridStateSpace> _stateSpace;
-    RRT::BiRRT<Eigen::Vector2f> *_biRRT;
+    RRT::BiRRT<Eigen::Vector2f>* _biRRT;
 
     Eigen::Vector2f _startVel, _goalVel;
 
@@ -77,5 +73,5 @@ private:
 
     std::vector<Eigen::Vector2f> _previousSolution;
 
-    QTimer *_runTimer;
+    QTimer* _runTimer;
 };

@@ -19,8 +19,8 @@ protected slots:
     void slot_updateIterationCount(int iterationCount);
 
 private:
-    RRTWidget *_rrtWidget;
-    QLabel *_goalBiasLabel;
-    QLabel *_waypointBiasLabel;
-    QLabel *_iterationCountLabel;
+    RRTWidget* _rrtWidget;
+    QLabel* _goalBiasLabel;
+    QLabel* _waypointBiasLabel;
+    QLabel* _iterationCountLabel;
 };
