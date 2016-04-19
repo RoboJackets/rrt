@@ -1,4 +1,4 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <rrt/BiRRT.hpp>
 #include <rrt/2dplane/GridStateSpace.hpp>
 

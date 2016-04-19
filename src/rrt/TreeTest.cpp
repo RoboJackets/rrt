@@ -1,4 +1,4 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <rrt/Tree.hpp>
 #include <rrt/2dplane/2dplane.hpp>
 #include <rrt/2dplane/GridStateSpace.hpp>
