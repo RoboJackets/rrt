@@ -8,19 +8,19 @@
  * buttons for interacting with the RRT.
  */
 class MainWindow : public QMainWindow {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  MainWindow();
+    MainWindow();
 
 protected slots:
-  void slot_updateGoalBiasLabel(int value);
-  void slot_updateWaypointBiasLabel(int value);
-  void slot_updateIterationCount(int iterationCount);
+    void slot_updateGoalBiasLabel(int value);
+    void slot_updateWaypointBiasLabel(int value);
+    void slot_updateIterationCount(int iterationCount);
 
 private:
-  RRTWidget *_rrtWidget;
-  QLabel *_goalBiasLabel;
-  QLabel *_waypointBiasLabel;
-  QLabel *_iterationCountLabel;
+    RRTWidget* _rrtWidget;
+    QLabel* _goalBiasLabel;
+    QLabel* _waypointBiasLabel;
+    QLabel* _iterationCountLabel;
 };

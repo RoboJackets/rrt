@@ -22,8 +22,8 @@ namespace RRT {
  * You'll probably want to override the transitionValidator callback
  * if your 2d plane has any obstacles.
  */
-RRT::Tree<Eigen::Vector2f> *
-TreeFor2dPlane(std::shared_ptr<StateSpace<Eigen::Vector2f>> stateSpace,
-               Eigen::Vector2f goal, float step);
+RRT::Tree<Eigen::Vector2f>* TreeFor2dPlane(
+    std::shared_ptr<StateSpace<Eigen::Vector2f>> stateSpace,
+    Eigen::Vector2f goal, float step);
 
-} // namespace RRT
+}  // namespace RRT
