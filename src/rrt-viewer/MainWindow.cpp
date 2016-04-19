@@ -12,27 +12,27 @@ MainWindow::MainWindow() {
     _iterationCountLabel->setText("Iterations: 0");
     statusBar()->addPermanentWidget(_iterationCountLabel);
 
-    QPushButton *run = new QPushButton(this);
+    QPushButton* run = new QPushButton(this);
     run->setText("Run");
     run->setStyleSheet("background-color: green;");
 
-    QPushButton *stop = new QPushButton(this);
+    QPushButton* stop = new QPushButton(this);
     stop->setText("Stop");
 
-    QPushButton *step = new QPushButton(this);
+    QPushButton* step = new QPushButton(this);
     step->setText("Step");
 
-    QPushButton *stepBig = new QPushButton(this);
+    QPushButton* stepBig = new QPushButton(this);
     stepBig->setText("Step 100");
-    
-    QPushButton *reset = new QPushButton(this);
+
+    QPushButton* reset = new QPushButton(this);
     reset->setText("Reset");
 
-    QPushButton *clearObstacles = new QPushButton(this);
+    QPushButton* clearObstacles = new QPushButton(this);
     clearObstacles->setText("Clear Obstacles");
     clearObstacles->setStyleSheet("background-color: red;");
 
-    QSlider *goalBias = new QSlider(Qt::Horizontal, this);
+    QSlider* goalBias = new QSlider(Qt::Horizontal, this);
     goalBias->setTickPosition(QSlider::TicksBelow);
     goalBias->setMinimum(0);
     goalBias->setMaximum(100);
@@ -40,7 +40,7 @@ MainWindow::MainWindow() {
 
     _goalBiasLabel = new QLabel("Goal Bias: 0", this);
 
-    QSlider *waypointBias = new QSlider(Qt::Horizontal, this);
+    QSlider* waypointBias = new QSlider(Qt::Horizontal, this);
     waypointBias->setTickPosition(QSlider::TicksBelow);
     waypointBias->setMinimum(0);
     waypointBias->setMaximum(100);
@@ -48,16 +48,16 @@ MainWindow::MainWindow() {
 
     _waypointBiasLabel = new QLabel("Waypoint Bias: 0", this);
 
-    QDoubleSpinBox *stepSizeBox = new QDoubleSpinBox(this);
+    QDoubleSpinBox* stepSizeBox = new QDoubleSpinBox(this);
     stepSizeBox->setMinimum(0.1);
     stepSizeBox->setMaximum(100);
     stepSizeBox->setValue(10);
 
-    QLabel *stepSizeLabel = new QLabel("Step Size:");
+    QLabel* stepSizeLabel = new QLabel("Step Size:");
 
-    QCheckBox *ascCheckbox = new QCheckBox("Adaptive Stepsize Control", this);
-    
-    QGridLayout *layout = new QGridLayout();
+    QCheckBox* ascCheckbox = new QCheckBox("Adaptive Stepsize Control", this);
+
+    QGridLayout* layout = new QGridLayout();
     layout->addWidget(run, 0, 0);
     layout->addWidget(stop, 1, 0);
     layout->addWidget(step, 0, 1);
@@ -73,7 +73,7 @@ MainWindow::MainWindow() {
     layout->addWidget(ascCheckbox, 0, 6);
     layout->addWidget(_rrtWidget, 2, 0, 1, 7);
 
-    QWidget *centralWidget = new QWidget(this);
+    QWidget* centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
     this->setCentralWidget(centralWidget);
 
@@ -86,14 +86,22 @@ MainWindow::MainWindow() {
     connect(step, SIGNAL(clicked()), _rrtWidget, SLOT(slot_step()));
     connect(stepBig, SIGNAL(clicked()), _rrtWidget, SLOT(slot_stepBig()));
     connect(reset, SIGNAL(clicked()), _rrtWidget, SLOT(slot_reset()));
-    connect(clearObstacles, SIGNAL(clicked()), _rrtWidget, SLOT(slot_clearObstacles()));
-    connect(goalBias, SIGNAL(valueChanged(int)), _rrtWidget, SLOT(slot_setGoalBias(int)));
-    connect(goalBias, SIGNAL(valueChanged(int)), this, SLOT(slot_updateGoalBiasLabel(int)));
-    connect(waypointBias, SIGNAL(valueChanged(int)), _rrtWidget, SLOT(slot_setWaypointBias(int)));
-    connect(waypointBias, SIGNAL(valueChanged(int)), this, SLOT(slot_updateWaypointBiasLabel(int)));
-    connect(stepSizeBox, SIGNAL(valueChanged(double)), _rrtWidget, SLOT(slot_setStepSize(double)));
-    connect(ascCheckbox, SIGNAL(stateChanged(int)), _rrtWidget, SLOT(slot_setASC(int)));
-    connect(_rrtWidget, SIGNAL(signal_stepped(int)), this, SLOT(slot_updateIterationCount(int)));
+    connect(clearObstacles, SIGNAL(clicked()), _rrtWidget,
+            SLOT(slot_clearObstacles()));
+    connect(goalBias, SIGNAL(valueChanged(int)), _rrtWidget,
+            SLOT(slot_setGoalBias(int)));
+    connect(goalBias, SIGNAL(valueChanged(int)), this,
+            SLOT(slot_updateGoalBiasLabel(int)));
+    connect(waypointBias, SIGNAL(valueChanged(int)), _rrtWidget,
+            SLOT(slot_setWaypointBias(int)));
+    connect(waypointBias, SIGNAL(valueChanged(int)), this,
+            SLOT(slot_updateWaypointBiasLabel(int)));
+    connect(stepSizeBox, SIGNAL(valueChanged(double)), _rrtWidget,
+            SLOT(slot_setStepSize(double)));
+    connect(ascCheckbox, SIGNAL(stateChanged(int)), _rrtWidget,
+            SLOT(slot_setASC(int)));
+    connect(_rrtWidget, SIGNAL(signal_stepped(int)), this,
+            SLOT(slot_updateIterationCount(int)));
 
     //  keyboard shortcuts
     new QShortcut(QKeySequence(Qt::Key_R), _rrtWidget, SLOT(slot_run()));
@@ -106,9 +114,11 @@ void MainWindow::slot_updateGoalBiasLabel(int value) {
 }
 
 void MainWindow::slot_updateWaypointBiasLabel(int value) {
-    _waypointBiasLabel->setText(QString("Waypoint Bias: %1").arg(value / 100.0f));
+    _waypointBiasLabel->setText(
+        QString("Waypoint Bias: %1").arg(value / 100.0f));
 }
 
 void MainWindow::slot_updateIterationCount(int iterationCount) {
-    _iterationCountLabel->setText(QString("Iterations: %1").arg(iterationCount));
+    _iterationCountLabel->setText(
+        QString("Iterations: %1").arg(iterationCount));
 }
