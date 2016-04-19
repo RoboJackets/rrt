@@ -88,6 +88,7 @@ SETUP_SHA_FILES+=("./ci/ubuntu-setup.sh")
 TEST_COMMANDS=()
 TEST_COMMANDS+=( 'make;compile;Compile rrt library and rrt-viewer' )
 TEST_COMMANDS+=( 'make tests;unit-tests;Run unit tests' )
+TEST_COMMANDS+=( 'make checkstyle;checkstyle;Code checkstyle' )
 
 # Clean command. Cleans the build files so there is no way the previous build can interfere. Add if you run
 # into issues
