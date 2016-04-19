@@ -5,77 +5,73 @@
 #include <rrt/2dplane/GridStateSpace.hpp>
 #include <Eigen/Dense>
 
-
 /**
  * This widget creates an RRT tree for searching a 2d space and draws it.
  * It has methods (slots) for stepping and resetting tree growth.
  * You can also draw and erase obstacles by clicking and dragging.
  */
 class RRTWidget : public QWidget {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    RRTWidget();
-
+  RRTWidget();
 
 private slots:
-    void slot_run();
-    void run_step();
-    void slot_stop();
-    void slot_reset();
-    void slot_clearObstacles();
-    void slot_step();
-    void slot_stepBig();
-    void slot_setGoalBias(int bias);        //  bias is from 0 to 100
-    void slot_setWaypointBias(int bias);    //  bias is from 0 to 100
-    void slot_setASC(int checked);
-    void slot_setStepSize(double step);
+  void slot_run();
+  void run_step();
+  void slot_stop();
+  void slot_reset();
+  void slot_clearObstacles();
+  void slot_step();
+  void slot_stepBig();
+  void slot_setGoalBias(int bias);     //  bias is from 0 to 100
+  void slot_setWaypointBias(int bias); //  bias is from 0 to 100
+  void slot_setASC(int checked);
+  void slot_setStepSize(double step);
 
 signals:
-    void signal_stepped(int iterationCount);
-
+  void signal_stepped(int iterationCount);
 
 protected:
-    void paintEvent(QPaintEvent *p);
-    void drawTree(QPainter &painter,
-        const RRT::Tree<Eigen::Vector2f> &rrt,
-        const RRT::Node<Eigen::Vector2f> *solutionNode = NULL,
-        QColor treeColor = Qt::blue,
-        QColor solutionColor = Qt::red);
-    void drawTerminalState(QPainter &painter, const Eigen::Vector2f &pos, const Eigen::Vector2f &vel, const QColor &color);
+  void paintEvent(QPaintEvent *p);
+  void drawTree(QPainter &painter, const RRT::Tree<Eigen::Vector2f> &rrt,
+                const RRT::Node<Eigen::Vector2f> *solutionNode = NULL,
+                QColor treeColor = Qt::blue, QColor solutionColor = Qt::red);
+  void drawTerminalState(QPainter &painter, const Eigen::Vector2f &pos,
+                         const Eigen::Vector2f &vel, const QColor &color);
 
-    QPointF pointFromNode(const RRT::Node<Eigen::Vector2f> *n);
+  QPointF pointFromNode(const RRT::Node<Eigen::Vector2f> *n);
 
-    void step(int numTimes);
+  void step(int numTimes);
 
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+  void mousePressEvent(QMouseEvent *event);
+  void mouseMoveEvent(QMouseEvent *event);
+  void mouseReleaseEvent(QMouseEvent *event);
 
-    static bool mouseInGrabbingRange(QMouseEvent *event, const Eigen::Vector2f &pt);
-
+  static bool mouseInGrabbingRange(QMouseEvent *event,
+                                   const Eigen::Vector2f &pt);
 
 private:
-    std::shared_ptr<RRT::GridStateSpace> _stateSpace;
-    RRT::BiRRT<Eigen::Vector2f> *_biRRT;
+  std::shared_ptr<RRT::GridStateSpace> _stateSpace;
+  RRT::BiRRT<Eigen::Vector2f> *_biRRT;
 
-    Eigen::Vector2f _startVel, _goalVel;
+  Eigen::Vector2f _startVel, _goalVel;
 
-    //  if you click down on an obstacle, you enter erase mode
-    //  if you click down where there's no obstacle, you enter draw mode
-    bool _editingObstacles, _erasingObstacles;
+  //  if you click down on an obstacle, you enter erase mode
+  //  if you click down where there's no obstacle, you enter draw mode
+  bool _editingObstacles, _erasingObstacles;
 
-    enum {
-        DraggingNone = 0,
-        DraggingStart,
-        DraggingGoal,
-        DraggingStartVel,
-        DraggingGoalVel
-    } _draggingItem;
+  enum {
+    DraggingNone = 0,
+    DraggingStart,
+    DraggingGoal,
+    DraggingStartVel,
+    DraggingGoalVel
+  } _draggingItem;
 
-    int _waypointCacheMaxSize;
+  int _waypointCacheMaxSize;
 
-    std::vector<Eigen::Vector2f> _previousSolution;
+  std::vector<Eigen::Vector2f> _previousSolution;
 
-    QTimer *_runTimer;
+  QTimer *_runTimer;
 };

@@ -7,7 +7,7 @@ using namespace std;
 namespace RRT {
 
 TEST(Instantiation, BiRRT) {
-    BiRRT<Eigen::Vector2f> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50));
+  BiRRT<Eigen::Vector2f> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50));
 }
 
-}  // namespace RRT
+} // namespace RRT

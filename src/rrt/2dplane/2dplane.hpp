@@ -11,7 +11,7 @@ namespace RRT {
  *
  * @param w, h The dimensions of the 2d plane.  These are used when
  * picking random points for the Tree to move towards.
- 
+
  * @param goal The point representing the goal that the tree is
  * trying to find a path to
  *
@@ -22,9 +22,8 @@ namespace RRT {
  * You'll probably want to override the transitionValidator callback
  * if your 2d plane has any obstacles.
  */
-RRT::Tree<Eigen::Vector2f> *TreeFor2dPlane(
-    std::shared_ptr<StateSpace<Eigen::Vector2f>> stateSpace,
-    Eigen::Vector2f goal,
-    float step);
+RRT::Tree<Eigen::Vector2f> *
+TreeFor2dPlane(std::shared_ptr<StateSpace<Eigen::Vector2f>> stateSpace,
+               Eigen::Vector2f goal, float step);
 
-}  // namespace RRT
+} // namespace RRT
