@@ -22,4 +22,4 @@ sudo apt-get -y install \
     python3-pip \
 
 # code formatting tool
-sudo pip3 install stylize yapf
+sudo pip3 install stylize>=0.2.7
