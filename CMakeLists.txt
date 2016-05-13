@@ -18,6 +18,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 # includes
 include_directories(src)
 
+include_directories(flann/src/cpp)
 
 # Eigen - used for linear algebra
 find_package(Eigen3 REQUIRED)

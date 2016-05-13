@@ -8,7 +8,12 @@
 #include <stdexcept>
 #include <stdlib.h>
 #include <iostream>
-#include <flann/src/cpp/flann/flann.hpp>
+#include "flann/flann.hpp"
+#include "flann/general.h"
+#include "flann/util/matrix.h"
+#include "flann/algorithms/dist.h"
+
+using namespace flann;
 
 namespace RRT
 {
@@ -107,7 +112,7 @@ namespace RRT
     template<typename T>
     class Tree {
     public:
-        Tree(std::shared_ptr<StateSpace<T>> stateSpace) {
+        Tree(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions) : _kdtree(KDTreeSingleIndexParams(), L2_Simple<T>(T, T, dimensions)) {
             _stateSpace = stateSpace;
 
             //  default values
@@ -236,9 +241,10 @@ namespace RRT
          */
         bool run() {
             //  grow the tree until we find the goal or run out of iterations
+            _kdtree.buildIndex();
+
             for (int i = 0; i < _maxIterations; i++) {
                 Node<T> *newNode = grow();
-
                 if (newNode && _stateSpace->distance(newNode->state(), _goalState) < _goalMaxDist) return true;
             }
 
@@ -344,6 +350,9 @@ namespace RRT
 
             // Add a node to the tree for this state
             Node<T> *n = new Node<T>(intermediateState, source);
+            const Matrix<T> point(&intermediateState, 2, 1, FLANN_FLOAT64);
+            // _kdtree.addPoints(&point, 2.0);
+
             _nodes.push_back(n);
             return n;
         }
@@ -465,6 +474,8 @@ namespace RRT
 
         float _stepSize;
         float _maxStepSize;
+
+        Index<L2_Simple<T> > _kdtree;
 
         std::shared_ptr<StateSpace<T>> _stateSpace;
     };
