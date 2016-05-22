@@ -9,6 +9,7 @@ using namespace std;
 
 /// multiply velocity by this to get the length of the vector to draw
 const float VelocityDrawingMultiplier = 12;
+const int dimensions = 2;
 
 
 RRTWidget::RRTWidget() {
@@ -16,7 +17,7 @@ RRTWidget::RRTWidget() {
                                         600,
                                         40,
                                         30);
-    _biRRT = new BiRRT<Vector2f>(_stateSpace);
+    _biRRT = new BiRRT<Vector2f>(_stateSpace, dimensions);
     setFixedSize(800, 600);
 
     _waypointCacheMaxSize = 15;

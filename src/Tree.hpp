@@ -112,7 +112,7 @@ namespace RRT
     template<typename T>
     class Tree {
     public:
-        Tree(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions) : _kdtree(KDTreeSingleIndexParams(), L2_Simple<T>(T, T, dimensions)) {
+        Tree(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions) : _kdtree(KDTreeSingleIndexParams()) {
             _stateSpace = stateSpace;
 
             //  default values
@@ -475,7 +475,7 @@ namespace RRT
         float _stepSize;
         float _maxStepSize;
 
-        Index<L2_Simple<T> > _kdtree;
+        Index<L2_Simple<float> > _kdtree;
 
         std::shared_ptr<StateSpace<T>> _stateSpace;
     };
