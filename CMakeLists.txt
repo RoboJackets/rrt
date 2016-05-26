@@ -18,7 +18,18 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 # includes
 include_directories(src)
 
+# flann library for KD-Tree data structure
+include(ExternalProject)
 include_directories(flann/src/cpp)
+set(lib_dir ${CMAKE_CURRENT_BINARY_DIR}/flann-prefix/src/flann-build/lib)
+ExternalProject_Add(flann
+    URL ${PROJECT_SOURCE_DIR}/flann
+    INSTALL_COMMAND ""
+    BUILD_BYPRODUCTS ${lib_dir}/libflann_cpp_s.a
+)
+set_target_properties(flann PROPERTIES EXCLUDE_FROM_ALL TRUE)
+add_library(flannlib STATIC IMPORTED)
+set_property(TARGET flannlib PROPERTY IMPORTED_LOCATION ${lib_dir}/libflann_cpp_s.a)
 
 # Eigen - used for linear algebra
 find_package(Eigen3 REQUIRED)
@@ -53,6 +64,8 @@ set(lib_SRC
 )
 
 add_library("RRT" ${lib_SRC})
+add_dependencies(RRT flann)
+target_link_libraries(RRT flannlib)
 
 
 # rrt-viewer
