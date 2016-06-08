@@ -8,6 +8,8 @@
 #include <rrt/StateSpace.hpp>
 #include <stdexcept>
 #include <vector>
+#include <stdlib.h>
+#include <iostream>
 
 namespace RRT {
 /**
@@ -187,6 +189,10 @@ public:
      *     reached.
      * @details The RRT will continue to run unti we're within @goalMaxDist of
      *     the goal state.
+     * reached.
+     * @details The RRT will continue to run unti we're within @goalMaxDist of
+     * the
+     * goal state.
      */
     float goalMaxDist() const { return _goalMaxDist; }
     void setGoalMaxDist(float maxDist) { _goalMaxDist = maxDist; }
