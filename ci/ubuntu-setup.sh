@@ -16,7 +16,7 @@ sudo apt-get -y install \
     libeigen3-dev \
     g++ \
     ninja-build \
-    cmake
+    cmake \
     clang-format-3.6 \
     python3 \
     python3-pip \
