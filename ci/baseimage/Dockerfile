@@ -29,11 +29,11 @@ RUN wget http://launchpadlibrarian.net/214662189/ccache_3.2.3-1_amd64.deb -P /ro
         && dpkg -i /root/ccache_3.2.3-1_amd64.deb \
         && rm /root/ccache_3.2.3-1_amd64.deb
 
-# Set max cache size to 3gb
-RUN ccache -M 3G
-
 USER developer
 ENV HOME /home/developer
+
+# Set max cache size to 3gb
+RUN ccache -M 3G
 
 # do everything in root's home
 RUN mkdir -p /home/developer/project

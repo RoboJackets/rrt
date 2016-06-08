@@ -1,9 +1,9 @@
 #pragma once
 
-#include <QtWidgets>
-#include <rrt/BiRRT.hpp>
-#include <rrt/2dplane/GridStateSpace.hpp>
 #include <Eigen/Dense>
+#include <QtWidgets>
+#include <rrt/2dplane/GridStateSpace.hpp>
+#include <rrt/BiRRT.hpp>
 
 /**
  * This widget creates an RRT tree for searching a 2d space and draws it.

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 3.2.0)
 project(rrt)
 
 # c++11
@@ -104,7 +104,6 @@ set(tests_SRC
 # test-cpp
 add_executable(test-cpp ${tests_SRC})
 target_link_libraries(test-cpp RRT)
-target_link_libraries(test-cpp ${GTEST_BOTH_LIBRARIES})
-target_link_libraries(test-cpp pthread)
+target_link_libraries(test-cpp ${GTEST_LIBRARIES})
 set_target_properties(test-cpp PROPERTIES EXCLUDE_FROM_ALL TRUE)
 add_dependencies(test-cpp googletest)

@@ -1,6 +1,6 @@
-#include "gtest/gtest.h"
-#include <rrt/BiRRT.hpp>
+#include <gtest/gtest.h>
 #include <rrt/2dplane/GridStateSpace.hpp>
+#include <rrt/BiRRT.hpp>
 
 using namespace std;
 

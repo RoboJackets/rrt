@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rrt/StateSpace.hpp>
 #include <Eigen/Dense>
+#include <rrt/StateSpace.hpp>
 
 namespace RRT {
 

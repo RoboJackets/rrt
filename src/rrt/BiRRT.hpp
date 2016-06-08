@@ -1,5 +1,5 @@
-#include <rrt/Tree.hpp>
 #include <limits.h>
+#include <rrt/Tree.hpp>
 
 namespace RRT {
 /**

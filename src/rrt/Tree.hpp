@@ -1,11 +1,13 @@
 #pragma once
 
-#include <rrt/StateSpace.hpp>
-#include <list>
-#include <vector>
-#include <memory>
+#include <stdlib.h>
 #include <functional>
+#include <iostream>
+#include <list>
+#include <memory>
+#include <rrt/StateSpace.hpp>
 #include <stdexcept>
+#include <vector>
 #include <stdlib.h>
 #include <iostream>
 
@@ -63,18 +65,15 @@ private:
  * found and returned.
  *
  * This provides a base class for RRT trees.  Because many parts of an RRT are
- * implementation-/domain-specific, several key functionalities are
- * placed in callbacks (C++ lambdas), which must be supplied by the
- * user of this class.
+ * implementation-/domain-specific, several key functionalities are placed in
+ * callbacks (C++ lambdas), which must be supplied by the user of this class.
  *
  * If adaptive stepsize control (ASC) is enabled, then the stepsize for
- * extending new nodes from
- * the tree will be dynamically updated depending on how close the nearest
- * obstacle is. If there are
- * no nearby obstacles, then the stepsize will be extended in order to safely
- * cover more ground. If
- * there are nearby obstacles, then the stepsize will shrink so that the RRT can
- * take more precise steps.
+ * extending new nodes from the tree will be dynamically updated depending on
+ * how close the nearest obstacle is. If there are no nearby obstacles, then the
+ * stepsize will be extended in order to safely cover more ground. If there are
+ * nearby obstacles, then the stepsize will shrink so that the RRT can take more
+ * precise steps.
  *
  * USAGE:
  * 1) Create a new Tree with the appropriate StateSpace
@@ -140,11 +139,9 @@ public:
     /**
      * @brief The chance we extend towards the goal rather than a random point.
      * @details At each iteration of the RRT algorithm, we extend() towards a
-     * particular state.  The goalBias
-     * is a number in the range [0, 1] that determines what proportion of the
-     * time
-     * we extend() towards the goal.
-     * The rest of the time, we extend() towards a random state.
+     *     particular state.  The goalBias is a number in the range [0, 1] that
+     *     determines what proportion of the time we extend() towards the goal.
+     *     The rest of the time, we extend() towards a random state.
      */
     float goalBias() const { return _goalBias; }
     void setGoalBias(float goalBias) {
@@ -189,6 +186,9 @@ public:
 
     /**
      * @brief How close we have to get to the goal in order to consider it
+     *     reached.
+     * @details The RRT will continue to run unti we're within @goalMaxDist of
+     *     the goal state.
      * reached.
      * @details The RRT will continue to run unti we're within @goalMaxDist of
      * the
@@ -296,9 +296,9 @@ public:
             }
         }
 
-        //  Get a state that's in the direction of @target from @source.
-        //  This should take a step in that direction, but not go all the
-        //  way unless the they're really close together.
+        //  Get a state that's in the direction of @target from @source. This
+        //  should take a step in that direction, but not go all the way unless
+        //  the they're really close together.
         T intermediateState;
         if (_isASCEnabled) {
             intermediateState = _stateSpace->intermediateState(
@@ -433,4 +433,4 @@ protected:
 
     std::shared_ptr<StateSpace<T>> _stateSpace;
 };
-}
+}  // namespace RRT

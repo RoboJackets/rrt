@@ -5,13 +5,21 @@
 
 git submodule update --init
 
-sudo apt-get -y install cmake \
+# add repo for updated version of cmake
+sudo apt-add-repository -y ppa:george-edison55/cmake-3.x
+
+sudo apt-get -y update
+sudo apt-get -y upgrade
+
+sudo apt-get -y install \
     qt5-default \
     libeigen3-dev \
     g++ \
+    ninja-build \
+    cmake \
     clang-format-3.6 \
     python3 \
     python3-pip \
 
 # code formatting tool
-sudo pip3 install stylize yapf
+sudo pip3 install stylize>=0.2.7
