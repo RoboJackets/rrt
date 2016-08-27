@@ -13,12 +13,13 @@ namespace RRT {
 template <typename T>
 class BiRRT {
 public:
-    BiRRT(std::shared_ptr<StateSpace<T>> stateSpace)
-        : _startTree(stateSpace), _goalTree(stateSpace) {
+    BiRRT(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions)
+        : _startTree(stateSpace, dimensions), _goalTree(stateSpace, dimensions) {
         reset();
     }
 
     void reset() {
+        // todo: clear kdtree
         _startTree.reset();
         _goalTree.reset();
 
