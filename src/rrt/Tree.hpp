@@ -438,7 +438,8 @@ protected:
     float _stepSize;
     float _maxStepSize;
 
-    Index<L2_Simple<float> > _kdtree;
+    Index<L2_Simple<float> > _kdtree();
+
     std::shared_ptr<StateSpace<T>> _stateSpace;
 };
 }  // namespace RRT
