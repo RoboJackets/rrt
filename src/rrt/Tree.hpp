@@ -11,9 +11,7 @@
 #include <iostream>
 
 #include "flann/flann.hpp"
-#include "flann/general.h"
-#include "flann/util/matrix.h"
-#include "flann/algorithms/dist.h"
+// #include "flann/io/hdf5.h"
 
 namespace RRT {
 /**
@@ -109,7 +107,7 @@ private:
 template <typename T>
 class Tree {
 public:
-    Tree(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions) : _kdtree(KDTreeSingleIndexParams()) {
+    Tree(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions) {
         _stateSpace = stateSpace;
 
         //  default values
@@ -438,7 +436,7 @@ protected:
     float _stepSize;
     float _maxStepSize;
 
-    Index<L2_Simple<float> > _kdtree();
+    flann::Index<flann::L2_Simple<float> > _kdtree();
 
     std::shared_ptr<StateSpace<T>> _stateSpace;
 };
