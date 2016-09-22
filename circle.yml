@@ -33,3 +33,9 @@ dependencies:
 test:
   override:
     - sh -c true
+
+experimental:
+  notify:
+    branches:
+      only:
+        - master
