@@ -126,12 +126,14 @@ public:
 
     /**
      * @brief Grows the trees until we find a solution or run out of iterations.
+     * @return true if a solution is found
      */
-    void run() {
+    bool run() {
         for (int i = 0; i < _startTree.maxIterations(); i++) {
             grow();
-            if (_startSolutionNode != nullptr) break;
+            if (_startSolutionNode != nullptr) return true;
         }
+        return false;
     }
 
     void setStartState(const T& start) {
