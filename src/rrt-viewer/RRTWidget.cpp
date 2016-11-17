@@ -111,7 +111,7 @@ void RRTWidget::_step(int numTimes) {
     //  store solution
     _previousSolution.clear();
     if (_biRRT->startSolutionNode() != nullptr) {
-        _biRRT->getPath(_previousSolution);
+        _previousSolution = _biRRT->getPath();
         RRT::SmoothPath<Vector2f>(_previousSolution, *_stateSpace);
     }
 
