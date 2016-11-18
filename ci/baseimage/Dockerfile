@@ -27,9 +27,6 @@ RUN export uid=1000 gid=1000 && \
 USER developer
 ENV HOME /home/developer
 
-# Set max cache size
-RUN ccache -M 2G
-
 # do everything in root's home
 RUN mkdir -p /home/developer/project
 WORKDIR /home/developer/project
