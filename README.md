@@ -17,7 +17,14 @@ The following are required in order to build this project:
 * cmake >= 3.2.0
 * Qt 5 (`qt5-default` on Ubuntu)
 * Eigen (`libeigen3-dev` on Ubuntu)
-* ninja
+* ninja (`ninja-build` on Ubuntu)
+* ccache (for build caching)
+
+To install all needed dependencies on Ubuntu 16.04, run:
+
+```{.sh}
+sudo apt-get -y install qt5-default libeigen3-dev g++ ninja-build cmake clang-format-3.6 python3 python3-pip ccache
+```
 
 
 ## Building
