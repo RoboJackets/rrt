@@ -31,6 +31,8 @@ RRTWidget::RRTWidget() {
     setMouseTracking(true);
 
     _draggingItem = DraggingNone;
+    _editingObstacles = false;
+    
 
     _runTimer = nullptr;
 }
