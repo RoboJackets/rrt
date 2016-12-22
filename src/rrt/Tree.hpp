@@ -8,8 +8,11 @@
 #include <rrt/StateSpace.hpp>
 #include <stdexcept>
 #include <vector>
-#include <stdlib.h>
 #include <iostream>
+
+#include "flann/flann.hpp"
+#include "flann/algorithms/kdtree_single_index.h"
+#include "flann/algorithms/dist.h"
 
 namespace RRT {
 /**
@@ -51,7 +54,7 @@ public:
      * Node represents.  Generally this is a vector (could be 2d, 3d, etc)
      */
     const T& state() const { return _state; }
-
+    
 private:
     T _state;
     std::list<Node<T>*> _children;
@@ -105,7 +108,7 @@ private:
 template <typename T>
 class Tree {
 public:
-    Tree(std::shared_ptr<StateSpace<T>> stateSpace) {
+    Tree(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions) : _kdtree(flann::KDTreeSingleIndexParams()) {
         _stateSpace = stateSpace;
 
         //  default values
@@ -203,6 +206,8 @@ public:
      * @return a bool indicating whether or not it found a path to the goal
      */
     bool run() {
+        _kdtree.buildIndex();
+
         //  grow the tree until we find the goal or run out of iterations
         for (int i = 0; i < _maxIterations; i++) {
             Node<T>* newNode = grow();
@@ -221,6 +226,7 @@ public:
      * Removes all Nodes from the tree so it can be run() again.
      */
     void reset(bool eraseRoot = false) {
+        // todo: clear kdtree
         if (!_nodes.empty()) {
             Node<T>* root = _nodes.front();
             _nodes.erase(_nodes.begin());
@@ -430,6 +436,8 @@ protected:
 
     float _stepSize;
     float _maxStepSize;
+
+    flann::Index<flann::L2_Simple<float> > _kdtree;
 
     std::shared_ptr<StateSpace<T>> _stateSpace;
 };
