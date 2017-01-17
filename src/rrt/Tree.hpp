@@ -206,7 +206,6 @@ public:
      * @return a bool indicating whether or not it found a path to the goal
      */
     bool run() {
-        _kdtree.buildIndex();
 
         //  grow the tree until we find the goal or run out of iterations
         for (int i = 0; i < _maxIterations; i++) {
@@ -248,8 +247,13 @@ public:
      */
     Node<T>* grow() {
         //  extend towards goal, waypoint, or random state depending on the
-        //  biases
-        //  and a random number
+        //  biases and a random number
+        if (_nodes.size() == 1) {
+            T rootState = rootNode()->state();
+            flann::Matrix<float>* root = new flann::Matrix<float>((float*)&rootState, 1, sizeof(rootState) / sizeof(0.0f));
+            _kdtree.buildIndex(*root);
+            std::cout << "Initial index built:" << std::endl;
+        }
         float r =
             rand() /
             (float)RAND_MAX;  //  r is between 0 and one since we normalize it
@@ -323,6 +327,10 @@ public:
         // Add a node to the tree for this state
         Node<T>* n = new Node<T>(intermediateState, source);
         _nodes.push_back(n);
+
+        float *data = (float*)&intermediateState;
+        flann::Matrix<float>* point = new flann::Matrix<float>((float*)&intermediateState, 1, sizeof(intermediateState) / sizeof(0.0f));
+        _kdtree.addPoints(*point);
         return n;
     }
 
