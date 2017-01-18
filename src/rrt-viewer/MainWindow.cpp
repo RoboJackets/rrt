@@ -107,6 +107,11 @@ MainWindow::MainWindow() {
     new QShortcut(QKeySequence(Qt::Key_R), _rrtWidget, SLOT(slot_run()));
     new QShortcut(QKeySequence(Qt::Key_S), _rrtWidget, SLOT(slot_stop()));
     new QShortcut(QKeySequence(Qt::Key_C), _rrtWidget, SLOT(slot_reset()));
+    new QShortcut(QKeySequence(Qt::Key_O), _rrtWidget, SLOT(slot_clearObstacles()));
+    new QShortcut(QKeySequence(Qt::Key_T), _rrtWidget, SLOT(slot_step()));
+    new QShortcut(QKeySequence(Qt::Key_B), _rrtWidget, SLOT(slot_stepBig()));
+
+
 }
 
 void MainWindow::slot_updateGoalBiasLabel(int value) {
