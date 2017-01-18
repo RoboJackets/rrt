@@ -276,6 +276,7 @@ public:
         float bestDistance = -1;
         Node<T>* best = nullptr;
 
+        // This is O(n)
         for (Node<T>* other : _nodes) {
             float dist = _stateSpace->distance(other->state(), state);
             if (bestDistance < 0 || dist < bestDistance) {
@@ -283,6 +284,13 @@ public:
                 best = other;
             }
         }
+
+        // k-NN search (O(log(N))?)
+        flann::Matrix<float> query((float*)&state, 1, sizeof(state) / sizeof(0.0f));
+        flann::Matrix<int> indices(new int[query.rows], query.rows, 1);
+        flann::Matrix<float> dists(new float[query.rows], query.rows, 1);
+
+        int n = _kdtree.knnSearch(query, indices, dists, 1, flann::SearchParams());
 
         if (distanceOut) *distanceOut = bestDistance;
 
