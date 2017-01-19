@@ -28,6 +28,7 @@ RRTWidget::RRTWidget() {
     _goalVel = Vector2f(0, 1);
 
     //  register for mouse events
+    setAcceptedMouseButtons(Qt::LeftButton);
     // setMouseTracking(true);
 
     _draggingItem = DraggingNone;

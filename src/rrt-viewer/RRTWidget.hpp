@@ -61,11 +61,6 @@ protected:
 
     void _step(int numTimes);
 
-    // TODO: fix mouse handling
-    // Qt::MouseButtons acceptedMouseButtons() const override {
-    //     return Qt::LeftButton;
-    // }
-
     void mousePressEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
