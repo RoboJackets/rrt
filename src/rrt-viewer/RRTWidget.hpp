@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Eigen/Dense>
+#include <QQuickPaintedItem>
+#include <QtQuick>
 #include <QtWidgets>
 #include <rrt/2dplane/GridStateSpace.hpp>
 #include <rrt/BiRRT.hpp>
@@ -10,30 +12,45 @@
  * It has methods (slots) for stepping and resetting tree growth.
  * You can also draw and erase obstacles by clicking and dragging.
  */
-class RRTWidget : public QWidget {
+class RRTWidget : public QQuickPaintedItem {
     Q_OBJECT
 
 public:
     RRTWidget();
 
-private slots:
-    void slot_run();
-    void run_step();
-    void slot_stop();
-    void slot_reset();
-    void slot_clearObstacles();
-    void slot_step();
-    void slot_stepBig();
-    void slot_setGoalBias(int bias);      //  bias is from 0 to 100
-    void slot_setWaypointBias(int bias);  //  bias is from 0 to 100
-    void slot_setASC(int checked);
-    void slot_setStepSize(double step);
+    Q_PROPERTY(int iterations READ iterations NOTIFY signal_stepped)
+    int iterations() const { return _biRRT->iterationCount(); }
+
+    Q_PROPERTY(float stepSize READ stepSize WRITE setStepSize)
+    void setStepSize(float step);
+    float stepSize() const { return _biRRT->stepSize(); }
+
+    Q_PROPERTY(float goalBias READ goalBias WRITE setGoalBias)
+    void setGoalBias(float bias);  //  bias is from 0 to 1
+    float goalBias() const { return _biRRT->goalBias(); }
+
+    Q_PROPERTY(float waypointBias READ waypointBias WRITE setWaypointBias)
+    void setWaypointBias(float bias);  //  bias is from 0 to 1
+    float waypointBias() const { return _biRRT->waypointBias(); }
+
+    Q_PROPERTY(bool ascEnabled READ ascEnabled WRITE setASCEnabled)
+    void setASCEnabled(bool enabled);
+    float ascEnabled() const { return _biRRT->isASCEnabled(); }
+
+public slots:
+    void run();
+    void run_step();  // TODO: rename?
+    void stop();
+    void reset();
+    void clearObstacles();
+    void step();
+    void stepBig();
 
 signals:
-    void signal_stepped(int iterationCount);
+    void signal_stepped();
 
 protected:
-    void paintEvent(QPaintEvent* p);
+    void paint(QPainter* p) override;
     void drawTree(QPainter& painter, const RRT::Tree<Eigen::Vector2f>& rrt,
                   const RRT::Node<Eigen::Vector2f>* solutionNode = NULL,
                   QColor treeColor = Qt::blue, QColor solutionColor = Qt::red);
@@ -42,7 +59,12 @@ protected:
 
     QPointF pointFromNode(const RRT::Node<Eigen::Vector2f>* n);
 
-    void step(int numTimes);
+    void _step(int numTimes);
+
+    // TODO: fix mouse handling
+    // Qt::MouseButtons acceptedMouseButtons() const override {
+    //     return Qt::LeftButton;
+    // }
 
     void mousePressEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
