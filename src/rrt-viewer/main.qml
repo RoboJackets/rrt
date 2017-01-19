@@ -3,7 +3,6 @@ import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.2
-import QtCharts 1.2
 
 import RRTWidget 1.0
 
