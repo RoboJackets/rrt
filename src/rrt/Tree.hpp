@@ -118,7 +118,7 @@ public:
         setGoalMaxDist(0.1);
     }
 
-    virtual ~Tree() { reset(); }
+    virtual ~Tree() { reset(true); }
 
     StateSpace<T>& stateSpace() { return *_stateSpace; }
     const StateSpace<T>& stateSpace() const { return *_stateSpace; }
