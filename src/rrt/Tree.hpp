@@ -8,6 +8,7 @@
 #include <rrt/StateSpace.hpp>
 #include <stdexcept>
 #include <vector>
+#include <deque>
 #include <stdlib.h>
 #include <iostream>
 
@@ -21,10 +22,7 @@ namespace RRT {
 template <typename T>
 class Node {
 public:
-    Node(const T& state, Node<T>* parent = nullptr) {
-        _parent = parent;
-        _state = state;
-
+    Node(const T& state, Node<T>* parent = nullptr) : _parent(parent), _state(state) {
         if (_parent) {
             _parent->_children.push_back(this);
         }
@@ -105,6 +103,8 @@ private:
 template <typename T>
 class Tree {
 public:
+    Tree(const Tree&) = delete;
+    Tree& operator=(const Tree&) = delete;
     Tree(std::shared_ptr<StateSpace<T>> stateSpace) {
         _stateSpace = stateSpace;
 
@@ -117,8 +117,6 @@ public:
         setWaypointBias(0);
         setGoalMaxDist(0.1);
     }
-
-    virtual ~Tree() { reset(true); }
 
     StateSpace<T>& stateSpace() { return *_stateSpace; }
     const StateSpace<T>& stateSpace() const { return *_stateSpace; }
@@ -221,17 +219,11 @@ public:
      * Removes all Nodes from the tree so it can be run() again.
      */
     void reset(bool eraseRoot = false) {
-        if (!_nodes.empty()) {
-            Node<T>* root = _nodes.front();
-            _nodes.erase(_nodes.begin());
-
-            for (Node<T>* n : _nodes) delete n;
+        if (eraseRoot) {
             _nodes.clear();
-
-            if (eraseRoot) {
-                delete root;
-            } else {
-                _nodes.push_back(root);
+        } else {
+            if (!_nodes.empty()) {
+                _nodes.erase(_nodes.begin()+1, _nodes.end());
             }
         }
     }
@@ -266,11 +258,11 @@ public:
         float bestDistance = -1;
         Node<T>* best = nullptr;
 
-        for (Node<T>* other : _nodes) {
-            float dist = _stateSpace->distance(other->state(), state);
+        for (Node<T> &other : _nodes) {
+            float dist = _stateSpace->distance(other.state(), state);
             if (bestDistance < 0 || dist < bestDistance) {
                 bestDistance = dist;
-                best = other;
+                best = &other;
             }
         }
 
@@ -315,9 +307,8 @@ public:
         }
 
         // Add a node to the tree for this state
-        Node<T>* n = new Node<T>(intermediateState, source);
-        _nodes.push_back(n);
-        return n;
+        _nodes.push_back(Node<T>(intermediateState, source));
+        return &_nodes.back();
     }
 
     /**
@@ -327,8 +318,8 @@ public:
      * @param reverse if true, the states will be sent from @dest to the
      *                tree's root
      */
-    void getPath(std::function<void(const T& stateI)> callback, Node<T>* dest,
-                 const bool reverse = false) {
+    void getPath(std::function<void(const T& stateI)> callback, const Node<T>* dest,
+                 const bool reverse = false) const {
         const Node<T>* node = dest;
         if (reverse) {
             while (node) {
@@ -355,8 +346,8 @@ public:
      * @param reverse if true, the states will be sent from @dest to the
      *                tree's root
      */
-    void getPath(std::vector<T>& vectorOut, Node<T>* dest,
-                 const bool reverse = false) {
+    void getPath(std::vector<T>& vectorOut, const Node<T>* dest,
+                 const bool reverse = false) const {
         getPath([&](const T& stateI) { vectorOut.push_back(stateI); }, dest,
                 reverse);
     }
@@ -364,25 +355,25 @@ public:
     /**
      * @return The root node or nullptr if none exists
      */
-    Node<T>* rootNode() const {
+    const Node<T>* rootNode() const {
         if (_nodes.empty()) return nullptr;
 
-        return _nodes.front();
+        return &_nodes.front();
     }
 
     /**
      * @return The most recent Node added to the tree
      */
-    Node<T>* lastNode() const {
+    const Node<T>* lastNode() const {
         if (_nodes.empty()) return nullptr;
 
-        return _nodes.back();
+        return &_nodes.back();
     }
 
     /**
      * All the nodes
      */
-    const std::vector<Node<T>*> allNodes() const { return _nodes; }
+    const std::deque<Node<T>>& allNodes() const { return _nodes; }
 
     /**
      * @brief The start state for this tree
@@ -397,8 +388,7 @@ public:
         reset(true);
 
         //  create root node from provided start state
-        Node<T>* root = new Node<T>(startState, nullptr);
-        _nodes.push_back(root);
+        _nodes.push_back(Node<T>(startState, nullptr));
     }
 
     /**
@@ -411,7 +401,7 @@ protected:
     /**
      * A list of all Node objects in the tree.
      */
-    std::vector<Node<T>*> _nodes;
+    std::deque<Node<T>> _nodes{};
 
     T _goalState;
 
@@ -424,13 +414,13 @@ protected:
     /// used for Extended RRTs where growth is biased towards waypoints from
     /// previously grown tree
     float _waypointBias;
-    std::vector<T> _waypoints;
+    std::vector<T> _waypoints{};
 
     float _goalMaxDist;
 
     float _stepSize;
     float _maxStepSize;
 
-    std::shared_ptr<StateSpace<T>> _stateSpace;
+    std::shared_ptr<StateSpace<T>> _stateSpace{};
 };
 }  // namespace RRT
