@@ -101,7 +101,7 @@ public:
      */
     void grow() {
         int depth;
-        Node<T>* otherNode;
+        const Node<T>* otherNode;
 
         Node<T>* newStartNode = _startTree.grow();
         if (newStartNode) {
@@ -157,17 +157,17 @@ public:
     int iterationCount() const { return _iterationCount; }
 
 protected:
-    Node<T>* _findBestPath(const T& targetState, Tree<T>& treeToSearch,
-                           int* depthOut) {
-        Node<T>* bestNode = nullptr;
+    const Node<T>* _findBestPath(const T& targetState, Tree<T>& treeToSearch,
+                           int* depthOut) const {
+        const Node<T>* bestNode = nullptr;
         int depth = INT_MAX;
 
-        for (Node<T>* other : treeToSearch.allNodes()) {
+        for (const Node<T> &other : treeToSearch.allNodes()) {
             float dist =
-                _startTree.stateSpace().distance(other->state(), targetState);
-            if (dist < goalMaxDist() && other->depth() < depth) {
-                bestNode = other;
-                depth = other->depth();
+                _startTree.stateSpace().distance(other.state(), targetState);
+            if (dist < goalMaxDist() && other.depth() < depth) {
+                bestNode = &other;
+                depth = other.depth();
             }
         }
 
@@ -183,6 +183,6 @@ private:
     int _iterationCount;
 
     int _solutionLength;
-    Node<T> *_startSolutionNode, *_goalSolutionNode;
+    const Node<T> *_startSolutionNode, *_goalSolutionNode;
 };
 };
