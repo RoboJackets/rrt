@@ -102,6 +102,17 @@ ApplicationWindow {
                     value: 10
                 }
             }
+
+            ColumnLayout {
+                Label {
+                    text: "Adaptive\nStepsize"
+                }
+
+                CheckBox {
+                    id: ascCheckbox
+                    checked: false
+                }
+            }
         }
 
         RRTWidget {
@@ -137,6 +148,12 @@ ApplicationWindow {
         target: rrt
         property: "stepSize"
         value: stepSizeBox.value
+    }
+
+    Binding {
+        target: rrt
+        property: "ascEnabled"
+        value: ascCheckbox.checked
     }
 
     Shortcut { sequence: 'r'; onActivated: rrt.run() }
