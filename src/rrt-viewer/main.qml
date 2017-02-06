@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
+import QtQuick.Controls.Styles 1.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.2
 
@@ -20,7 +21,6 @@ ApplicationWindow {
 
         // main toolbar
         RowLayout {
-            // height: 100;
             Layout.alignment: Qt.AlignTop
 
             ColumnLayout {
@@ -71,8 +71,7 @@ ApplicationWindow {
                     minimumValue: 0
                     maximumValue: 1.0
                     stepSize: 0.05
-                    value: rrt.goalBias
-                    // TODO: bind to rrt
+                    value: 0
                 }
             }
 
@@ -86,8 +85,7 @@ ApplicationWindow {
                     stepSize: 0.05
                     minimumValue: 0
                     maximumValue: 1.0
-                    value: rrt.waypointBias
-                    // TODO: bind to rrt
+                    value: 0
                 }
             }
 
@@ -97,19 +95,15 @@ ApplicationWindow {
                 }
 
                 SpinBox {
-                    id: stepSize
-                    decimals: 2
-                    value: rrt.stepSize
-                    // TODO: bind value
+                    id: stepSizeBox
+                    decimals: 1
+                    value: 10
                 }
             }
         }
 
         RRTWidget {
             id: rrt
-            // width: 800
-            // height: 600
-            // anchors.fill: parent
             Layout.fillHeight: true
             Layout.fillWidth: true
         }
@@ -125,6 +119,23 @@ ApplicationWindow {
         }
     }
 
+    Binding {
+        target: rrt
+        property: "goalBias"
+        value: goalBiasSlider.value
+    }
+
+    Binding {
+        target: rrt
+        property: "waypointBias"
+        value: waypointBiasSlider.value
+    }
+
+    Binding {
+        target: rrt
+        property: "stepSize"
+        value: stepSizeBox.value
+    }
 
     Shortcut { sequence: 'r'; onActivated: rrt.run() }
     Shortcut { sequence: 's'; onActivated: rrt.stop() }
