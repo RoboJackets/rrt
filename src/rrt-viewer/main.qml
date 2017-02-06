@@ -20,7 +20,9 @@ ApplicationWindow {
         anchors.fill: parent;
 
         // main toolbar
-        RowLayout {
+        Row{
+            padding: 5
+            spacing: 5
             Layout.alignment: Qt.AlignTop
 
             ColumnLayout {

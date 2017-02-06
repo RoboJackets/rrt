@@ -11,14 +11,15 @@ using namespace std;
 const float VelocityDrawingMultiplier = 12;
 
 RRTWidget::RRTWidget() {
-    _stateSpace = make_shared<GridStateSpace>(800, 600, 40, 30);
+    Vector2f size(800, 600);
+    _stateSpace = make_shared<GridStateSpace>(size.x(), size.y(), 40, 30);
     _biRRT = new BiRRT<Vector2f>(_stateSpace);
 
     _waypointCacheMaxSize = 15;
 
     //  setup birrt
-    _biRRT->setStartState(Vector2f(50, 50));
-    _biRRT->setGoalState(Vector2f(_stateSpace->width() / 2.0, _stateSpace->height() / 2.0));
+    _biRRT->setStartState(size / 10);
+    _biRRT->setGoalState(size / 2);
     _biRRT->setMaxStepSize(30);
     _biRRT->setGoalMaxDist(12);
 

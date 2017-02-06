@@ -11,6 +11,10 @@
  * This widget creates an RRT tree for searching a 2d space and draws it.
  * It has methods (slots) for stepping and resetting tree growth.
  * You can also draw and erase obstacles by clicking and dragging.
+ *
+ * This class is used within QML to show and interact with the rrt. The
+ * Q_PROPERTY macros in here allow properties to be accessible within qml. The
+ * slots declared below allow methods to be called within qml.
  */
 class RRTWidget : public QQuickPaintedItem {
     Q_OBJECT
