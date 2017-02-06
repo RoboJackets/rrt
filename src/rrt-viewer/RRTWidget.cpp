@@ -13,7 +13,6 @@ const float VelocityDrawingMultiplier = 12;
 RRTWidget::RRTWidget() {
     _stateSpace = make_shared<GridStateSpace>(800, 600, 40, 30);
     _biRRT = new BiRRT<Vector2f>(_stateSpace);
-    // setSize(800, 600); // TODO
 
     _waypointCacheMaxSize = 15;
 
@@ -29,7 +28,6 @@ RRTWidget::RRTWidget() {
 
     //  register for mouse events
     setAcceptedMouseButtons(Qt::LeftButton);
-    // setMouseTracking(true);
 
     _draggingItem = DraggingNone;
     _editingObstacles = false;

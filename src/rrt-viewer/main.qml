@@ -9,12 +9,20 @@ import RRTWidget 1.0
 ApplicationWindow {
     title: "Interactive RRT"
 
-    width: 300
-    height: 300
+    // Fixed size
+    maximumHeight: 689
+    maximumWidth: 816
+    minimumHeight: 689
+    minimumWidth: 816
 
     ColumnLayout {
+        anchors.fill: parent;
+
         // main toolbar
         RowLayout {
+            // height: 100;
+            Layout.alignment: Qt.AlignTop
+
             ColumnLayout {
                 Button {
                     text: "Run"
@@ -99,8 +107,11 @@ ApplicationWindow {
 
         RRTWidget {
             id: rrt
-            width: 800
-            height: 600
+            // width: 800
+            // height: 600
+            // anchors.fill: parent
+            Layout.fillHeight: true
+            Layout.fillWidth: true
         }
     }
 
