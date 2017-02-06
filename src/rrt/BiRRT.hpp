@@ -198,4 +198,5 @@ private:
     int _solutionLength;
     const Node<T> *_startSolutionNode, *_goalSolutionNode;
 };
-};
+
+} // namespace RRT
