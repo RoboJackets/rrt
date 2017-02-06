@@ -19,8 +19,8 @@ int main(int argc, char** argv) {
 
     qmlRegisterType<RRTWidget>("RRTWidget", 1, 0, "RRTWidget");
 
-    engine.addImportPath("./src/rrt-viewer");  // TODO: fix
-    engine.load("./src/rrt-viewer/main.qml");
+    // load main.qml from qt resources - baked into binary through cmake
+    engine.load(":/main.qml");
 
     // get reference to main window from qml
     auto win = static_cast<QQuickView*>(engine.rootObjects()[0]);
