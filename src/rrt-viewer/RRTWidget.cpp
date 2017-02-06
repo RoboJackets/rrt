@@ -19,7 +19,6 @@ RRTWidget::RRTWidget() {
     //  setup birrt
     _biRRT->setStartState(Vector2f(50, 50));
     _biRRT->setGoalState(Vector2f(_stateSpace->width() / 2.0, _stateSpace->height() / 2.0));
-    _biRRT->setStepSize(10);
     _biRRT->setMaxStepSize(30);
     _biRRT->setGoalMaxDist(12);
 
