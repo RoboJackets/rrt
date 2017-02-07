@@ -11,10 +11,10 @@ ApplicationWindow {
     title: "Interactive RRT"
 
     // Fixed size
-    maximumHeight: 689
-    maximumWidth: 816
-    minimumHeight: 689
-    minimumWidth: 816
+    maximumHeight: 700
+    maximumWidth: 800
+    minimumHeight: 700
+    minimumWidth: 800
 
     ColumnLayout {
         anchors.fill: parent;
@@ -117,6 +117,7 @@ ApplicationWindow {
             }
         }
 
+        // draw and interact with the rrt
         RRTWidget {
             id: rrt
             Layout.fillHeight: true
@@ -124,6 +125,7 @@ ApplicationWindow {
         }
     }
 
+    // bottom bar
     statusBar: StatusBar {
         RowLayout {
             anchors.fill: parent
@@ -134,31 +136,29 @@ ApplicationWindow {
         }
     }
 
+    // update rrt values when the ui controls change
     Binding {
         target: rrt
         property: "goalBias"
         value: goalBiasSlider.value
     }
-
     Binding {
         target: rrt
         property: "waypointBias"
         value: waypointBiasSlider.value
     }
-
     Binding {
         target: rrt
         property: "stepSize"
         value: stepSizeBox.value
     }
-
     Binding {
         target: rrt
         property: "ascEnabled"
         value: ascCheckbox.checked
     }
 
-    //  keyboard shortcuts
+    // keyboard shortcuts
     Shortcut { sequence: 'r'; onActivated: rrt.run() }
     Shortcut { sequence: 's'; onActivated: rrt.stop() }
     Shortcut { sequence: 'c'; onActivated: rrt.reset() }
