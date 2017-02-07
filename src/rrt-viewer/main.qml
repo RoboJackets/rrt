@@ -65,7 +65,7 @@ ApplicationWindow {
 
             ColumnLayout {
                 Label {
-                    text: "Goal Bias: " + goalBiasSlider.value
+                    text: "Goal Bias: " + goalBiasSlider.value.toFixed(2)
                 }
 
                 Slider {
@@ -80,7 +80,7 @@ ApplicationWindow {
 
             ColumnLayout {
                 Label {
-                    text: "Waypoint Bias: " + waypointBiasSlider.value
+                    text: "Waypoint Bias: " + waypointBiasSlider.value.toFixed(2)
                 }
 
                 Slider {
