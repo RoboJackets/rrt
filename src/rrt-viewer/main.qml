@@ -158,7 +158,11 @@ ApplicationWindow {
         value: ascCheckbox.checked
     }
 
+    //  keyboard shortcuts
     Shortcut { sequence: 'r'; onActivated: rrt.run() }
     Shortcut { sequence: 's'; onActivated: rrt.stop() }
     Shortcut { sequence: 'c'; onActivated: rrt.reset() }
+    Shortcut{ sequence: 'o'; onActivated: rrt.clearObstacles() }
+    Shortcut{ sequence: 't'; onActivated: rrt.step() }
+    Shortcut{ sequence: 'b'; onActivated: rrt.stepBig() }
 }
