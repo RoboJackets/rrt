@@ -82,7 +82,7 @@ void RRTWidget::setStepSize(float step) { _biRRT->setStepSize(step); }
 void RRTWidget::run() {
     if (!_runTimer) {
         _runTimer = new QTimer(this);
-        connect(_runTimer, SIGNAL(timeout()), this, SLOT(run_step()));
+        connect(_runTimer, SIGNAL(timeout()), this, SLOT(_run_step()));
         _runTimer->start(0);
     }
 }
@@ -94,7 +94,7 @@ void RRTWidget::stop() {
     }
 }
 
-void RRTWidget::run_step() {
+void RRTWidget::_run_step() {
     if (_biRRT->startSolutionNode() == nullptr) {
         _step(1);
     } else {

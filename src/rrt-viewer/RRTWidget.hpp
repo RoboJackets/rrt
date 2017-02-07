@@ -43,12 +43,14 @@ public:
 
 public slots:
     void run();
-    void run_step();  // TODO: rename?
     void stop();
     void reset();
     void clearObstacles();
     void step();
     void stepBig();
+
+    // called on a timer interval by run()
+    void _run_step();
 
 signals:
     void signal_stepped();
