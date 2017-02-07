@@ -73,6 +73,7 @@ ApplicationWindow {
                     minimumValue: 0
                     maximumValue: 1.0
                     stepSize: 0.05
+                    tickmarksEnabled: true
                     value: 0
                 }
             }
@@ -87,6 +88,7 @@ ApplicationWindow {
                     stepSize: 0.05
                     minimumValue: 0
                     maximumValue: 1.0
+                    tickmarksEnabled: true
                     value: 0
                 }
             }
