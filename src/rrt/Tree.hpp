@@ -24,7 +24,8 @@ namespace RRT {
 template <typename T>
 class Node {
 public:
-    Node(const T& state, Node<T>* parent = nullptr) : _parent(parent), _state(state) {
+    Node(const T& state, Node<T>* parent = nullptr)
+        : _parent(parent), _state(state) {
         if (_parent) {
             _parent->_children.push_back(this);
         }
@@ -225,7 +226,7 @@ public:
             _nodes.clear();
         } else {
             if (!_nodes.empty()) {
-                _nodes.erase(_nodes.begin()+1, _nodes.end());
+                _nodes.erase(_nodes.begin() + 1, _nodes.end());
             }
         }
     }
@@ -260,7 +261,7 @@ public:
         float bestDistance = -1;
         Node<T>* best = nullptr;
 
-        for (Node<T> &other : _nodes) {
+        for (Node<T>& other : _nodes) {
             float dist = _stateSpace->distance(other.state(), state);
             if (bestDistance < 0 || dist < bestDistance) {
                 bestDistance = dist;
@@ -320,8 +321,8 @@ public:
      * @param reverse if true, the states will be sent from @dest to the
      *                tree's root
      */
-    void getPath(std::function<void(const T& stateI)> callback, const Node<T>* dest,
-                 const bool reverse = false) const {
+    void getPath(std::function<void(const T& stateI)> callback,
+                 const Node<T>* dest, const bool reverse = false) const {
         const Node<T>* node = dest;
         if (reverse) {
             while (node) {

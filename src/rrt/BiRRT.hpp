@@ -170,11 +170,11 @@ public:
 
 protected:
     const Node<T>* _findBestPath(const T& targetState, Tree<T>& treeToSearch,
-                           int* depthOut) const {
+                                 int* depthOut) const {
         const Node<T>* bestNode = nullptr;
         int depth = INT_MAX;
 
-        for (const Node<T> &other : treeToSearch.allNodes()) {
+        for (const Node<T>& other : treeToSearch.allNodes()) {
             float dist =
                 _startTree.stateSpace().distance(other.state(), targetState);
             if (dist < goalMaxDist() && other.depth() < depth) {
@@ -196,7 +196,7 @@ private:
     int _minIterations;
 
     int _solutionLength;
-    const Node<T> *_startSolutionNode, *_goalSolutionNode;
+    const Node<T>* _startSolutionNode, *_goalSolutionNode;
 };
 
-} // namespace RRT
+}  // namespace RRT
