@@ -27,9 +27,14 @@ ApplicationWindow {
 
             ColumnLayout {
                 Button {
-                    text: "Run"
-                    // TODO: green
                     onClicked: rrt.run()
+                    text: "Run"
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 1
+                        color: "green"
+                        opacity : .5
+                    }
                 }
 
                 Button {
@@ -58,8 +63,14 @@ ApplicationWindow {
 
                 Button {
                     text: "Clear Obstacles"
-                    // TODO: red?
                     onClicked: rrt.clearObstacles()
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 1
+                        color: "red"
+                        opacity : .5
+                    }
                 }
             }
 
