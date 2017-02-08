@@ -128,10 +128,12 @@ ApplicationWindow {
     // bottom bar
     statusBar: StatusBar {
         RowLayout {
+            id: statusBarLayout
             anchors.fill: parent
 
             Label {
                 text: "Iterations: " + rrt.iterations
+                anchors.right: statusBarLayout.right
             }
         }
     }
