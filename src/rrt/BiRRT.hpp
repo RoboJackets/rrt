@@ -1,3 +1,5 @@
+#pragma once
+
 #include <limits.h>
 #include <rrt/Tree.hpp>
 
@@ -15,6 +17,7 @@ class BiRRT {
 public:
     BiRRT(std::shared_ptr<StateSpace<T>> stateSpace)
         : _startTree(stateSpace), _goalTree(stateSpace) {
+        _minIterations = 0;
         reset();
     }
 
@@ -49,6 +52,16 @@ public:
         _startTree.setMaxIterations(itr);
         _goalTree.setMaxIterations(itr);
     }
+
+    /**
+     * The minimum number of iterations to run.
+     *
+     * At the default value of zero, the rrt will return the first path it
+     * finds. Setting this to a higher value can allow the tree to search for
+     * longer in order to find a better path.
+     */
+    int minIterations() const { return _minIterations; }
+    void setMinIterations(int itr) { _minIterations = itr; }
 
     float waypointBias() const { return _startTree.waypointBias(); }
     void setWaypointBias(float waypointBias) {
@@ -99,7 +112,7 @@ public:
      */
     void grow() {
         int depth;
-        Node<T>* otherNode;
+        const Node<T>* otherNode;
 
         Node<T>* newStartNode = _startTree.grow();
         if (newStartNode) {
@@ -131,7 +144,8 @@ public:
     bool run() {
         for (int i = 0; i < _startTree.maxIterations(); i++) {
             grow();
-            if (_startSolutionNode != nullptr) return true;
+            if (_startSolutionNode != nullptr && i >= minIterations())
+                return true;
         }
         return false;
     }
@@ -155,17 +169,17 @@ public:
     int iterationCount() const { return _iterationCount; }
 
 protected:
-    Node<T>* _findBestPath(const T& targetState, Tree<T>& treeToSearch,
-                           int* depthOut) {
-        Node<T>* bestNode = nullptr;
+    const Node<T>* _findBestPath(const T& targetState, Tree<T>& treeToSearch,
+                           int* depthOut) const {
+        const Node<T>* bestNode = nullptr;
         int depth = INT_MAX;
 
-        for (Node<T>* other : treeToSearch.allNodes()) {
+        for (const Node<T> &other : treeToSearch.allNodes()) {
             float dist =
-                _startTree.stateSpace().distance(other->state(), targetState);
-            if (dist < goalMaxDist() && other->depth() < depth) {
-                bestNode = other;
-                depth = other->depth();
+                _startTree.stateSpace().distance(other.state(), targetState);
+            if (dist < goalMaxDist() && other.depth() < depth) {
+                bestNode = &other;
+                depth = other.depth();
             }
         }
 
@@ -179,8 +193,9 @@ private:
     Tree<T> _goalTree;
 
     int _iterationCount;
+    int _minIterations;
 
     int _solutionLength;
-    Node<T>* _startSolutionNode, *_goalSolutionNode;
+    const Node<T> *_startSolutionNode, *_goalSolutionNode;
 };
 };

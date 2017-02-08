@@ -31,6 +31,8 @@ RRTWidget::RRTWidget() {
     setMouseTracking(true);
 
     _draggingItem = DraggingNone;
+    _editingObstacles = false;
+    
 
     _runTimer = nullptr;
 }
@@ -259,15 +261,15 @@ void RRTWidget::drawTree(QPainter& painter, const Tree<Vector2f>& rrt,
     const float r = 1;
 
     //  draw all the nodes and connections
-    for (const Node<Vector2f>* node : rrt.allNodes()) {
+    for (const Node<Vector2f>& node : rrt.allNodes()) {
         painter.setPen(QPen(treeColor, 1));
-        QPointF loc = pointFromNode(node);
+        QPointF loc = pointFromNode(&node);
         painter.drawEllipse(loc, r, r);
 
-        if (node->parent()) {
+        if (node.parent()) {
             //  draw edge
             painter.setPen(QPen(treeColor, 1));
-            QPointF parentLoc = pointFromNode(node->parent());
+            QPointF parentLoc = pointFromNode(node.parent());
             painter.drawLine(loc, parentLoc);
         }
     }
