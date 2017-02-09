@@ -10,11 +10,8 @@ import RRTWidget 1.0
 ApplicationWindow {
     title: "Interactive RRT"
 
-    // Fixed size
-    maximumHeight: 700
-    maximumWidth: 800
-    minimumHeight: 700
-    minimumWidth: 800
+    // makes window floating by default in tiling window managers
+    modality: Qt.WindowModal
 
     ColumnLayout {
         anchors.fill: parent;
@@ -130,9 +127,13 @@ ApplicationWindow {
 
         // draw and interact with the rrt
         RRTWidget {
+            // Fixed size
+            Layout.maximumHeight: 600
+            Layout.maximumWidth: 800
+            Layout.minimumHeight: 600
+            Layout.minimumWidth: 800
+
             id: rrt
-            Layout.fillHeight: true
-            Layout.fillWidth: true
         }
     }
 
