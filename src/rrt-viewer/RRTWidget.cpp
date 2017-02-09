@@ -23,8 +23,8 @@ RRTWidget::RRTWidget() {
     _biRRT->setMaxStepSize(30);
     _biRRT->setGoalMaxDist(12);
 
-    _startVel = Vector2f(1, 0);
-    _goalVel = Vector2f(0, 1);
+    _startVel = Vector2f(3, 0);
+    _goalVel = Vector2f(0, 3);
 
     //  register for mouse events
     setAcceptedMouseButtons(Qt::LeftButton);
