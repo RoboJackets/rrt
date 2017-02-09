@@ -13,6 +13,7 @@ sudo apt-get -y upgrade
 
 sudo apt-get -y install \
     qt5-default \
+    qtdeclarative5-dev \
     libeigen3-dev \
     g++ \
     ninja-build \
