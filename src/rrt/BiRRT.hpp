@@ -7,10 +7,8 @@ namespace RRT {
 /**
  * @brief Bi-directional RRT
  * @details It is often preferable to use two RRTs when searching the state
- * space with
- * one rooted at the source and one rooted at the goal.  When the two trees
- * intersect,
- * a solution has been found.
+ *     space with one rooted at the source and one rooted at the goal.  When the
+ *     two trees intersect, a solution has been found.
  */
 template <typename T>
 class BiRRT {
@@ -95,12 +93,12 @@ public:
 
     /**
      * @brief Get the shortest path from the start to the goal
-     *
-     * @param vecOut The vector to place the solution in
      */
-    void getPath(std::vector<T>& vecOut) {
-        _startTree.getPath(vecOut, _startSolutionNode);
-        _startTree.getPath(vecOut, _goalSolutionNode, true);
+    std::vector<T> getPath() {
+        std::vector<T> path;
+        _startTree.getPath(&path, _startSolutionNode);
+        _startTree.getPath(&path, _goalSolutionNode, true);
+        return path;
     }
 
     /**
