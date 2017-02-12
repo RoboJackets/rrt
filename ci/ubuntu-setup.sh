@@ -5,15 +5,13 @@
 
 git submodule update --init
 
-# add repo for updated version of cmake
-sudo apt-add-repository -y ppa:george-edison55/cmake-3.x
-
 sudo apt-get -y update
-sudo apt-get -y upgrade
+# sudo apt-get -y upgrade
 
 sudo apt-get -y install \
     qt5-default \
-    qtdeclarative5-dev \
+    qtdeclarative5-dev qtdeclarative5-qtquick2-plugin \
+    qml-module-qtquick-{controls,dialogs} \
     libeigen3-dev \
     g++ \
     ninja-build \
