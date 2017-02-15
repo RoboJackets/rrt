@@ -1,4 +1,4 @@
-import QtQuick 2.7
+import QtQuick 2.5
 import QtQuick.Window 2.1
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
@@ -18,8 +18,9 @@ ApplicationWindow {
 
         // main toolbar
         Row{
-            padding: 5
-            spacing: 5
+            // Add back when we use QtQuick 2.7+
+            /* padding: 5 */
+            /* spacing: 5 */
             Layout.alignment: Qt.AlignTop
 
             ColumnLayout {

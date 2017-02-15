@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     qmlRegisterType<RRTWidget>("RRTWidget", 1, 0, "RRTWidget");
 
     // load main.qml from qt resources - baked into binary through cmake
-    engine.load(":/main.qml");
+    engine.load((QUrl("qrc:///main.qml")));
 
     // get reference to main window from qml
     auto win = static_cast<QQuickView*>(engine.rootObjects()[0]);
