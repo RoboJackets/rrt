@@ -1,8 +1,12 @@
 #pragma once
 
 #include <stdlib.h>
+#include <stdlib.h>
 #include <functional>
 #include <iostream>
+#include <stdlib.h>
+#include <deque>
+#include <functional>
 #include <list>
 #include <memory>
 #include <rrt/StateSpace.hpp>
@@ -24,10 +28,8 @@ namespace RRT {
 template <typename T>
 class Node {
 public:
-    Node(const T& state, Node<T>* parent = nullptr) {
-        _parent = parent;
-        _state = state;
-
+    Node(const T& state, Node<T>* parent = nullptr)
+        : _parent(parent), _state(state) {
         if (_parent) {
             _parent->_children.push_back(this);
         }
@@ -54,7 +56,7 @@ public:
      * Node represents.  Generally this is a vector (could be 2d, 3d, etc)
      */
     const T& state() const { return _state; }
-    
+
 private:
     T _state;
     std::list<Node<T>*> _children;
@@ -108,6 +110,8 @@ private:
 template <typename T>
 class Tree {
 public:
+    Tree(const Tree&) = delete;
+    Tree& operator=(const Tree&) = delete;
     Tree(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions) : _kdtree(flann::KDTreeSingleIndexParams()) {
         _stateSpace = stateSpace;
 
@@ -120,8 +124,6 @@ public:
         setWaypointBias(0);
         setGoalMaxDist(0.1);
     }
-
-    virtual ~Tree() { reset(); }
 
     StateSpace<T>& stateSpace() { return *_stateSpace; }
     const StateSpace<T>& stateSpace() const { return *_stateSpace; }
@@ -225,18 +227,11 @@ public:
      * Removes all Nodes from the tree so it can be run() again.
      */
     void reset(bool eraseRoot = false) {
-        // todo: clear kdtree
-        if (!_nodes.empty()) {
-            Node<T>* root = _nodes.front();
-            _nodes.erase(_nodes.begin());
-
-            for (Node<T>* n : _nodes) delete n;
+        if (eraseRoot) {
             _nodes.clear();
-
-            if (eraseRoot) {
-                delete root;
-            } else {
-                _nodes.push_back(root);
+        } else {
+            if (!_nodes.empty()) {
+                _nodes.erase(_nodes.begin() + 1, _nodes.end());
             }
         }
     }
@@ -276,12 +271,11 @@ public:
         float bestDistance = -1;
         Node<T>* best = nullptr;
 
-        // This is O(n)
-        for (Node<T>* other : _nodes) {
-            float dist = _stateSpace->distance(other->state(), state);
+        for (Node<T>& other : _nodes) {
+            float dist = _stateSpace->distance(other.state(), state);
             if (bestDistance < 0 || dist < bestDistance) {
                 bestDistance = dist;
-                best = other;
+                best = &other;
             }
         }
 
@@ -333,78 +327,94 @@ public:
         }
 
         // Add a node to the tree for this state
-        Node<T>* n = new Node<T>(intermediateState, source);
-        _nodes.push_back(n);
-
         float *data = (float*)&intermediateState;
         flann::Matrix<float>* point = new flann::Matrix<float>((float*)&intermediateState, 1, sizeof(intermediateState) / sizeof(0.0f));
         _kdtree.addPoints(*point);
-        return n;
+        _nodes.push_back(Node<T>(intermediateState, source));
+        return &_nodes.back();
     }
 
     /**
      * Get the path from the receiver's root point to the dest point
      *
      * @param callback The lambda to call for each state in the path
-     * @param reverse if true, the states will be sent from @dest to the
-     *                tree's root
+     * @param dest The node in the tree to get the path for. If nullptr, will
+     *     use the the last point added to the @_nodes vector. If run() was just
+     *     called successfully, this node will be the one last created that is
+     *     closest to the goal.
+     * @param reverse if true, the states will be sent from @dest to the tree's
+     *     root
      */
-    void getPath(std::function<void(const T& stateI)> callback, Node<T>* dest,
-                 const bool reverse = false) {
-        const Node<T>* node = dest;
+    void getPath(std::function<void(const T& stateI)> callback,
+                 const Node<T>* dest = nullptr, bool reverse = false) const {
+        const Node<T>* node = (dest != nullptr) ? dest : lastNode();
         if (reverse) {
             while (node) {
                 callback(node->state());
                 node = node->parent();
             }
         } else {
-            //  order them correctly in a list
-            std::list<const Node<T>*> nodes;
+            // collect states in list in leaf -> root order
+            std::vector<const Node<T>*> nodes;
             while (node) {
-                nodes.push_front(node);
+                nodes.push_back(node);
                 node = node->parent();
             }
 
-            //  then pass them one-by-one to the callback
-            for (const Node<T>* n : nodes) callback(n->state());
+            // pass them one-by-one to the callback, reversing the order so
+            // that the callback is called with the start point first and the
+            // dest point last
+            for (auto itr = nodes.rbegin(); itr != nodes.rend(); itr++) {
+                callback((*itr)->state());
+            }
         }
     }
 
     /**
-     * Get the path from the receiver's root point to the dest point.
+     * The same as the first getPath() method, but appends the states to a given
+     * output vector rather than executing a callback.
      *
      * @param vectorOut The vector to append the states along the path
-     * @param reverse if true, the states will be sent from @dest to the
-     *                tree's root
      */
-    void getPath(std::vector<T>& vectorOut, Node<T>* dest,
-                 const bool reverse = false) {
-        getPath([&](const T& stateI) { vectorOut.push_back(stateI); }, dest,
+    void getPath(std::vector<T>* vectorOut, const Node<T>* dest = nullptr,
+                 bool reverse = false) const {
+        getPath([&](const T& stateI) { vectorOut->push_back(stateI); }, dest,
                 reverse);
+    }
+
+    /**
+     * The same as the first getPath() method, but returns the vector of states
+     * instead of executing a callback.
+     */
+    std::vector<T> getPath(const Node<T>* dest = nullptr,
+                           bool reverse = false) const {
+        std::vector<T> path;
+        getPath(&path, dest, reverse);
+        return path;
     }
 
     /**
      * @return The root node or nullptr if none exists
      */
-    Node<T>* rootNode() const {
+    const Node<T>* rootNode() const {
         if (_nodes.empty()) return nullptr;
 
-        return _nodes.front();
+        return &_nodes.front();
     }
 
     /**
      * @return The most recent Node added to the tree
      */
-    Node<T>* lastNode() const {
+    const Node<T>* lastNode() const {
         if (_nodes.empty()) return nullptr;
 
-        return _nodes.back();
+        return &_nodes.back();
     }
 
     /**
      * All the nodes
      */
-    const std::vector<Node<T>*> allNodes() const { return _nodes; }
+    const std::deque<Node<T>>& allNodes() const { return _nodes; }
 
     /**
      * @brief The start state for this tree
@@ -419,8 +429,7 @@ public:
         reset(true);
 
         //  create root node from provided start state
-        Node<T>* root = new Node<T>(startState, nullptr);
-        _nodes.push_back(root);
+        _nodes.push_back(Node<T>(startState, nullptr));
     }
 
     /**
@@ -433,7 +442,7 @@ protected:
     /**
      * A list of all Node objects in the tree.
      */
-    std::vector<Node<T>*> _nodes;
+    std::deque<Node<T>> _nodes{};
 
     T _goalState;
 
@@ -446,7 +455,7 @@ protected:
     /// used for Extended RRTs where growth is biased towards waypoints from
     /// previously grown tree
     float _waypointBias;
-    std::vector<T> _waypoints;
+    std::vector<T> _waypoints{};
 
     float _goalMaxDist;
 
@@ -455,6 +464,6 @@ protected:
 
     flann::Index<flann::L2_Simple<float> > _kdtree;
 
-    std::shared_ptr<StateSpace<T>> _stateSpace;
+    std::shared_ptr<StateSpace<T>> _stateSpace{};
 };
 }  // namespace RRT

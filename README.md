@@ -15,7 +15,12 @@ This project contains an interactive RRT viewer.  The source and destination poi
 The following are required in order to build this project:
 
 * cmake >= 3.2.0
-* Qt 5
+* Qt 5.5+
+    - (The following dependencies are only needed for the rrt viewer)
+    - QtDeclarative 5
+    - QtQuick2.5+
+    - QtQuick Controls
+    - QtQuick Dialogs
 * Eigen
 * ninja
 * ccache
@@ -23,7 +28,7 @@ The following are required in order to build this project:
 To install all needed dependencies on Ubuntu 16.04, run:
 
 ```{.sh}
-sudo apt-get -y install qt5-default libeigen3-dev g++ ninja-build cmake clang-format-3.6 ccache
+sudo apt-get -y install qt5-default libeigen3-dev g++ ninja-build cmake clang-format-3.6 ccache qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qml-module-qtquick-{controls,dialogs}
 ```
 
 
