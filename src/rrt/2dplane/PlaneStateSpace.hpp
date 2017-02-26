@@ -27,9 +27,12 @@ public:
     // POINT_CLASS randomBiasState(const POINT_CLASS& goalState, float goalBias) const {
     POINT_CLASS randomBiasState(const POINT_CLASS& goalState, float goalBias) const {
         // ensures that randX and randY are within the fields bounds
-        int randX = std::max(std::min(goalState.x() + logit(goalBias, drand48()), width() / 2), width() / 2 * -1);
-        cout << width() << endl;
-        int randY = std::max(std::min(goalState.y() + logit(goalBias, drand48()), height() / 2), height() / 2 * -1);
+        float offsetX = width() * logit(goalBias, drand48() * .8 + .1)
+        int randX = std::max(std::min(goalState.x() + offsetX, width()), 0.f);
+        //cout << width() << endl;
+        float offsetY = height() * logit(goalBias, drand48() * .8 + .1);
+        int randY = std::max(std::min(goalState.y() + offsetY, height()), 0.f);
+        cout << "Point: " << "(" << randX << ", " << randY << ")" << endl;
         return POINT_CLASS(randX, randY);
     }
 
@@ -57,7 +60,9 @@ public:
     }
 
     float logit(const float goalBias, const float num) const{
-        return goalBias * 2000 * log(num/(1 - num));
+        float x = (1 - goalBias) * log(num/(1 - num));
+        cout << "logit " << x << endl;
+        return x;
     }
 
     float width() const { return _width; }
