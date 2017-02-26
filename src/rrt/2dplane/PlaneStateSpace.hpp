@@ -3,6 +3,12 @@
 #include <Eigen/Dense>
 #include <rrt/StateSpace.hpp>
 
+#include <cmath>
+#include <algorithm>
+#include <iostream>
+
+using namespace std;
+
 namespace RRT {
 
 /**
@@ -16,6 +22,15 @@ public:
 
     POINT_CLASS randomState() const {
         return POINT_CLASS(drand48() * width(), drand48() * height());
+    }
+
+    // POINT_CLASS randomBiasState(const POINT_CLASS& goalState, float goalBias) const {
+    POINT_CLASS randomBiasState(const POINT_CLASS& goalState, float goalBias) const {
+        // ensures that randX and randY are within the fields bounds
+        int randX = std::max(std::min(goalState.x() + logit(goalBias, drand48()), width() / 2), width() / 2 * -1);
+        cout << width() << endl;
+        int randY = std::max(std::min(goalState.y() + logit(goalBias, drand48()), height() / 2), height() / 2 * -1);
+        return POINT_CLASS(randX, randY);
     }
 
     POINT_CLASS intermediateState(const POINT_CLASS& source,
@@ -39,6 +54,10 @@ public:
     bool stateValid(const POINT_CLASS& pt) const {
         return pt.x() >= 0 && pt.y() >= 0 && pt.x() < width() &&
                pt.y() < height();
+    }
+
+    float logit(const float goalBias, const float num) const{
+        return goalBias * 2000 * log(num/(1 - num));
     }
 
     float width() const { return _width; }

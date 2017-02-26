@@ -23,6 +23,14 @@ public:
     virtual T randomState() const = 0;
 
     /**
+     * Generates a point within the bounds of the state space
+     * based on the goalBias
+     *
+     * @return A biased state
+     */
+    virtual T randomBiasState(const T& goalState, float goalBias) const = 0;
+
+    /**
      * Finds a state in the direction of @target from @source.state().
      * This new state will potentially be added to the tree.  No need to do
      * any validation on the state before returning, the tree will handle

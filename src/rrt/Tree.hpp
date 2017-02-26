@@ -238,17 +238,18 @@ public:
         //  extend towards goal, waypoint, or random state depending on the
         //  biases
         //  and a random number
-        float r =
-            rand() /
-            (float)RAND_MAX;  //  r is between 0 and one since we normalize it
-        if (r < goalBias()) {
-            return extend(goalState());
-        } else if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
-            const T& waypoint = _waypoints[rand() % _waypoints.size()];
-            return extend(waypoint);
-        } else {
-            return extend(_stateSpace->randomState());
-        }
+        // float r =
+        //     rand() /
+        //     (float)RAND_MAX;  //  r is between 0 and one since we normalize it
+        // if (r < goalBias()) {
+        //     return extend(goalState());
+        // } else if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
+        //     const T& waypoint = _waypoints[rand() % _waypoints.size()];
+        //     return extend(waypoint);
+        // } else {
+        // return extend(_stateSpace->randomState());
+        //
+        return extend(_stateSpace->randomBiasState(goalState(), goalBias()));
     }
 
     /**
@@ -339,7 +340,6 @@ public:
                 nodes.push_back(node);
                 node = node->parent();
             }
-
             // pass them one-by-one to the callback, reversing the order so
             // that the callback is called with the start point first and the
             // dest point last
