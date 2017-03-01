@@ -24,15 +24,36 @@ public:
         return POINT_CLASS(drand48() * width(), drand48() * height());
     }
 
-    // POINT_CLASS randomBiasState(const POINT_CLASS& goalState, float goalBias) const {
+    /**
+     * Generates a point based on a goal bias and a goal state
+     *
+     * @params goalState - Point that we want to extend towards
+     * @params goalBias - Changes likelihood of choosing a point near goal state
+     * @returns POINT_CLASS - random point based on goal bias and goal state
+     */
     POINT_CLASS randomBiasState(const POINT_CLASS& goalState, float goalBias) const {
-        // ensures that randX and randY are within the fields bounds
-        float offsetX = width() * logit(goalBias, drand48() * .8 + .1)
-        int randX = std::max(std::min(goalState.x() + offsetX, width()), 0.f);
-        //cout << width() << endl;
-        float offsetY = height() * logit(goalBias, drand48() * .8 + .1);
-        int randY = std::max(std::min(goalState.y() + offsetY, height()), 0.f);
-        cout << "Point: " << "(" << randX << ", " << randY << ")" << endl;
+        // Generates random value based on goalBias
+        float logitX = logit(goalBias, drand48() * .8 + .1);
+        float logitY = logit(goalBias, drand48() * .8 + .1);
+        float offsetY = 0;
+        float offsetX = 0;
+
+        // Scale X value based on distance from border
+        if (logitX > 0) {
+           offsetX = (width() - goalState.x()) / log(9) * logitX;
+        } else if (logitX < 0) {
+            offsetX = goalState.x() / log(9) * logitX;
+        }
+
+        // Scale Y value based on distance from border
+        if (logitY > 0) {
+            offsetY = (height() - goalState.y()) / log(9) * logitY;
+        } else if (logitY < 0) {
+            offsetY = goalState.y() / log(9) * logitY;
+        }
+
+        int randX = goalState.x() + offsetX, width();
+        int randY = goalState.y() + offsetY, height();
         return POINT_CLASS(randX, randY);
     }
 
@@ -59,10 +80,15 @@ public:
                pt.y() < height();
     }
 
+    /**
+     * Uses the logit function to generate a random value based on a goal bias
+     *
+     * @params goalBias - increases / decreases distance from 0
+     * @params num - value to be inputted into logit function
+     * @returns float - output of logit function scaled based on goal bias
+     */
     float logit(const float goalBias, const float num) const{
-        float x = (1 - goalBias) * log(num/(1 - num));
-        cout << "logit " << x << endl;
-        return x;
+        return (1 - goalBias) * log(num/(1 - num));
     }
 
     float width() const { return _width; }

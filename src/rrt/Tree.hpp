@@ -235,21 +235,18 @@ public:
      * This is called at each iteration of the run() method.
      */
     Node<T>* grow() {
-        //  extend towards goal, waypoint, or random state depending on the
-        //  biases
-        //  and a random number
-        // float r =
-        //     rand() /
-        //     (float)RAND_MAX;  //  r is between 0 and one since we normalize it
-        // if (r < goalBias()) {
-        //     return extend(goalState());
-        // } else if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
-        //     const T& waypoint = _waypoints[rand() % _waypoints.size()];
-        //     return extend(waypoint);
-        // } else {
-        // return extend(_stateSpace->randomState());
-        //
-        return extend(_stateSpace->randomBiasState(goalState(), goalBias()));
+         // extend towards goal, waypoint, or random state depending on the
+         // biases
+         // and a random number
+        float r =
+            rand() /
+            (float)RAND_MAX;  //  r is between 0 and one since we normalize it
+        if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
+            const T& waypoint = _waypoints[rand() % _waypoints.size()];
+            return extend(waypoint);
+        } else {
+            return extend(_stateSpace->randomBiasState(goalState(), goalBias()));
+        }
     }
 
     /**
