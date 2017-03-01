@@ -244,10 +244,8 @@ public:
         //  extend towards goal, waypoint, or random state depending on the
         //  biases and a random number
         if (_nodes.size() == 1) {
-            T rootState = rootNode()->state();
-            flann::Matrix<float>* root = new flann::Matrix<float>((float*)&rootState, 1, sizeof(rootState) / sizeof(0.0f));
+            flann::Matrix<float>* root = new flann::Matrix<float>((float*)&(rootNode()->state()), 1, sizeof(rootNode()->state()) / sizeof(0.0f));
             _kdtree.buildIndex(*root);
-            std::cout << "Initial index built:" << std::endl;
         }
         float r =
             rand() /
@@ -265,7 +263,7 @@ public:
     /**
      * Find the node int the tree closest to @state.  Pass in a float pointer
      * as the second argument to get the distance that the node is away from
-     * @state.
+     * @state. This method searches a k-d tree of the points to determine
      */
     Node<T>* nearest(const T& state, float* distanceOut = nullptr) {
         float bestDistance = -1;
@@ -285,6 +283,11 @@ public:
         flann::Matrix<float> dists(new float[query.rows], query.rows, 1);
 
         int n = _kdtree.knnSearch(query, indices, dists, 1, flann::SearchParams());
+        std::cout << "\nactual best:" << std::endl;
+        std::cout << best->state() << std::endl;
+        std::cout << "kd tree index:" << indices[0][0] << std::endl;
+        std::cout << "kd tree best:" << std::endl;
+        std::cout << _kdtree.getPoint(indices[0][0])[0] << " " << _kdtree.getPoint(indices[0][0])[1] << std::endl;
 
         if (distanceOut) *distanceOut = bestDistance;
 
@@ -327,8 +330,12 @@ public:
         }
 
         // Add a node to the tree for this state
-        float *data = (float*)&intermediateState;
-        flann::Matrix<float>* point = new flann::Matrix<float>((float*)&intermediateState, 1, sizeof(intermediateState) / sizeof(0.0f));
+        int lengthT = sizeof(intermediateState) / sizeof(0.0f);
+        float *data = new float [lengthT];
+        for (int i = 0; i < lengthT; i++) {
+            data[i] = intermediateState[i];
+        }
+        flann::Matrix<float>* point = new flann::Matrix<float>(data, 1, lengthT);
         _kdtree.addPoints(*point);
         _nodes.push_back(Node<T>(intermediateState, source));
         return &_nodes.back();
