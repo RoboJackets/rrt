@@ -33,27 +33,27 @@ public:
      */
     POINT_CLASS randomBiasState(const POINT_CLASS& goalState, float goalBias) const {
         // Generates random value based on goalBias
-        float logitX = logit(goalBias, drand48() * .9 + .05);
-        float logitY = logit(goalBias, drand48() * .9 + .05);
+        float logitX = logit(goalBias, (float) rand() / RAND_MAX);
+        float logitY = logit(goalBias, (float) rand() / RAND_MAX);
         float offsetY = 0;
         float offsetX = 0;
 
         // Scale X value based on distance from border
         if (logitX > 0) {
-           offsetX = (width() - goalState.x()) / log(19) * logitX;
+           offsetX = (width() - goalState.x()) * logitX;
         } else if (logitX < 0) {
-            offsetX = goalState.x() / log(19) * logitX;
+            offsetX = goalState.x() * logitX;
         }
 
         // Scale Y value based on distance from border
         if (logitY > 0) {
-            offsetY = (height() - goalState.y()) / log(19) * logitY;
+            offsetY = (height() - goalState.y()) * logitY;
         } else if (logitY < 0) {
-            offsetY = goalState.y() / log(19) * logitY;
+            offsetY = goalState.y() * logitY;
         }
 
-        int randX = goalState.x() + offsetX, width();
-        int randY = goalState.y() + offsetY, height();
+        int randX = goalState.x() + offsetX;
+        int randY = goalState.y() + offsetY;
         return POINT_CLASS(randX, randY);
     }
 
