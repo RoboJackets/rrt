@@ -266,32 +266,18 @@ public:
      * @state. This method searches a k-d tree of the points to determine
      */
     Node<T>* nearest(const T& state, float* distanceOut = nullptr) {
-        float bestDistance = -1;
         Node<T>* best = nullptr;
 
-        for (Node<T>& other : _nodes) {
-            float dist = _stateSpace->distance(other.state(), state);
-            if (bestDistance < 0 || dist < bestDistance) {
-                bestDistance = dist;
-                best = &other;
-            }
-        }
-
-        // k-NN search (O(log(N))?)
+        // k-NN search (O(log(N)))
         flann::Matrix<float> query((float*)&state, 1, sizeof(state) / sizeof(0.0f));
         flann::Matrix<int> indices(new int[query.rows], query.rows, 1);
         flann::Matrix<float> dists(new float[query.rows], query.rows, 1);
 
         int n = _kdtree.knnSearch(query, indices, dists, 1, flann::SearchParams());
-        std::cout << "\nactual best:" << std::endl;
-        std::cout << best->state() << std::endl;
-        std::cout << "kd tree index:" << indices[0][0] << std::endl;
-        std::cout << "kd tree best:" << std::endl;
-        std::cout << _kdtree.getPoint(indices[0][0])[0] << " " << _kdtree.getPoint(indices[0][0])[1] << std::endl;
 
-        if (distanceOut) *distanceOut = bestDistance;
+        if (distanceOut) *distanceOut = _stateSpace->distance(state, best->state());
 
-        return best;
+        return new Node<T>((T) _kdtree.getPoint(indices[0][0]));
     }
 
     /**
