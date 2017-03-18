@@ -80,12 +80,12 @@ install(TARGETS RRT DESTINATION "lib")
 
 set(ui_SRC
     "src/rrt-viewer/main.cpp"
-    "src/rrt-viewer/MainWindow.cpp"
     "src/rrt-viewer/RRTWidget.cpp"
 )
 
-add_executable("rrt-viewer" ${ui_SRC})
-QT5_USE_MODULES("rrt-viewer" Widgets)
+qt5_add_resources(RESOURCES src/rrt-viewer/main.qrc)
+add_executable("rrt-viewer" ${ui_SRC} ${RESOURCES})
+qt5_use_modules("rrt-viewer" Widgets Qml Quick)
 target_link_libraries("rrt-viewer" RRT)
 
 

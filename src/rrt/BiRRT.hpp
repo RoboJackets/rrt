@@ -7,10 +7,8 @@ namespace RRT {
 /**
  * @brief Bi-directional RRT
  * @details It is often preferable to use two RRTs when searching the state
- * space with
- * one rooted at the source and one rooted at the goal.  When the two trees
- * intersect,
- * a solution has been found.
+ *     space with one rooted at the source and one rooted at the goal.  When the
+ *     two trees intersect, a solution has been found.
  */
 template <typename T>
 class BiRRT {
@@ -95,12 +93,12 @@ public:
 
     /**
      * @brief Get the shortest path from the start to the goal
-     *
-     * @param vecOut The vector to place the solution in
      */
-    void getPath(std::vector<T>& vecOut) {
-        _startTree.getPath(vecOut, _startSolutionNode);
-        _startTree.getPath(vecOut, _goalSolutionNode, true);
+    std::vector<T> getPath() {
+        std::vector<T> path;
+        _startTree.getPath(&path, _startSolutionNode);
+        _startTree.getPath(&path, _goalSolutionNode, true);
+        return path;
     }
 
     /**
@@ -117,7 +115,7 @@ public:
         Node<T>* newStartNode = _startTree.grow();
         if (newStartNode) {
             otherNode = _findBestPath(newStartNode->state(), _goalTree, &depth);
-            if (otherNode && depth + newStartNode->depth() < _solutionLength) {
+            if (otherNode && depth + newStartNode->depth() < _solutionLength && _goalTree.stateSpace().transitionValid(newStartNode->state(), otherNode->state())) {
                 _startSolutionNode = newStartNode;
                 _goalSolutionNode = otherNode;
                 _solutionLength = newStartNode->depth() + depth;
@@ -127,7 +125,7 @@ public:
         Node<T>* newGoalNode = _goalTree.grow();
         if (newGoalNode) {
             otherNode = _findBestPath(newGoalNode->state(), _startTree, &depth);
-            if (otherNode && depth + newGoalNode->depth() < _solutionLength) {
+            if (otherNode && depth + newGoalNode->depth() < _solutionLength && _goalTree.stateSpace().transitionValid(newGoalNode->state(), otherNode->state())) {
                 _startSolutionNode = otherNode;
                 _goalSolutionNode = newGoalNode;
                 _solutionLength = newGoalNode->depth() + depth;
@@ -170,11 +168,11 @@ public:
 
 protected:
     const Node<T>* _findBestPath(const T& targetState, Tree<T>& treeToSearch,
-                           int* depthOut) const {
+                                 int* depthOut) const {
         const Node<T>* bestNode = nullptr;
         int depth = INT_MAX;
 
-        for (const Node<T> &other : treeToSearch.allNodes()) {
+        for (const Node<T>& other : treeToSearch.allNodes()) {
             float dist =
                 _startTree.stateSpace().distance(other.state(), targetState);
             if (dist < goalMaxDist() && other.depth() < depth) {
@@ -196,6 +194,7 @@ private:
     int _minIterations;
 
     int _solutionLength;
-    const Node<T> *_startSolutionNode, *_goalSolutionNode;
+    const Node<T>* _startSolutionNode, *_goalSolutionNode;
 };
-};
+
+}  // namespace RRT

@@ -4,15 +4,14 @@
 #include <stdlib.h>
 #include <functional>
 #include <iostream>
-#include <iostream>
+#include <stdlib.h>
+#include <deque>
+#include <functional>
 #include <list>
 #include <memory>
 #include <rrt/StateSpace.hpp>
 #include <stdexcept>
 #include <vector>
-#include <deque>
-#include <stdlib.h>
-#include <iostream>
 
 namespace RRT {
 /**
@@ -24,7 +23,8 @@ namespace RRT {
 template <typename T>
 class Node {
 public:
-    Node(const T& state, Node<T>* parent = nullptr) : _parent(parent), _state(state) {
+    Node(const T& state, Node<T>* parent = nullptr)
+        : _parent(parent), _state(state) {
         if (_parent) {
             _parent->_children.push_back(this);
         }
@@ -225,7 +225,7 @@ public:
             _nodes.clear();
         } else {
             if (!_nodes.empty()) {
-                _nodes.erase(_nodes.begin()+1, _nodes.end());
+                _nodes.erase(_nodes.begin() + 1, _nodes.end());
             }
         }
     }
@@ -260,7 +260,7 @@ public:
         float bestDistance = -1;
         Node<T>* best = nullptr;
 
-        for (Node<T> &other : _nodes) {
+        for (Node<T>& other : _nodes) {
             float dist = _stateSpace->distance(other.state(), state);
             if (bestDistance < 0 || dist < bestDistance) {
                 bestDistance = dist;
@@ -317,41 +317,59 @@ public:
      * Get the path from the receiver's root point to the dest point
      *
      * @param callback The lambda to call for each state in the path
-     * @param reverse if true, the states will be sent from @dest to the
-     *                tree's root
+     * @param dest The node in the tree to get the path for. If nullptr, will
+     *     use the the last point added to the @_nodes vector. If run() was just
+     *     called successfully, this node will be the one last created that is
+     *     closest to the goal.
+     * @param reverse if true, the states will be sent from @dest to the tree's
+     *     root
      */
-    void getPath(std::function<void(const T& stateI)> callback, const Node<T>* dest,
-                 const bool reverse = false) const {
-        const Node<T>* node = dest;
+    void getPath(std::function<void(const T& stateI)> callback,
+                 const Node<T>* dest = nullptr, bool reverse = false) const {
+        const Node<T>* node = (dest != nullptr) ? dest : lastNode();
         if (reverse) {
             while (node) {
                 callback(node->state());
                 node = node->parent();
             }
         } else {
-            //  order them correctly in a list
-            std::list<const Node<T>*> nodes;
+            // collect states in list in leaf -> root order
+            std::vector<const Node<T>*> nodes;
             while (node) {
-                nodes.push_front(node);
+                nodes.push_back(node);
                 node = node->parent();
             }
 
-            //  then pass them one-by-one to the callback
-            for (const Node<T>* n : nodes) callback(n->state());
+            // pass them one-by-one to the callback, reversing the order so
+            // that the callback is called with the start point first and the
+            // dest point last
+            for (auto itr = nodes.rbegin(); itr != nodes.rend(); itr++) {
+                callback((*itr)->state());
+            }
         }
     }
 
     /**
-     * Get the path from the receiver's root point to the dest point.
+     * The same as the first getPath() method, but appends the states to a given
+     * output vector rather than executing a callback.
      *
      * @param vectorOut The vector to append the states along the path
-     * @param reverse if true, the states will be sent from @dest to the
-     *                tree's root
      */
-    void getPath(std::vector<T>& vectorOut, const Node<T>* dest,
-                 const bool reverse = false) const {
-        getPath([&](const T& stateI) { vectorOut.push_back(stateI); }, dest,
+    void getPath(std::vector<T>* vectorOut, const Node<T>* dest = nullptr,
+                 bool reverse = false) const {
+        getPath([&](const T& stateI) { vectorOut->push_back(stateI); }, dest,
                 reverse);
+    }
+
+    /**
+     * The same as the first getPath() method, but returns the vector of states
+     * instead of executing a callback.
+     */
+    std::vector<T> getPath(const Node<T>* dest = nullptr,
+                           bool reverse = false) const {
+        std::vector<T> path;
+        getPath(&path, dest, reverse);
+        return path;
     }
 
     /**
