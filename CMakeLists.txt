@@ -92,18 +92,20 @@ target_link_libraries("rrt-viewer" RRT)
 # gtest
 ################################################################################
 
-enable_testing()
-include(SetupGTest)
+if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+    enable_testing()
+    include(SetupGTest)
 
-# test srcs
-set(tests_SRC
-    "src/rrt/BiRRTTest.cpp"
-    "src/rrt/TreeTest.cpp"
-)
+    # test srcs
+    set(tests_SRC
+        "src/rrt/BiRRTTest.cpp"
+        "src/rrt/TreeTest.cpp"
+        )
 
-# test-cpp
-add_executable(test-cpp ${tests_SRC})
-target_link_libraries(test-cpp RRT)
-target_link_libraries(test-cpp ${GTEST_LIBRARIES})
-set_target_properties(test-cpp PROPERTIES EXCLUDE_FROM_ALL TRUE)
-add_dependencies(test-cpp googletest)
+    # test-cpp
+    add_executable(test-cpp ${tests_SRC})
+    target_link_libraries(test-cpp RRT)
+    target_link_libraries(test-cpp ${GTEST_LIBRARIES})
+    set_target_properties(test-cpp PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    add_dependencies(test-cpp googletest)
+endif()
