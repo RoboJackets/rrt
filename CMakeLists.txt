@@ -16,8 +16,8 @@ set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # includes
-include_directories(src)
-
+set(RRT_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" CACHE PATH "Directory containing includes for the RRT")
+include_directories(${RRT_INCLUDE_DIR})
 
 # Eigen - used for linear algebra
 find_package(Eigen3 REQUIRED)
