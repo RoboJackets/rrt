@@ -235,9 +235,9 @@ public:
      * This is called at each iteration of the run() method.
      */
     Node<T>* grow() {
-        //  extend towards goal, waypoint, or random state depending on the
-        //  biases
-        //  and a random number
+         // extend towards goal, waypoint, or random state depending on the
+         // biases
+         // and a random number
         float r =
             rand() /
             (float)RAND_MAX;  //  r is between 0 and one since we normalize it
@@ -339,7 +339,6 @@ public:
                 nodes.push_back(node);
                 node = node->parent();
             }
-
             // pass them one-by-one to the callback, reversing the order so
             // that the callback is called with the start point first and the
             // dest point last
