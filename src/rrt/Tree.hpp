@@ -241,11 +241,13 @@ public:
         float r =
             rand() /
             (float)RAND_MAX;  //  r is between 0 and one since we normalize it
-        if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
+        if (r < goalBias()) {
+            return extend(goalState());
+        } else if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
             const T& waypoint = _waypoints[rand() % _waypoints.size()];
             return extend(waypoint);
         } else {
-            return extend(_stateSpace->randomBiasState(goalState(), goalBias()));
+            return extend(_stateSpace->randomState());
         }
     }
 
