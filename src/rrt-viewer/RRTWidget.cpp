@@ -19,7 +19,7 @@ RRTWidget::RRTWidget() {
 // =======
     Vector2f size(800, 600);
     _stateSpace = make_shared<GridStateSpace>(size.x(), size.y(), 40, 30);
-    _biRRT = new BiRRT<Vector2f>(_stateSpace, dimensions);
+    _biRRT = new BiRRT<Vector2f>(_stateSpace, dimensions, RRT::hash);
 
     _waypointCacheMaxSize = 15;
 

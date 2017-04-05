@@ -6,6 +6,14 @@
 namespace RRT {
 
 /**
+ * Hash function for Eigen::Vector2f
+ */
+static size_t hash(Eigen::Vector2f state) {
+    return (((int)state.x() * 100) << ((int)log10(state.y())+3)) + (int)state.y() * 100;
+}
+
+
+/**
  * This creates an instance of an RRT Tree with the callbacks
  * configured from the given parameters.
  *

@@ -12,6 +12,7 @@
 #include <rrt/StateSpace.hpp>
 #include <stdexcept>
 #include <vector>
+#include <unordered_map>
 #include <iostream>
 
 #include "flann/flann.hpp"
@@ -112,7 +113,7 @@ class Tree {
 public:
     Tree(const Tree&) = delete;
     Tree& operator=(const Tree&) = delete;
-    Tree(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions) : _kdtree(flann::KDTreeSingleIndexParams()) {
+    Tree(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions, std::function<size_t(T)> hashT) : _kdtree(flann::KDTreeSingleIndexParams()), _nodemap(20, hashT) {
         _stateSpace = stateSpace;
 
         //  default values
@@ -224,13 +225,23 @@ public:
     }
 
     /**
-     * Removes all Nodes from the tree so it can be run() again.
+     * Removes nodes from _nodes and _nodemap so it can be run() again.
      */
     void reset(bool eraseRoot = false) {
         if (eraseRoot) {
             _nodes.clear();
+            _nodemap.clear();
         } else {
-            if (!_nodes.empty()) {
+            if (_nodes.size() > 1) {
+                auto it = _nodemap.begin();
+                while (_nodemap.size() > 1) {
+                    if (it->second && it->second->parent()) {
+                        _nodemap.erase(it);
+                        it = _nodemap.begin();
+                    } else {
+                        ++it;
+                    }
+                }
                 _nodes.erase(_nodes.begin() + 1, _nodes.end());
             }
         }
@@ -277,7 +288,9 @@ public:
 
         if (distanceOut) *distanceOut = _stateSpace->distance(state, best->state());
 
-        return new Node<T>((T) _kdtree.getPoint(indices[0][0]));
+        T point = (T) _kdtree.getPoint(indices[0][0]);
+
+        return _nodemap[point];
     }
 
     /**
@@ -324,6 +337,7 @@ public:
         flann::Matrix<float>* point = new flann::Matrix<float>(data, 1, lengthT);
         _kdtree.addPoints(*point);
         _nodes.push_back(Node<T>(intermediateState, source));
+        _nodemap.insert(std::pair<T, Node<T>*>(intermediateState, &_nodes.back()));
         return &_nodes.back();
     }
 
@@ -422,7 +436,9 @@ public:
         reset(true);
 
         //  create root node from provided start state
-        _nodes.push_back(Node<T>(startState, nullptr));
+        Node<T>* root = new Node<T>(startState, nullptr);
+        _nodes.push_back(*root);
+        _nodemap.insert(std::pair<T, Node<T>*>(startState, root));
     }
 
     /**
@@ -436,6 +452,8 @@ protected:
      * A list of all Node objects in the tree.
      */
     std::deque<Node<T>> _nodes{};
+
+    std::unordered_map<T, Node<T>*, std::function<size_t(T)>> _nodemap;
 
     T _goalState;
 
