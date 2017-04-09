@@ -10,6 +10,3 @@
 [submodule "third_party/style-configs"]
 	path = third_party/style-configs
 	url = https://github.com/robojackets/style-configs
-[submodule "flann"]
-	path = flann
-	url = https://github.com/mariusmuja/flann
