@@ -5,6 +5,8 @@
 
 namespace RRT {
 
+const int dimensions = 2;
+
 /**
  * Hash function for Eigen::Vector2f
  */
