@@ -143,8 +143,8 @@ public:
      *     determines what proportion of the time we extend() towards the goal.
      *     The rest of the time, we extend() towards a random state.
      */
-    float goalBias() const { return _goalBias; }
-    void setGoalBias(float goalBias) {
+    double goalBias() const { return _goalBias; }
+    void setGoalBias(double goalBias) {
         if (goalBias < 0 || goalBias > 1) {
             throw std::invalid_argument(
                 "The goal bias must be a number between 0.0 and 1.0");
@@ -156,8 +156,8 @@ public:
      * @brief The chance that we extend towards a randomly-chosen point from the
      * @waypoints vector
      */
-    float waypointBias() const { return _waypointBias; }
-    void setWaypointBias(float waypointBias) {
+    double waypointBias() const { return _waypointBias; }
+    void setWaypointBias(double waypointBias) {
         if (waypointBias < 0 || waypointBias > 1) {
             throw std::invalid_argument(
                 "The waypoint bias must be a number between 0.0 and 1.0");
@@ -177,12 +177,12 @@ public:
     }
     void clearWaypoints() { _waypoints.clear(); }
 
-    float stepSize() const { return _stepSize; }
-    void setStepSize(float stepSize) { _stepSize = stepSize; }
+    double stepSize() const { return _stepSize; }
+    void setStepSize(double stepSize) { _stepSize = stepSize; }
 
     /// Max step size used in ASC
-    float maxStepSize() const { return _maxStepSize; }
-    void setMaxStepSize(float maxStep) { _maxStepSize = maxStep; }
+    double maxStepSize() const { return _maxStepSize; }
+    void setMaxStepSize(double maxStep) { _maxStepSize = maxStep; }
 
     /**
      * @brief How close we have to get to the goal in order to consider it
@@ -194,8 +194,8 @@ public:
      * the
      * goal state.
      */
-    float goalMaxDist() const { return _goalMaxDist; }
-    void setGoalMaxDist(float maxDist) { _goalMaxDist = maxDist; }
+    double goalMaxDist() const { return _goalMaxDist; }
+    void setGoalMaxDist(double maxDist) { _goalMaxDist = maxDist; }
 
     /**
      * Executes the RRT algorithm with the given start state.
@@ -238,9 +238,9 @@ public:
         //  extend towards goal, waypoint, or random state depending on the
         //  biases
         //  and a random number
-        float r =
+        double r =
             rand() /
-            (float)RAND_MAX;  //  r is between 0 and one since we normalize it
+            (double)RAND_MAX;  //  r is between 0 and one since we normalize it
         if (r < goalBias()) {
             return extend(goalState());
         } else if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
@@ -252,16 +252,16 @@ public:
     }
 
     /**
-     * Find the node int the tree closest to @state.  Pass in a float pointer
+     * Find the node int the tree closest to @state.  Pass in a double pointer
      * as the second argument to get the distance that the node is away from
      * @state.
      */
-    Node<T>* nearest(const T& state, float* distanceOut = nullptr) {
-        float bestDistance = -1;
+    Node<T>* nearest(const T& state, double* distanceOut = nullptr) {
+        double bestDistance = -1;
         Node<T>* best = nullptr;
 
         for (Node<T>& other : _nodes) {
-            float dist = _stateSpace->distance(other.state(), state);
+            double dist = _stateSpace->distance(other.state(), state);
             if (bestDistance < 0 || dist < bestDistance) {
                 bestDistance = dist;
                 best = &other;
@@ -429,17 +429,17 @@ protected:
 
     bool _isASCEnabled;
 
-    float _goalBias;
+    double _goalBias;
 
     /// used for Extended RRTs where growth is biased towards waypoints from
     /// previously grown tree
-    float _waypointBias;
+    double _waypointBias;
     std::vector<T> _waypoints{};
 
-    float _goalMaxDist;
+    double _goalMaxDist;
 
-    float _stepSize;
-    float _maxStepSize;
+    double _stepSize;
+    double _maxStepSize;
 
     std::shared_ptr<StateSpace<T>> _stateSpace{};
 };

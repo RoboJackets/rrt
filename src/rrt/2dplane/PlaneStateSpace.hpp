@@ -8,10 +8,10 @@ namespace RRT {
 /**
  * @brief A 2d plane with continuous states and no obstacles.
  */
-template <class POINT_CLASS = Eigen::Vector2f>
+template <class POINT_CLASS = Eigen::Vector2d>
 class PlaneStateSpace : public StateSpace<POINT_CLASS> {
 public:
-    PlaneStateSpace(float width, float height)
+    PlaneStateSpace(double width, double height)
         : _width(width), _height(height) {}
 
     POINT_CLASS randomState() const {
@@ -20,7 +20,7 @@ public:
 
     POINT_CLASS intermediateState(const POINT_CLASS& source,
                                   const POINT_CLASS& target,
-                                  float stepSize) const {
+                                  double stepSize) const {
         POINT_CLASS delta = target - source;
         delta = delta / delta.norm();  //  unit vector
 
@@ -41,11 +41,11 @@ public:
                pt.y() < height();
     }
 
-    float width() const { return _width; }
-    float height() const { return _height; }
+    double width() const { return _width; }
+    double height() const { return _height; }
 
 private:
-    float _width, _height;
+    double _width, _height;
 };
 
 }  // namespace RRT
