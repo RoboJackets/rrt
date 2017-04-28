@@ -8,13 +8,13 @@ using namespace Eigen;
 namespace RRT {
 
 TEST(BiRRT, Instantiation) {
-    BiRRT<Vector2f> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50));
+    BiRRT<Vector2d> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50));
 }
 
 TEST(BiRRT, getPath) {
-    Vector2f start = {1, 1}, goal = {30, 30};
+    Vector2d start = {1, 1}, goal = {30, 30};
 
-    BiRRT<Vector2f> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50));
+    BiRRT<Vector2d> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50));
     biRRT.setStartState(start);
     biRRT.setGoalState(goal);
     biRRT.setStepSize(1);
@@ -23,7 +23,7 @@ TEST(BiRRT, getPath) {
     bool success = biRRT.run();
     ASSERT_TRUE(success);
 
-    vector<Vector2f> path = biRRT.getPath();
+    vector<Vector2d> path = biRRT.getPath();
 
     // path should contain at least two points (start and end)
     ASSERT_GE(path.size(), 2);
