@@ -20,6 +20,7 @@ sudo apt-get -y install \
     python3 \
     python3-pip \
     ccache \
+    libflann-dev
 
 # code formatting tool
 sudo pip3 install stylize>=0.2.7
