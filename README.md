@@ -1,4 +1,4 @@
-# RRT ![Circle CI](https://circleci.com/gh/RoboJackets/rrt.svg?style=svg)
+# RRT [![CircleCI](https://circleci.com/gh/RoboJackets/rrt.svg?style=svg)](https://circleci.com/gh/RoboJackets/rrt)
 
 C++ RRT (Rapidly-exploring Random Tree) implementation
 

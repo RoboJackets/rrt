@@ -16,12 +16,12 @@ set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # includes
-include_directories(src)
-
 # flann library for KD-Tree data structure
-
 find_package(Flann REQUIRED)
 add_library(Flann STATIC IMPORTED)
+
+set(RRT_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" CACHE PATH "Directory containing includes for the RRT")
+include_directories(${RRT_INCLUDE_DIR})
 
 # Eigen - used for linear algebra
 find_package(Eigen3 REQUIRED)
@@ -98,18 +98,20 @@ target_link_libraries("rrt-viewer" RRT)
 # gtest
 ################################################################################
 
-enable_testing()
-include(SetupGTest)
+if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+    enable_testing()
+    include(SetupGTest)
 
-# test srcs
-set(tests_SRC
-    "src/rrt/BiRRTTest.cpp"
-    "src/rrt/TreeTest.cpp"
-)
+    # test srcs
+    set(tests_SRC
+        "src/rrt/BiRRTTest.cpp"
+        "src/rrt/TreeTest.cpp"
+        )
 
-# test-cpp
-add_executable(test-cpp ${tests_SRC})
-target_link_libraries(test-cpp RRT)
-target_link_libraries(test-cpp ${GTEST_LIBRARIES})
-set_target_properties(test-cpp PROPERTIES EXCLUDE_FROM_ALL TRUE)
-add_dependencies(test-cpp googletest)
+    # test-cpp
+    add_executable(test-cpp ${tests_SRC})
+    target_link_libraries(test-cpp RRT)
+    target_link_libraries(test-cpp ${GTEST_LIBRARIES})
+    set_target_properties(test-cpp PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    add_dependencies(test-cpp googletest)
+endif()
