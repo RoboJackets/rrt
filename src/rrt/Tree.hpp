@@ -149,8 +149,8 @@ public:
      *     determines what proportion of the time we extend() towards the goal.
      *     The rest of the time, we extend() towards a random state.
      */
-    float goalBias() const { return _goalBias; }
-    void setGoalBias(float goalBias) {
+    double goalBias() const { return _goalBias; }
+    void setGoalBias(double goalBias) {
         if (goalBias < 0 || goalBias > 1) {
             throw std::invalid_argument(
                 "The goal bias must be a number between 0.0 and 1.0");
@@ -162,8 +162,8 @@ public:
      * @brief The chance that we extend towards a randomly-chosen point from the
      * @waypoints vector
      */
-    float waypointBias() const { return _waypointBias; }
-    void setWaypointBias(float waypointBias) {
+    double waypointBias() const { return _waypointBias; }
+    void setWaypointBias(double waypointBias) {
         if (waypointBias < 0 || waypointBias > 1) {
             throw std::invalid_argument(
                 "The waypoint bias must be a number between 0.0 and 1.0");
@@ -183,12 +183,12 @@ public:
     }
     void clearWaypoints() { _waypoints.clear(); }
 
-    float stepSize() const { return _stepSize; }
-    void setStepSize(float stepSize) { _stepSize = stepSize; }
+    double stepSize() const { return _stepSize; }
+    void setStepSize(double stepSize) { _stepSize = stepSize; }
 
     /// Max step size used in ASC
-    float maxStepSize() const { return _maxStepSize; }
-    void setMaxStepSize(float maxStep) { _maxStepSize = maxStep; }
+    double maxStepSize() const { return _maxStepSize; }
+    void setMaxStepSize(double maxStep) { _maxStepSize = maxStep; }
 
     /**
      * @brief How close we have to get to the goal in order to consider it
@@ -200,8 +200,8 @@ public:
      * the
      * goal state.
      */
-    float goalMaxDist() const { return _goalMaxDist; }
-    void setGoalMaxDist(float maxDist) { _goalMaxDist = maxDist; }
+    double goalMaxDist() const { return _goalMaxDist; }
+    void setGoalMaxDist(double maxDist) { _goalMaxDist = maxDist; }
 
     /**
      * Executes the RRT algorithm with the given start state.
@@ -255,12 +255,12 @@ public:
         //  extend towards goal, waypoint, or random state depending on the
         //  biases and a random number
         if (_nodes.size() == 1) {
-            flann::Matrix<float>* root = new flann::Matrix<float>((float*)&(rootNode()->state()), 1, sizeof(rootNode()->state()) / sizeof(0.0f));
+            flann::Matrix<double>* root = new flann::Matrix<double>((double*)&(rootNode()->state()), 1, sizeof(rootNode()->state()) / sizeof((double)(0.0)));
             _kdtree.buildIndex(*root);
         }
-        float r =
+        double r =
             rand() /
-            (float)RAND_MAX;  //  r is between 0 and one since we normalize it
+            (double)RAND_MAX;  //  r is between 0 and one since we normalize it
         if (r < goalBias()) {
             return extend(goalState());
         } else if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
@@ -272,17 +272,17 @@ public:
     }
 
     /**
-     * Find the node int the tree closest to @state.  Pass in a float pointer
+     * Find the node int the tree closest to @state.  Pass in a double pointer
      * as the second argument to get the distance that the node is away from
      * @state. This method searches a k-d tree of the points to determine
      */
-    Node<T>* nearest(const T& state, float* distanceOut = nullptr) {
+    Node<T>* nearest(const T& state, double* distanceOut = nullptr) {
         Node<T>* best = nullptr;
 
         // k-NN search (O(log(N)))
-        flann::Matrix<float> query((float*)&state, 1, sizeof(state) / sizeof(0.0f));
+        flann::Matrix<double> query((double*)&state, 1, sizeof(state) / sizeof(0.0));
         flann::Matrix<int> indices(new int[query.rows], query.rows, 1);
-        flann::Matrix<float> dists(new float[query.rows], query.rows, 1);
+        flann::Matrix<double> dists(new double[query.rows], query.rows, 1);
 
         int n = _kdtree.knnSearch(query, indices, dists, 1, flann::SearchParams());
 
@@ -329,12 +329,12 @@ public:
         }
 
         // Add a node to the tree for this state
-        int lengthT = sizeof(intermediateState) / sizeof(0.0f);
-        float *data = new float [lengthT];
+        int lengthT = sizeof(intermediateState) / sizeof(0.0);
+        double *data = new double [lengthT];
         for (int i = 0; i < lengthT; i++) {
             data[i] = intermediateState[i];
         }
-        flann::Matrix<float>* point = new flann::Matrix<float>(data, 1, lengthT);
+        flann::Matrix<double>* point = new flann::Matrix<double>(data, 1, lengthT);
         _kdtree.addPoints(*point);
         _nodes.push_back(Node<T>(intermediateState, source));
         _nodemap.insert(std::pair<T, Node<T>*>(intermediateState, &_nodes.back()));
@@ -461,19 +461,19 @@ protected:
 
     bool _isASCEnabled;
 
-    float _goalBias;
+    double _goalBias;
 
     /// used for Extended RRTs where growth is biased towards waypoints from
     /// previously grown tree
-    float _waypointBias;
+    double _waypointBias;
     std::vector<T> _waypoints{};
 
-    float _goalMaxDist;
+    double _goalMaxDist;
 
-    float _stepSize;
-    float _maxStepSize;
+    double _stepSize;
+    double _maxStepSize;
 
-    flann::Index<flann::L2_Simple<float> > _kdtree;
+    flann::Index<flann::L2_Simple<double> > _kdtree;
 
     std::shared_ptr<StateSpace<T>> _stateSpace{};
 };

@@ -40,8 +40,8 @@ public:
         _goalTree.setASCEnabled(checked);
     }
 
-    float goalBias() const { return _startTree.goalBias(); }
-    void setGoalBias(float goalBias) {
+    double goalBias() const { return _startTree.goalBias(); }
+    void setGoalBias(double goalBias) {
         _startTree.setGoalBias(goalBias);
         _goalTree.setGoalBias(goalBias);
     }
@@ -62,8 +62,8 @@ public:
     int minIterations() const { return _minIterations; }
     void setMinIterations(int itr) { _minIterations = itr; }
 
-    float waypointBias() const { return _startTree.waypointBias(); }
-    void setWaypointBias(float waypointBias) {
+    double waypointBias() const { return _startTree.waypointBias(); }
+    void setWaypointBias(double waypointBias) {
         _startTree.setWaypointBias(waypointBias);
         _goalTree.setWaypointBias(waypointBias);
     }
@@ -74,20 +74,20 @@ public:
         _goalTree.setWaypoints(waypoints);
     }
 
-    float stepSize() const { return _startTree.stepSize(); }
-    void setStepSize(float stepSize) {
+    double stepSize() const { return _startTree.stepSize(); }
+    void setStepSize(double stepSize) {
         _startTree.setStepSize(stepSize);
         _goalTree.setStepSize(stepSize);
     }
 
-    float maxStepSize() const { return _startTree.maxStepSize(); }
-    void setMaxStepSize(float stepSize) {
+    double maxStepSize() const { return _startTree.maxStepSize(); }
+    void setMaxStepSize(double stepSize) {
         _startTree.setMaxStepSize(stepSize);
         _goalTree.setMaxStepSize(stepSize);
     }
 
-    float goalMaxDist() const { return _startTree.goalMaxDist(); }
-    void setGoalMaxDist(float maxDist) {
+    double goalMaxDist() const { return _startTree.goalMaxDist(); }
+    void setGoalMaxDist(double maxDist) {
         _startTree.setGoalMaxDist(maxDist);
         _goalTree.setGoalMaxDist(maxDist);
     }
@@ -174,7 +174,7 @@ protected:
         int depth = INT_MAX;
 
         for (const Node<T>& other : treeToSearch.allNodes()) {
-            float dist =
+            double dist =
                 _startTree.stateSpace().distance(other.state(), targetState);
             if (dist < goalMaxDist() && other.depth() < depth) {
                 bestNode = &other;

@@ -8,9 +8,9 @@ namespace RRT {
 const int dimensions = 2;
 
 /**
- * Hash function for Eigen::Vector2f
+ * Hash function for Eigen::Vector2d
  */
-static size_t hash(Eigen::Vector2f state) {
+static size_t hash(Eigen::Vector2d state) {
     return (((int)state.x() * 100) << ((int)log10(state.y())+3)) + (int)state.y() * 100;
 }
 
@@ -32,8 +32,8 @@ static size_t hash(Eigen::Vector2f state) {
  * You'll probably want to override the transitionValidator callback
  * if your 2d plane has any obstacles.
  */
-RRT::Tree<Eigen::Vector2f>* TreeFor2dPlane(
-    std::shared_ptr<StateSpace<Eigen::Vector2f>> stateSpace,
-    Eigen::Vector2f goal, float step);
+RRT::Tree<Eigen::Vector2d>* TreeFor2dPlane(
+    std::shared_ptr<StateSpace<Eigen::Vector2d>> stateSpace,
+    Eigen::Vector2d goal, double step);
 
 }  // namespace RRT
