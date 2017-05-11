@@ -113,8 +113,10 @@ class Tree {
 public:
     Tree(const Tree&) = delete;
     Tree& operator=(const Tree&) = delete;
-    Tree(std::shared_ptr<StateSpace<T>> stateSpace, std::function<size_t(T)> hashT) : _kdtree(flann::KDTreeSingleIndexParams()), _nodemap(20, hashT) {
+    Tree(std::shared_ptr<StateSpace<T>> stateSpace, std::function<size_t(T)> hashT, std::function<T(double*)> arrayToT = NULL, std::function<double*(T)> TToArray = NULL) : _kdtree(flann::KDTreeSingleIndexParams()), _nodemap(20, hashT) {
         _stateSpace = stateSpace;
+        _arrayToT = arrayToT;
+        _TToArray = TToArray;
 
         //  default values
         setStepSize(0.1);
@@ -288,7 +290,12 @@ public:
 
         if (distanceOut) *distanceOut = _stateSpace->distance(state, best->state());
 
-        T point = (T) _kdtree.getPoint(indices[0][0]);
+        T point;
+        if (NULL == _arrayToT) {
+            point = (T) _kdtree.getPoint(indices[0][0]);
+        } else {
+            point = _arrayToT(_kdtree.getPoint(indices[0][0]));
+        }
 
         return _nodemap[point];
     }
@@ -331,8 +338,12 @@ public:
         // Add a node to the tree for this state
         int lengthT = sizeof(intermediateState) / sizeof(0.0);
         double *data = new double [lengthT];
-        for (int i = 0; i < lengthT; i++) {
-            data[i] = intermediateState[i];
+        if (NULL == _TToArray) {
+            for (int i = 0; i < lengthT; i++) {
+                data[i] = intermediateState[i];
+            }
+        } else {
+            data = _TToArray(intermediateState);
         }
         flann::Matrix<double>* point = new flann::Matrix<double>(data, 1, lengthT);
         _kdtree.addPoints(*point);
@@ -474,6 +485,10 @@ protected:
     double _maxStepSize;
 
     flann::Index<flann::L2_Simple<double> > _kdtree;
+
+    std::function<T(double*)> _arrayToT;
+
+    std::function<double*(T)> _TToArray;
 
     std::shared_ptr<StateSpace<T>> _stateSpace{};
 };
