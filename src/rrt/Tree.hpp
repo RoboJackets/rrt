@@ -113,7 +113,7 @@ class Tree {
 public:
     Tree(const Tree&) = delete;
     Tree& operator=(const Tree&) = delete;
-    Tree(std::shared_ptr<StateSpace<T>> stateSpace, int dimensions, std::function<size_t(T)> hashT) : _kdtree(flann::KDTreeSingleIndexParams()), _nodemap(20, hashT) {
+    Tree(std::shared_ptr<StateSpace<T>> stateSpace, std::function<size_t(T)> hashT) : _kdtree(flann::KDTreeSingleIndexParams()), _nodemap(20, hashT) {
         _stateSpace = stateSpace;
 
         //  default values

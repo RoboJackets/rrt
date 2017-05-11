@@ -9,13 +9,13 @@ using namespace Eigen;
 namespace RRT {
 
 TEST(BiRRT, Instantiation) {
-    BiRRT<Vector2d> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50), dimensions, hash);
+    BiRRT<Vector2d> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50), hash);
 }
 
 TEST(BiRRT, getPath) {
     Vector2d start = {1, 1}, goal = {30, 30};
 
-    BiRRT<Vector2d> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50), dimensions, hash);
+    BiRRT<Vector2d> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50), hash);
     biRRT.setStartState(start);
     biRRT.setGoalState(goal);
     biRRT.setStepSize(1);
@@ -38,7 +38,7 @@ TEST(BiRRT, getPath) {
 TEST(BiRRT, multipleRuns) {
     Vector2d start = {1, 1}, goal = {30, 30};
 
-    BiRRT<Vector2d> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50), dimensions, hash);
+    BiRRT<Vector2d> biRRT(make_shared<GridStateSpace>(50, 50, 50, 50), hash);
     biRRT.setStartState(start);
     biRRT.setGoalState(goal);
     biRRT.setStepSize(1);
