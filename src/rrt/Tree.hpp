@@ -83,7 +83,11 @@ private:
  *
  * USAGE:
  * 1) Create a new Tree with the appropriate StateSpace
- *    RRT::Tree<My2dPoint> tree(stateSpace);
+ *    RRT::Tree<My2dPoint> tree(stateSpace, hashT, arrayToT, TToArray);
+ *
+ *    hashT is a function pointer to a hash function for T
+ *    arrayToT is an optional function pointer to convert from an array of doubles to T
+ *    TToArray is an optional function pointer to convert from T to an array of doubles
  *
  * 2) Set the start and goal states
  *    tree->setStartState(s);
