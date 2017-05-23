@@ -13,8 +13,8 @@ namespace RRT {
 template <typename T>
 class BiRRT {
 public:
-    BiRRT(std::shared_ptr<StateSpace<T>> stateSpace, std::function<size_t(T)> hash)
-        : _startTree(stateSpace, hash), _goalTree(stateSpace, hash) {
+    BiRRT(std::shared_ptr<StateSpace<T>> stateSpace, std::function<size_t(T)> hash, std::function<T(double*)> arrayToT = NULL, std::function<double*(T)> TToArray = NULL)
+        : _startTree(stateSpace, hash, arrayToT, TToArray), _goalTree(stateSpace, hash, arrayToT, TToArray) {
         _minIterations = 0;
         reset();
     }
