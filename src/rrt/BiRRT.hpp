@@ -13,8 +13,12 @@ namespace RRT {
 template <typename T>
 class BiRRT {
 public:
-    BiRRT(std::shared_ptr<StateSpace<T>> stateSpace, std::function<size_t(T)> hash, std::function<T(double*)> arrayToT = NULL, std::function<double*(T)> TToArray = NULL)
-        : _startTree(stateSpace, hash, arrayToT, TToArray), _goalTree(stateSpace, hash, arrayToT, TToArray) {
+    BiRRT(std::shared_ptr<StateSpace<T>> stateSpace,
+          std::function<size_t(T)> hash,
+          std::function<T(double*)> arrayToT = NULL,
+          std::function<double*(T)> TToArray = NULL)
+        : _startTree(stateSpace, hash, arrayToT, TToArray),
+          _goalTree(stateSpace, hash, arrayToT, TToArray) {
         _minIterations = 0;
         reset();
     }
@@ -116,7 +120,9 @@ public:
         Node<T>* newStartNode = _startTree.grow();
         if (newStartNode) {
             otherNode = _findBestPath(newStartNode->state(), _goalTree, &depth);
-            if (otherNode && depth + newStartNode->depth() < _solutionLength && _goalTree.stateSpace().transitionValid(newStartNode->state(), otherNode->state())) {
+            if (otherNode && depth + newStartNode->depth() < _solutionLength &&
+                _goalTree.stateSpace().transitionValid(newStartNode->state(),
+                                                       otherNode->state())) {
                 _startSolutionNode = newStartNode;
                 _goalSolutionNode = otherNode;
                 _solutionLength = newStartNode->depth() + depth;
@@ -126,7 +132,9 @@ public:
         Node<T>* newGoalNode = _goalTree.grow();
         if (newGoalNode) {
             otherNode = _findBestPath(newGoalNode->state(), _startTree, &depth);
-            if (otherNode && depth + newGoalNode->depth() < _solutionLength && _goalTree.stateSpace().transitionValid(newGoalNode->state(), otherNode->state())) {
+            if (otherNode && depth + newGoalNode->depth() < _solutionLength &&
+                _goalTree.stateSpace().transitionValid(newGoalNode->state(),
+                                                       otherNode->state())) {
                 _startSolutionNode = otherNode;
                 _goalSolutionNode = newGoalNode;
                 _solutionLength = newGoalNode->depth() + depth;

@@ -49,7 +49,6 @@ TEST(BiRRT, multipleRuns) {
         ASSERT_TRUE(success);
         biRRT.reset();
     }
-
 }
 
 }  // namespace RRT

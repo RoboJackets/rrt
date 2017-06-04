@@ -7,10 +7,10 @@ using namespace Eigen;
 using namespace RRT;
 using namespace std;
 
-Tree<Vector2d>* RRT::TreeFor2dPlane(shared_ptr<StateSpace<Eigen::Vector2d>> stateSpace,
-    Vector2d goal,
+Tree<Vector2d>* RRT::TreeFor2dPlane(
+    shared_ptr<StateSpace<Eigen::Vector2d>> stateSpace, Vector2d goal,
     double step) {
-    Tree<Vector2d> *rrt = new Tree<Vector2d>(stateSpace, hash);
+    Tree<Vector2d>* rrt = new Tree<Vector2d>(stateSpace, hash);
 
     rrt->setStepSize(step);
 
