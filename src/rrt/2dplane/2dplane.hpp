@@ -1,16 +1,21 @@
 
+#include <boost/functional/hash.hpp>
 #include <Eigen/Dense>
 #include <rrt/StateSpace.hpp>
 #include <rrt/Tree.hpp>
 
 namespace RRT {
 
+const int dimensions = 2;
+
 /**
  * Hash function for Eigen::Vector2d
  */
 static size_t hash(Eigen::Vector2d state) {
-    return (((int)state.x() * 100) << ((int)log10(state.y()) + 3)) +
-           (int)state.y() * 100;
+    size_t seed = 0;
+    boost::hash_combine(seed, state.x());
+    boost::hash_combine(seed, state.y());
+    return seed;
 }
 
 /**

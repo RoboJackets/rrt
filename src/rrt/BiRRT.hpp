@@ -14,17 +14,16 @@ template <typename T>
 class BiRRT {
 public:
     BiRRT(std::shared_ptr<StateSpace<T>> stateSpace,
-          std::function<size_t(T)> hash,
+          std::function<size_t(T)> hash, int dimensions,
           std::function<T(double*)> arrayToT = NULL,
-          std::function<double*(T)> TToArray = NULL)
-        : _startTree(stateSpace, hash, arrayToT, TToArray),
-          _goalTree(stateSpace, hash, arrayToT, TToArray) {
+          std::function<void(T, double*)> TToArray = NULL)
+        : _startTree(stateSpace, hash, dimensions, arrayToT, TToArray),
+          _goalTree(stateSpace, hash, dimensions, arrayToT, TToArray) {
         _minIterations = 0;
         reset();
     }
 
     void reset() {
-        // todo: clear kdtree
         _startTree.reset();
         _goalTree.reset();
 

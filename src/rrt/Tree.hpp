@@ -1,23 +1,21 @@
 #pragma once
 
-#include <stdlib.h>
-#include <stdlib.h>
-#include <functional>
-#include <iostream>
-#include <stdlib.h>
 #include <deque>
+#include <flann/algorithms/dist.h>
+#include <flann/algorithms/kdtree_single_index.h>
+#include <flann/flann.hpp>
+#include <functional>
 #include <functional>
 #include <list>
 #include <memory>
 #include <rrt/StateSpace.hpp>
 #include <stdexcept>
-#include <vector>
+#include <stdlib.h>
+#include <stdlib.h>
+#include <stdlib.h>
+#include <type_traits>
 #include <unordered_map>
-#include <iostream>
-
-#include "flann/flann.hpp"
-#include "flann/algorithms/kdtree_single_index.h"
-#include "flann/algorithms/dist.h"
+#include <vector>
 
 namespace RRT {
 /**
@@ -120,11 +118,12 @@ public:
     Tree(const Tree&) = delete;
     Tree& operator=(const Tree&) = delete;
     Tree(std::shared_ptr<StateSpace<T>> stateSpace,
-         std::function<size_t(T)> hashT,
+         std::function<size_t(T)> hashT, int dimensions,
          std::function<T(double*)> arrayToT = NULL,
-         std::function<double*(T)> TToArray = NULL)
+         std::function<void(T, double*)> TToArray = NULL)
         : _kdtree(flann::KDTreeSingleIndexParams()), _nodemap(20, hashT) {
         _stateSpace = stateSpace;
+        _dimensions = dimensions;
         _arrayToT = arrayToT;
         _TToArray = TToArray;
 
@@ -239,18 +238,22 @@ public:
      * Removes nodes from _nodes and _nodemap so it can be run() again.
      */
     void reset(bool eraseRoot = false) {
+        for (int i = 1; i < _kdtree.size(); i++) {
+            _kdtree.removePoint(i);
+        }
         if (eraseRoot) {
+            _kdtree.removePoint(0);
             _nodes.clear();
             _nodemap.clear();
         } else {
             if (_nodes.size() > 1) {
-                auto it = _nodemap.begin();
+                auto iter = _nodemap.begin();
                 while (_nodemap.size() > 1) {
-                    if (it->second && it->second->parent()) {
-                        _nodemap.erase(it);
-                        it = _nodemap.begin();
+                    if (iter->second && iter->second->parent()) {
+                        _nodemap.erase(iter);
+                        iter = _nodemap.begin();
                     } else {
-                        ++it;
+                        ++iter;
                     }
                 }
                 _nodes.erase(_nodes.begin() + 1, _nodes.end());
@@ -266,9 +269,14 @@ public:
         //  extend towards goal, waypoint, or random state depending on the
         //  biases and a random number
         if (_nodes.size() == 1) {
+            double* state;
+            if (NULL == _TToArray) {
+                state = (double*)&(rootNode()->state());
+            } else {
+                _TToArray(rootNode()->state(), state);
+            }
             flann::Matrix<double>* root = new flann::Matrix<double>(
-                (double*)&(rootNode()->state()), 1,
-                sizeof(rootNode()->state()) / sizeof((double)(0.0)));
+                state, 1, sizeof(rootNode()->state()) / sizeof((double)(0.0)));
             _kdtree.buildIndex(*root);
         }
         double r =
@@ -293,8 +301,15 @@ public:
         Node<T>* best = nullptr;
 
         // k-NN search (O(log(N)))
-        flann::Matrix<double> query((double*)&state, 1,
-                                    sizeof(state) / sizeof(0.0));
+        flann::Matrix<double> query;
+        if (NULL == _TToArray) {
+            query = flann::Matrix<double>((double*)&state, 1,
+                                          sizeof(state) / sizeof(0.0));
+        } else {
+            double* data = new double[_dimensions];
+            _TToArray(state, data);
+            query = flann::Matrix<double>(data, 1, sizeof(state) / sizeof(0.0));
+        }
         flann::Matrix<int> indices(new int[query.rows], query.rows, 1);
         flann::Matrix<double> dists(new double[query.rows], query.rows, 1);
 
@@ -350,17 +365,16 @@ public:
         }
 
         // Add a node to the tree for this state
-        int lengthT = sizeof(intermediateState) / sizeof(0.0);
-        double* data = new double[lengthT];
+        double* data = new double[_dimensions];
         if (NULL == _TToArray) {
-            for (int i = 0; i < lengthT; i++) {
+            for (int i = 0; i < _dimensions; i++) {
                 data[i] = intermediateState[i];
             }
         } else {
-            data = _TToArray(intermediateState);
+            _TToArray(intermediateState, data);
         }
         flann::Matrix<double>* point =
-            new flann::Matrix<double>(data, 1, lengthT);
+            new flann::Matrix<double>(data, 1, _dimensions);
         _kdtree.addPoints(*point);
         _nodes.push_back(Node<T>(intermediateState, source));
         _nodemap.insert(
@@ -484,6 +498,8 @@ protected:
 
     T _goalState;
 
+    int _dimensions;
+
     int _maxIterations;
 
     bool _isASCEnabled;
@@ -504,7 +520,7 @@ protected:
 
     std::function<T(double*)> _arrayToT;
 
-    std::function<double*(T)> _TToArray;
+    std::function<void(T, double*)> _TToArray;
 
     std::shared_ptr<StateSpace<T>> _stateSpace{};
 };

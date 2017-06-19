@@ -13,7 +13,7 @@ const double VelocityDrawingMultiplier = 12;
 RRTWidget::RRTWidget() {
     Vector2d size(800, 600);
     _stateSpace = make_shared<GridStateSpace>(size.x(), size.y(), 40, 30);
-    _biRRT = new BiRRT<Vector2d>(_stateSpace, RRT::hash);
+    _biRRT = new BiRRT<Vector2d>(_stateSpace, RRT::hash, dimensions);
 
     _waypointCacheMaxSize = 15;
 
