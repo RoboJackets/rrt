@@ -6,7 +6,6 @@
 git submodule update --init
 
 sudo apt-get -y update
-# sudo apt-get -y upgrade
 
 sudo apt-get -y install \
     qt5-default \
