@@ -3,6 +3,9 @@
 # Script to setup build environment on ubuntu
 # note: this must be run from the root directory of the project
 
+set -euo pipefail
+IFS=$'\n\t'
+
 git submodule update --init
 
 sudo apt-get -y update
@@ -19,7 +22,7 @@ sudo apt-get -y install \
     python3 \
     python3-pip \
     ccache \
-    libflann-dev
+    libflann-dev \
     libboost-all-dev
 
 # code formatting tool
