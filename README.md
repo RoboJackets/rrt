@@ -25,11 +25,12 @@ The following are required in order to build this project:
 * ninja
 * ccache
 * libflann-dev
+* libboost-all-dev
 
 To install all needed dependencies on Ubuntu 16.04, run:
 
 ```{.sh}
-sudo apt-get -y install qt5-default libeigen3-dev g++ ninja-build cmake clang-format-3.6 ccache libflann-dev qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qml-module-qtquick-{controls,dialogs}
+sudo apt-get -y install qt5-default libeigen3-dev g++ ninja-build cmake clang-format-3.6 ccache libflann-dev qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qml-module-qtquick-{controls,dialogs} libboost-all-dev
 ```
 
 
