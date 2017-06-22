@@ -27,10 +27,18 @@ namespace RRT {
 template <typename T>
 class Node {
 public:
-    Node(const T& state, Node<T>* parent = nullptr)
+    Node(const T& state, Node<T>* parent = nullptr, int dimensions = 2, std::function<void(T, double*)> TToArray = NULL)
         : _parent(parent), _state(state) {
         if (_parent) {
             _parent->_children.push_back(this);
+        }
+        _coordinates = new double[dimensions];
+        if (NULL == TToArray) {
+            for (int i = 0; i < dimensions; i++) {
+                _coordinates[i] = state[i];
+            }
+        } else {
+            TToArray(state, _coordinates);
         }
     }
 
@@ -56,7 +64,10 @@ public:
      */
     const T& state() const { return _state; }
 
+    double* coordinates() const { return _coordinates; }
+
 private:
+    double* _coordinates;
     T _state;
     std::list<Node<T>*> _children;
     Node<T>* _parent;
@@ -269,14 +280,8 @@ public:
         //  extend towards goal, waypoint, or random state depending on the
         //  biases and a random number
         if (_nodes.size() == 1) {
-            double* state;
-            if (NULL == _TToArray) {
-                state = (double*)&(rootNode()->state());
-            } else {
-                _TToArray(rootNode()->state(), state);
-            }
             flann::Matrix<double>* root = new flann::Matrix<double>(
-                state, 1, sizeof(rootNode()->state()) / sizeof((double)(0.0)));
+                rootNode()->coordinates(), 1, sizeof(rootNode()->state()) / sizeof((double)(0.0)));
             _kdtree.buildIndex(*root);
         }
         double r =
@@ -365,18 +370,11 @@ public:
         }
 
         // Add a node to the tree for this state
-        double* data = new double[_dimensions];
-        if (NULL == _TToArray) {
-            for (int i = 0; i < _dimensions; i++) {
-                data[i] = intermediateState[i];
-            }
-        } else {
-            _TToArray(intermediateState, data);
-        }
+        Node<T> newNode = Node<T>(intermediateState, source, _dimensions, _TToArray);
         flann::Matrix<double>* point =
-            new flann::Matrix<double>(data, 1, _dimensions);
+            new flann::Matrix<double>(newNode.coordinates(), 1, _dimensions);
         _kdtree.addPoints(*point);
-        _nodes.push_back(Node<T>(intermediateState, source));
+        _nodes.push_back(newNode);
         _nodemap.insert(
             std::pair<T, Node<T>*>(intermediateState, &_nodes.back()));
         return &_nodes.back();
@@ -477,7 +475,7 @@ public:
         reset(true);
 
         //  create root node from provided start state
-        Node<T>* root = new Node<T>(startState, nullptr);
+        Node<T>* root = new Node<T>(startState, nullptr, _dimensions, _TToArray);
         _nodes.push_back(*root);
         _nodemap.insert(std::pair<T, Node<T>*>(startState, root));
     }
