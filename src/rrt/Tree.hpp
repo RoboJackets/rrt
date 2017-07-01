@@ -30,15 +30,12 @@ public:
         if (_parent) {
             _parent->_children.push_back(this);
         }
-        _coordinates = new double[dimensions];
         if (NULL == TToArray) {
             for (int i = 0; i < dimensions; i++) {
                 _vec[i] = state[i];
-                _coordinates[i] = state[i];
             }
         } else {
             TToArray(state, _vec.data());
-            TToArray(state, _coordinates);
         }
     }
 
@@ -71,11 +68,9 @@ public:
      */
     const T& state() const { return _state; }
 
-    double* coordinates() const { return _coordinates; }
-    std::vector<double> vec() const { return _vec; }
+    double* coordinates() { return _vec.data(); }
 
 private:
-    double* _coordinates;
     std::vector<double> _vec;
     T _state;
     std::list<Node<T>*> _children;
@@ -141,9 +136,8 @@ public:
          std::function<size_t(T)> hashT, int dimensions,
          std::function<T(double*)> arrayToT = NULL,
          std::function<void(T, double*)> TToArray = NULL)
-        : _kdtree(flann::KDTreeSingleIndexParams()), _nodemap(20, hashT) {
+        : _kdtree(flann::KDTreeSingleIndexParams()), _dimensions(dimensions), _nodemap(20, hashT) {
         _stateSpace = stateSpace;
-        _dimensions = dimensions;
         _arrayToT = arrayToT;
         _TToArray = TToArray;
 
@@ -289,9 +283,15 @@ public:
         //  extend towards goal, waypoint, or random state depending on the
         //  biases and a random number
         if (_nodes.size() == 1) {
-            _kdtree.buildIndex(flann::Matrix<double>(
-                rootNode()->coordinates(), 1,
-                sizeof(rootNode()->state()) / sizeof((double)(0.0))));
+            if (_TToArray) {
+                std::vector<double> data(_dimensions);
+                _TToArray(rootNode()->state(), data.data());
+                _kdtree.buildIndex(flann::Matrix<double>(
+                    data.data(), 1, _dimensions));
+            } else {
+                _kdtree.buildIndex(flann::Matrix<double>(
+                    (double*)&(rootNode()->state()), 1, _dimensions));
+            }
         }
         double r =
             rand() /
@@ -382,11 +382,9 @@ public:
         }
 
         // Add a node to the tree for this state
-        Node<T> newNode =
-            Node<T>(intermediateState, source, _dimensions, _TToArray);
+        _nodes.emplace_back(intermediateState, source, _dimensions, _TToArray);
         _kdtree.addPoints(
-            flann::Matrix<double>(newNode.coordinates(), 1, _dimensions));
-        _nodes.push_back(newNode);
+            flann::Matrix<double>(_nodes.back().coordinates(), 1, _dimensions));
         _nodemap.insert(
             std::pair<T, Node<T>*>(intermediateState, &_nodes.back()));
         return &_nodes.back();
@@ -507,7 +505,7 @@ protected:
 
     T _goalState;
 
-    int _dimensions;
+    const int _dimensions;
 
     int _maxIterations;
 
