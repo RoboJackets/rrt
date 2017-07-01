@@ -136,7 +136,9 @@ public:
          std::function<size_t(T)> hashT, int dimensions,
          std::function<T(double*)> arrayToT = NULL,
          std::function<void(T, double*)> TToArray = NULL)
-        : _kdtree(flann::KDTreeSingleIndexParams()), _dimensions(dimensions), _nodemap(20, hashT) {
+        : _kdtree(flann::KDTreeSingleIndexParams()),
+          _dimensions(dimensions),
+          _nodemap(20, hashT) {
         _stateSpace = stateSpace;
         _arrayToT = arrayToT;
         _TToArray = TToArray;
@@ -286,8 +288,8 @@ public:
             if (_TToArray) {
                 std::vector<double> data(_dimensions);
                 _TToArray(rootNode()->state(), data.data());
-                _kdtree.buildIndex(flann::Matrix<double>(
-                    data.data(), 1, _dimensions));
+                _kdtree.buildIndex(
+                    flann::Matrix<double>(data.data(), 1, _dimensions));
             } else {
                 _kdtree.buildIndex(flann::Matrix<double>(
                     (double*)&(rootNode()->state()), 1, _dimensions));
