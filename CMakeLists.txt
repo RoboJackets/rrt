@@ -4,7 +4,7 @@ project(rrt)
 # c++11
 # note: the -fPIC flag is for building with Qt...
 #       it complains about position-independent code otherwise
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
 
 # setup ccache to speed up recompiles.  It's especially useful when switching back and forth
 # between branches where you'd normally have to recompile things many times.

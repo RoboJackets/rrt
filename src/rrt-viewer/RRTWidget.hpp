@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
+#include <memory>
 #include <QQuickPaintedItem>
 #include <QtQuick>
 #include <QtWidgets>
@@ -76,7 +77,7 @@ protected:
 
 private:
     std::shared_ptr<RRT::GridStateSpace> _stateSpace;
-    RRT::BiRRT<Eigen::Vector2d>* _biRRT;
+    std::unique_ptr<RRT::BiRRT<Eigen::Vector2d>> _biRRT;
 
     Eigen::Vector2d _startVel, _goalVel;
 

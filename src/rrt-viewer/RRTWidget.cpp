@@ -1,4 +1,3 @@
-
 #include "RRTWidget.hpp"
 #include <rrt/2dplane/2dplane.hpp>
 #include <rrt/planning/Path.hpp>
@@ -13,7 +12,7 @@ const double VelocityDrawingMultiplier = 12;
 RRTWidget::RRTWidget() {
     Vector2d size(800, 600);
     _stateSpace = make_shared<GridStateSpace>(size.x(), size.y(), 40, 30);
-    _biRRT = new BiRRT<Vector2d>(_stateSpace, RRT::hash, dimensions);
+    _biRRT = make_unique<BiRRT<Vector2d>>(_stateSpace, RRT::hash, dimensions);
 
     _waypointCacheMaxSize = 15;
 
