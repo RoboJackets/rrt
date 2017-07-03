@@ -32,7 +32,7 @@ dependencies:
 # The test phase dosen't actually run tests. We need the caching from the deploy step.
 test:
   override:
-    - sh -c true
+    - ./third_party/DoCIF/commands/exit.sh
 
 experimental:
   notify:
