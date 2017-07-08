@@ -39,13 +39,6 @@ public:
         }
     }
 
-    // /**
-    //  * Node destructor
-    //  */
-    // ~Node() {
-    //     if (_coordinates) delete[] _coordinates;
-    // }
-
     const Node<T>* parent() const { return _parent; }
 
     /**
@@ -68,7 +61,7 @@ public:
      */
     const T& state() const { return _state; }
 
-    double* coordinates() { return _vec.data(); }
+    std::vector<double>* coordinates() { return &_vec; }
 
 private:
     std::vector<double> _vec;
@@ -103,6 +96,8 @@ private:
  *doubles to T
  *    TToArray is an optional function pointer to convert from T to an array of
  *doubles
+ *    arrayToT and TToArray must be provided if T does not possess that
+ *functionality
  *
  * 2) Set the start and goal states
  *    tree->setStartState(s);
@@ -263,16 +258,11 @@ public:
             _nodemap.clear();
         } else {
             if (_nodes.size() > 1) {
-                auto iter = _nodemap.begin();
-                while (_nodemap.size() > 1) {
-                    if (iter->second && iter->second->parent()) {
-                        _nodemap.erase(iter);
-                        iter = _nodemap.begin();
-                    } else {
-                        ++iter;
-                    }
-                }
-                _nodes.erase(_nodes.begin() + 1, _nodes.end());
+                T root = rootNode()->state();
+                _nodemap.clear();
+                _nodes.clear();
+                _nodes.emplace_back(root, nullptr, _dimensions, _TToArray);
+                _nodemap.insert(std::pair<T, Node<T>*>(root, &_nodes.back()));
             }
         }
     }
@@ -385,8 +375,8 @@ public:
 
         // Add a node to the tree for this state
         _nodes.emplace_back(intermediateState, source, _dimensions, _TToArray);
-        _kdtree.addPoints(
-            flann::Matrix<double>(_nodes.back().coordinates(), 1, _dimensions));
+        _kdtree.addPoints(flann::Matrix<double>(
+            _nodes.back().coordinates()->data(), 1, _dimensions));
         _nodemap.insert(
             std::pair<T, Node<T>*>(intermediateState, &_nodes.back()));
         return &_nodes.back();
