@@ -13,8 +13,12 @@ namespace RRT {
 template <typename T>
 class BiRRT {
 public:
-    BiRRT(std::shared_ptr<StateSpace<T>> stateSpace)
-        : _startTree(stateSpace), _goalTree(stateSpace) {
+    BiRRT(std::shared_ptr<StateSpace<T>> stateSpace,
+          std::function<size_t(T)> hash, int dimensions,
+          std::function<T(double*)> arrayToT = NULL,
+          std::function<void(T, double*)> TToArray = NULL)
+        : _startTree(stateSpace, hash, dimensions, arrayToT, TToArray),
+          _goalTree(stateSpace, hash, dimensions, arrayToT, TToArray) {
         _minIterations = 0;
         reset();
     }
@@ -115,7 +119,9 @@ public:
         Node<T>* newStartNode = _startTree.grow();
         if (newStartNode) {
             otherNode = _findBestPath(newStartNode->state(), _goalTree, &depth);
-            if (otherNode && depth + newStartNode->depth() < _solutionLength && _goalTree.stateSpace().transitionValid(newStartNode->state(), otherNode->state())) {
+            if (otherNode && depth + newStartNode->depth() < _solutionLength &&
+                _goalTree.stateSpace().transitionValid(newStartNode->state(),
+                                                       otherNode->state())) {
                 _startSolutionNode = newStartNode;
                 _goalSolutionNode = otherNode;
                 _solutionLength = newStartNode->depth() + depth;
@@ -125,7 +131,9 @@ public:
         Node<T>* newGoalNode = _goalTree.grow();
         if (newGoalNode) {
             otherNode = _findBestPath(newGoalNode->state(), _startTree, &depth);
-            if (otherNode && depth + newGoalNode->depth() < _solutionLength && _goalTree.stateSpace().transitionValid(newGoalNode->state(), otherNode->state())) {
+            if (otherNode && depth + newGoalNode->depth() < _solutionLength &&
+                _goalTree.stateSpace().transitionValid(newGoalNode->state(),
+                                                       otherNode->state())) {
                 _startSolutionNode = otherNode;
                 _goalSolutionNode = newGoalNode;
                 _solutionLength = newGoalNode->depth() + depth;

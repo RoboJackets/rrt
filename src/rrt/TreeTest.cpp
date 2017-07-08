@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <memory>
 #include <rrt/2dplane/2dplane.hpp>
 #include <rrt/2dplane/GridStateSpace.hpp>
 #include <rrt/Tree.hpp>
@@ -10,7 +11,7 @@ using namespace std;
 namespace RRT {
 
 TEST(Tree, Example_2dplane) {
-    Tree<Vector2d>* tree =
+    shared_ptr<Tree<Vector2d>> tree =
         TreeFor2dPlane(make_shared<GridStateSpace>(50, 50, 50, 50),
                        Vector2d(40, 40),  //	goal point
                        5);                //	step size
@@ -26,7 +27,7 @@ TEST(Tree, Example_2dplane) {
 }
 
 TEST(Tree, FailOnImpossibleRequest) {
-    Tree<Vector2d>* tree = TreeFor2dPlane(
+    shared_ptr<Tree<Vector2d>> tree = TreeFor2dPlane(
         make_shared<GridStateSpace>(50, 50, 50, 50),
         Vector2d(60, 60),  //	goal point outside the bounds of the state space
         5);                //	step size
@@ -44,7 +45,7 @@ TEST(Tree, FailOnImpossibleRequest) {
 
 TEST(Tree, getPath) {
     Vector2d start = {10, 10}, goal = {40, 40};
-    Tree<Vector2d>* tree =
+    shared_ptr<Tree<Vector2d>> tree =
         TreeFor2dPlane(make_shared<GridStateSpace>(50, 50, 50, 50),
                        goal,  //	goal point
                        5);    //	step size
@@ -73,7 +74,7 @@ TEST(Tree, getPath) {
 
 TEST(Tree, ASC) {
     // test adaptive stepsize control
-    Tree<Vector2d>* tree =
+    shared_ptr<Tree<Vector2d>> tree =
         TreeFor2dPlane(make_shared<GridStateSpace>(50, 50, 50, 50),
                        Vector2d(40, 40),  //	goal point
                        5);                //	step size

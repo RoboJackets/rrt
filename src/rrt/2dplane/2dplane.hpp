@@ -1,9 +1,22 @@
 
+#include <boost/functional/hash.hpp>
 #include <Eigen/Dense>
 #include <rrt/StateSpace.hpp>
 #include <rrt/Tree.hpp>
 
 namespace RRT {
+
+const int dimensions = 2;
+
+/**
+ * Hash function for Eigen::Vector2d
+ */
+static size_t hash(Eigen::Vector2d state) {
+    size_t seed = 0;
+    boost::hash_combine(seed, state.x());
+    boost::hash_combine(seed, state.y());
+    return seed;
+}
 
 /**
  * This creates an instance of an RRT Tree with the callbacks
@@ -22,7 +35,7 @@ namespace RRT {
  * You'll probably want to override the transitionValidator callback
  * if your 2d plane has any obstacles.
  */
-RRT::Tree<Eigen::Vector2d>* TreeFor2dPlane(
+std::shared_ptr<RRT::Tree<Eigen::Vector2d>> TreeFor2dPlane(
     std::shared_ptr<StateSpace<Eigen::Vector2d>> stateSpace,
     Eigen::Vector2d goal, double step);
 
