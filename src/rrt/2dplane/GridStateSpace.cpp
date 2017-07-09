@@ -24,7 +24,7 @@ Vector2d GridStateSpace::intermediateState(const Vector2d& source,
                                            const Vector2d& target,
                                            double minStepSize,
                                            double maxStepSize) const {
-    bool debug;
+    bool debug = false;
 
     Vector2d delta = target - source;
     delta = delta / delta.norm();  //  unit vector
