@@ -42,7 +42,7 @@ public:
     void setASCEnabled(bool enabled);
     double ascEnabled() const { return _biRRT->isASCEnabled(); }
 
-public slots:
+public Q_SLOTS:
     void run();
     void stop();
     void reset();
@@ -53,7 +53,7 @@ public slots:
     // called on a timer interval by run()
     void _run_step();
 
-signals:
+Q_SIGNALS:
     void signal_stepped();
 
 protected:

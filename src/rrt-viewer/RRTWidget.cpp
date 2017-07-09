@@ -55,7 +55,7 @@ void RRTWidget::reset() {
 
     _biRRT->setWaypoints(waypoints);
 
-    emit signal_stepped();
+    Q_EMIT signal_stepped();
 
     update();
 }
@@ -114,7 +114,7 @@ void RRTWidget::_step(int numTimes) {
         RRT::SmoothPath<Vector2d>(_previousSolution, *_stateSpace);
     }
 
-    emit signal_stepped();
+    Q_EMIT signal_stepped();
 
     update();
 }
