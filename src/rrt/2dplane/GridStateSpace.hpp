@@ -11,23 +11,23 @@ namespace RRT {
  * @details The state space is broken up into a grid with the given discrete
  * height and widths.
  */
-class GridStateSpace : public PlaneStateSpace<Eigen::Vector2f> {
+class GridStateSpace : public PlaneStateSpace<Eigen::Vector2d> {
 public:
-    GridStateSpace(float width, float height, int discretizedWidth,
+    GridStateSpace(double width, double height, int discretizedWidth,
                    int discretizedHeight);
 
     /**
      * Returns a boolean indicating whether the given point is within bounds and
      * obstacle-free.
      */
-    bool stateValid(const Eigen::Vector2f& pt) const;
-    bool transitionValid(const Eigen::Vector2f& from,
-                         const Eigen::Vector2f& to) const;
+    bool stateValid(const Eigen::Vector2d& pt) const;
+    bool transitionValid(const Eigen::Vector2d& from,
+                         const Eigen::Vector2d& to) const;
 
-    Eigen::Vector2f intermediateState(const Eigen::Vector2f& source,
-                                      const Eigen::Vector2f& target,
-                                      float minStepSize,
-                                      float maxStepSize) const;
+    Eigen::Vector2d intermediateState(const Eigen::Vector2d& source,
+                                      const Eigen::Vector2d& target,
+                                      double minStepSize,
+                                      double maxStepSize) const;
 
     const ObstacleGrid& obstacleGrid() const;
     ObstacleGrid& obstacleGrid();

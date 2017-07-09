@@ -16,8 +16,8 @@ template <typename T>
 void DownSampleVector(std::vector<T>& states, size_t maxSize) {
     if (states.size() > maxSize) {
         int toDelete = states.size() - maxSize;
-        float spacing = (float)states.size() / (float)toDelete;
-        float i = 0.0;
+        double spacing = (double)states.size() / (double)toDelete;
+        double i = 0.0;
         while (toDelete) {
             toDelete--;
             states.erase(states.begin() + (int)(i + 0.5));

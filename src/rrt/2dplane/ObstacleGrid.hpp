@@ -11,11 +11,11 @@ namespace RRT {
  */
 class ObstacleGrid {
 public:
-    ObstacleGrid(float width, float height, int discretizedWidth,
+    ObstacleGrid(double width, double height, int discretizedWidth,
                  int discretizedHeight);
     ~ObstacleGrid();
 
-    Eigen::Vector2i gridSquareForLocation(const Eigen::Vector2f& loc) const;
+    Eigen::Vector2i gridSquareForLocation(const Eigen::Vector2d& loc) const;
 
     /**
      * Finds the distance from state to its neareset obstacle. Only searches up
@@ -28,8 +28,8 @@ public:
      * @param maxDist The maximum vertical and horizontal distance from state to
      * search for obstacles
      */
-    float nearestObstacleDist(const Eigen::Vector2f& state,
-                              float maxDist) const;
+    double nearestObstacleDist(const Eigen::Vector2d& state,
+                              double maxDist) const;
     void clear();
     bool& obstacleAt(int x, int y);
     bool obstacleAt(int x, int y) const;
@@ -38,12 +38,12 @@ public:
 
     int discretizedWidth() const;
     int discretizedHeight() const;
-    float width() const;
-    float height() const;
+    double width() const;
+    double height() const;
 
 private:
     int _discretizedWidth, _discretizedHeight;
-    float _width, _height;
+    double _width, _height;
 
     /// 2d array of obstacles
     bool* _obstacles;

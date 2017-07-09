@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.2.0)
 project(rrt)
 
-# c++11
 # note: the -fPIC flag is for building with Qt...
 #       it complains about position-independent code otherwise
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fPIC")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # setup ccache to speed up recompiles.  It's especially useful when switching back and forth
 # between branches where you'd normally have to recompile things many times.
@@ -16,6 +17,10 @@ set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # includes
+# flann library for KD-Tree data structure
+find_package(Flann REQUIRED)
+add_library(Flann STATIC IMPORTED)
+
 set(RRT_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" CACHE PATH "Directory containing includes for the RRT")
 include_directories(${RRT_INCLUDE_DIR})
 
@@ -52,7 +57,11 @@ set(lib_SRC
     "src/rrt/2dplane/ObstacleGrid.cpp"
 )
 
-add_library("RRT" STATIC ${lib_SRC})
+# add_library("RRT" STATIC ${lib_SRC})
+add_library("RRT" ${lib_SRC})
+add_dependencies(RRT Flann)
+# Fix 'LZ4 not found' issue on some systems
+target_link_libraries(RRT ${FLANN_LIBRARIES})
 
 
 # copy headers to install directory

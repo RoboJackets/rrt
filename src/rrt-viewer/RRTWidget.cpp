@@ -1,4 +1,3 @@
-
 #include "RRTWidget.hpp"
 #include <rrt/2dplane/2dplane.hpp>
 #include <rrt/planning/Path.hpp>
@@ -8,12 +7,12 @@ using namespace Eigen;
 using namespace std;
 
 /// multiply velocity by this to get the length of the vector to draw
-const float VelocityDrawingMultiplier = 12;
+const double VelocityDrawingMultiplier = 12;
 
 RRTWidget::RRTWidget() {
-    Vector2f size(800, 600);
+    Vector2d size(800, 600);
     _stateSpace = make_shared<GridStateSpace>(size.x(), size.y(), 40, 30);
-    _biRRT = new BiRRT<Vector2f>(_stateSpace);
+    _biRRT = make_unique<BiRRT<Vector2d>>(_stateSpace, RRT::hash, dimensions);
 
     _waypointCacheMaxSize = 15;
 
@@ -23,8 +22,8 @@ RRTWidget::RRTWidget() {
     _biRRT->setMaxStepSize(30);
     _biRRT->setGoalMaxDist(12);
 
-    _startVel = Vector2f(3, 0);
-    _goalVel = Vector2f(0, 3);
+    _startVel = Vector2d(3, 0);
+    _goalVel = Vector2d(0, 3);
 
     //  register for mouse events
     setAcceptedMouseButtons(Qt::LeftButton);
@@ -37,7 +36,7 @@ RRTWidget::RRTWidget() {
 
 void RRTWidget::reset() {
     //  store waypoint cache
-    vector<Vector2f> waypoints;
+    vector<Vector2d> waypoints;
     if (_biRRT->startSolutionNode() && _biRRT->goalSolutionNode()) {
         waypoints = _previousSolution;
         if (waypoints.size() > 0) {
@@ -46,7 +45,7 @@ void RRTWidget::reset() {
             waypoints.erase(waypoints.end() - 1);
 
             //  down-sample
-            RRT::DownSampleVector<Vector2f>(waypoints, _waypointCacheMaxSize);
+            RRT::DownSampleVector<Vector2d>(waypoints, _waypointCacheMaxSize);
         }
     } else {
         _previousSolution.clear();
@@ -67,9 +66,9 @@ void RRTWidget::clearObstacles() {
     update();
 }
 
-void RRTWidget::setGoalBias(float bias) { _biRRT->setGoalBias(bias); }
+void RRTWidget::setGoalBias(double bias) { _biRRT->setGoalBias(bias); }
 
-void RRTWidget::setWaypointBias(float bias) { _biRRT->setWaypointBias(bias); }
+void RRTWidget::setWaypointBias(double bias) { _biRRT->setWaypointBias(bias); }
 
 void RRTWidget::setASCEnabled(bool enabled) { _biRRT->setASCEnabled(enabled); }
 
@@ -77,7 +76,7 @@ void RRTWidget::step() { _step(1); }
 
 void RRTWidget::stepBig() { _step(100); }
 
-void RRTWidget::setStepSize(float step) { _biRRT->setStepSize(step); }
+void RRTWidget::setStepSize(double step) { _biRRT->setStepSize(step); }
 
 void RRTWidget::run() {
     if (!_runTimer) {
@@ -112,7 +111,7 @@ void RRTWidget::_step(int numTimes) {
     _previousSolution.clear();
     if (_biRRT->startSolutionNode() != nullptr) {
         _previousSolution = _biRRT->getPath();
-        RRT::SmoothPath<Vector2f>(_previousSolution, *_stateSpace);
+        RRT::SmoothPath<Vector2d>(_previousSolution, *_stateSpace);
     }
 
     Q_EMIT signal_stepped();
@@ -120,11 +119,11 @@ void RRTWidget::_step(int numTimes) {
     update();
 }
 
-QPointF RRTWidget::pointFromNode(const Node<Vector2f>* n) {
+QPointF RRTWidget::pointFromNode(const Node<Vector2d>* n) {
     return QPointF(n->state().x(), n->state().y());
 }
 
-QPointF vecToPoint(const Vector2f& vec) { return QPointF(vec.x(), vec.y()); }
+QPointF vecToPoint(const Vector2d& vec) { return QPointF(vec.x(), vec.y()); }
 
 void RRTWidget::paint(QPainter* p) {
     QPainter& painter = *p;  // TODO: just use the pointer everywhere?
@@ -151,9 +150,9 @@ void RRTWidget::paint(QPainter* p) {
     //  draw previous solution
     if (_previousSolution.size() > 0) {
         painter.setPen(QPen(Qt::yellow, 3));
-        Vector2f prev;
+        Vector2d prev;
         bool first = true;
-        for (const Vector2f& curr : _previousSolution) {
+        for (const Vector2d& curr : _previousSolution) {
             if (first) {
                 first = false;
             } else {
@@ -167,13 +166,13 @@ void RRTWidget::paint(QPainter* p) {
         painter.setPen(QPen(Qt::darkBlue, 5));
         QPainterPath path(vecToPoint(_previousSolution[0]));
 
-        Vector2f prevControlDiff = -_startVel * VelocityDrawingMultiplier;
+        Vector2d prevControlDiff = -_startVel * VelocityDrawingMultiplier;
         for (int i = 1; i < _previousSolution.size(); i++) {
-            Vector2f waypoint = _previousSolution[i];
-            Vector2f prevWaypoint = _previousSolution[i - 1];
+            Vector2d waypoint = _previousSolution[i];
+            Vector2d prevWaypoint = _previousSolution[i - 1];
 
-            Vector2f controlDir;
-            float controlLength;
+            Vector2d controlDir;
+            double controlLength;
             if (i == _previousSolution.size() - 1) {
                 controlLength = _goalVel.norm() * VelocityDrawingMultiplier;
                 controlDir = -_goalVel.normalized();
@@ -181,7 +180,7 @@ void RRTWidget::paint(QPainter* p) {
                 //  using first derivative heuristic from Sprunk 2008 to
                 //  determine the
                 //  distance of the control point from the waypoint
-                Vector2f nextWaypoint = _previousSolution[i + 1];
+                Vector2d nextWaypoint = _previousSolution[i + 1];
                 controlLength = 0.5 * min((waypoint - prevWaypoint).norm(),
                                           (nextWaypoint - waypoint).norm());
                 controlDir =
@@ -189,7 +188,7 @@ void RRTWidget::paint(QPainter* p) {
                      (nextWaypoint - waypoint).normalized()).normalized();
             }
 
-            Vector2f controlDiff = controlDir * controlLength;
+            Vector2d controlDiff = controlDir * controlLength;
 
             path.cubicTo(vecToPoint(prevWaypoint - prevControlDiff),
                          vecToPoint(waypoint + controlDiff),
@@ -203,10 +202,10 @@ void RRTWidget::paint(QPainter* p) {
 
     //  draw waypoint cache
     if (_biRRT->waypoints().size() > 0) {
-        float r = 2;  //  radius to draw waypoint dots
+        double r = 2;  //  radius to draw waypoint dots
 
         painter.setPen(QPen(Qt::lightGray, 3));
-        for (const Vector2f& waypoint : _biRRT->waypoints()) {
+        for (const Vector2d& waypoint : _biRRT->waypoints()) {
             painter.drawEllipse(QPointF(waypoint.x(), waypoint.y()), r, r);
         }
     }
@@ -221,15 +220,15 @@ void RRTWidget::paint(QPainter* p) {
     drawTerminalState(painter, _biRRT->goalState(), _goalVel, Qt::darkGreen);
 }
 
-void RRTWidget::drawTerminalState(QPainter& painter, const Vector2f& pos,
-                                  const Vector2f& vel, const QColor& color) {
+void RRTWidget::drawTerminalState(QPainter& painter, const Vector2d& pos,
+                                  const Vector2d& vel, const QColor& color) {
     //  draw point
     painter.setPen(QPen(color, 6));
     QPointF rootLoc(pos.x(), pos.y());
     painter.drawEllipse(rootLoc, 2, 2);
 
-    Vector2f tipOffset = vel * VelocityDrawingMultiplier;
-    Vector2f tipLocVec = pos + tipOffset;
+    Vector2d tipOffset = vel * VelocityDrawingMultiplier;
+    Vector2d tipLocVec = pos + tipOffset;
     QPointF tipLoc(tipLocVec.x(), tipLocVec.y());
 
     //  draw arrow shaft
@@ -237,23 +236,23 @@ void RRTWidget::drawTerminalState(QPainter& painter, const Vector2f& pos,
     painter.drawLine(rootLoc, tipLoc);
 
     //  draw arrow head
-    Vector2f headBase = tipLocVec - tipOffset.normalized() * 4;
-    Vector2f perp = Vector2f(-tipOffset.y(), tipOffset.x()).normalized();
-    Vector2f tipLeftVec = headBase + perp * 4;
-    Vector2f tipRightVec = headBase - perp * 4;
+    Vector2d headBase = tipLocVec - tipOffset.normalized() * 4;
+    Vector2d perp = Vector2d(-tipOffset.y(), tipOffset.x()).normalized();
+    Vector2d tipLeftVec = headBase + perp * 4;
+    Vector2d tipRightVec = headBase - perp * 4;
     QPointF trianglePts[] = {tipLoc, QPointF(tipLeftVec.x(), tipLeftVec.y()),
                              QPointF(tipRightVec.x(), tipRightVec.y())};
     painter.drawPolygon(trianglePts, 3);
 }
 
-void RRTWidget::drawTree(QPainter& painter, const Tree<Vector2f>& rrt,
-                         const Node<Vector2f>* solutionNode, QColor treeColor,
+void RRTWidget::drawTree(QPainter& painter, const Tree<Vector2d>& rrt,
+                         const Node<Vector2d>* solutionNode, QColor treeColor,
                          QColor solutionColor) {
     //  node drawing radius
-    const float r = 1;
+    const double r = 1;
 
     //  draw all the nodes and connections
-    for (const Node<Vector2f>& node : rrt.allNodes()) {
+    for (const Node<Vector2d>& node : rrt.allNodes()) {
         painter.setPen(QPen(treeColor, 1));
         QPointF loc = pointFromNode(&node);
         painter.drawEllipse(loc, r, r);
@@ -270,7 +269,7 @@ void RRTWidget::drawTree(QPainter& painter, const Tree<Vector2f>& rrt,
     if (solutionNode) {
         painter.setPen(QPen(solutionColor, 2));
 
-        const Node<Vector2f>* node = solutionNode,
+        const Node<Vector2d>* node = solutionNode,
                               * parent = solutionNode->parent();
         while (parent) {
             //  draw the edge
@@ -287,9 +286,9 @@ void RRTWidget::drawTree(QPainter& painter, const Tree<Vector2f>& rrt,
 
 #pragma mark Mouse Events
 
-bool RRTWidget::mouseInGrabbingRange(QMouseEvent* event, const Vector2f& pt) {
-    float dx = event->pos().x() - pt.x();
-    float dy = event->pos().y() - pt.y();
+bool RRTWidget::mouseInGrabbingRange(QMouseEvent* event, const Vector2d& pt) {
+    double dx = event->pos().x() - pt.x();
+    double dy = event->pos().y() - pt.y();
     return sqrtf(dx * dx + dy * dy) < 15;
 }
 
@@ -308,7 +307,7 @@ void RRTWidget::mousePressEvent(QMouseEvent* event) {
         _draggingItem = DraggingGoalVel;
     } else {
         _editingObstacles = true;
-        Vector2f pos = Vector2f(event->pos().x(), event->pos().y());
+        Vector2d pos = Vector2d(event->pos().x(), event->pos().y());
         Vector2i gridLoc =
             _stateSpace->obstacleGrid().gridSquareForLocation(pos);
         _erasingObstacles = _stateSpace->obstacleGrid().obstacleAt(gridLoc);
@@ -320,7 +319,7 @@ void RRTWidget::mousePressEvent(QMouseEvent* event) {
 }
 
 void RRTWidget::mouseMoveEvent(QMouseEvent* event) {
-    Vector2f point(event->pos().x(), event->pos().y());
+    Vector2d point(event->pos().x(), event->pos().y());
 
     if (_draggingItem == DraggingStart) {
         //  reset the tree with the new start pos

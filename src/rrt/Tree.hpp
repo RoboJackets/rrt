@@ -1,16 +1,17 @@
 #pragma once
 
-#include <stdlib.h>
-#include <stdlib.h>
-#include <functional>
-#include <iostream>
-#include <stdlib.h>
 #include <deque>
+#include <flann/algorithms/dist.h>
+#include <flann/algorithms/kdtree_single_index.h>
+#include <flann/flann.hpp>
 #include <functional>
 #include <list>
 #include <memory>
 #include <rrt/StateSpace.hpp>
 #include <stdexcept>
+#include <stdlib.h>
+#include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 namespace RRT {
@@ -23,10 +24,18 @@ namespace RRT {
 template <typename T>
 class Node {
 public:
-    Node(const T& state, Node<T>* parent = nullptr)
-        : _parent(parent), _state(state) {
+    Node(const T& state, Node<T>* parent = nullptr, int dimensions = 2,
+         std::function<void(T, double*)> TToArray = NULL)
+        : _parent(parent), _state(state), _vec(dimensions) {
         if (_parent) {
             _parent->_children.push_back(this);
+        }
+        if (NULL == TToArray) {
+            for (int i = 0; i < dimensions; i++) {
+                _vec[i] = state[i];
+            }
+        } else {
+            TToArray(state, _vec.data());
         }
     }
 
@@ -52,7 +61,10 @@ public:
      */
     const T& state() const { return _state; }
 
+    std::vector<double>* coordinates() { return &_vec; }
+
 private:
+    std::vector<double> _vec;
     T _state;
     std::list<Node<T>*> _children;
     Node<T>* _parent;
@@ -77,7 +89,15 @@ private:
  *
  * USAGE:
  * 1) Create a new Tree with the appropriate StateSpace
- *    RRT::Tree<My2dPoint> tree(stateSpace);
+ *    RRT::Tree<My2dPoint> tree(stateSpace, hashT, arrayToT, TToArray);
+ *
+ *    hashT is a function pointer to a hash function for T
+ *    arrayToT is an optional function pointer to convert from an array of
+ *doubles to T
+ *    TToArray is an optional function pointer to convert from T to an array of
+ *doubles
+ *    arrayToT and TToArray must be provided if T does not possess that
+ *functionality
  *
  * 2) Set the start and goal states
  *    tree->setStartState(s);
@@ -107,8 +127,16 @@ class Tree {
 public:
     Tree(const Tree&) = delete;
     Tree& operator=(const Tree&) = delete;
-    Tree(std::shared_ptr<StateSpace<T>> stateSpace) {
+    Tree(std::shared_ptr<StateSpace<T>> stateSpace,
+         std::function<size_t(T)> hashT, int dimensions,
+         std::function<T(double*)> arrayToT = NULL,
+         std::function<void(T, double*)> TToArray = NULL)
+        : _kdtree(flann::KDTreeSingleIndexParams()),
+          _dimensions(dimensions),
+          _nodemap(20, hashT) {
         _stateSpace = stateSpace;
+        _arrayToT = arrayToT;
+        _TToArray = TToArray;
 
         //  default values
         setStepSize(0.1);
@@ -143,8 +171,8 @@ public:
      *     determines what proportion of the time we extend() towards the goal.
      *     The rest of the time, we extend() towards a random state.
      */
-    float goalBias() const { return _goalBias; }
-    void setGoalBias(float goalBias) {
+    double goalBias() const { return _goalBias; }
+    void setGoalBias(double goalBias) {
         if (goalBias < 0 || goalBias > 1) {
             throw std::invalid_argument(
                 "The goal bias must be a number between 0.0 and 1.0");
@@ -156,8 +184,8 @@ public:
      * @brief The chance that we extend towards a randomly-chosen point from the
      * @waypoints vector
      */
-    float waypointBias() const { return _waypointBias; }
-    void setWaypointBias(float waypointBias) {
+    double waypointBias() const { return _waypointBias; }
+    void setWaypointBias(double waypointBias) {
         if (waypointBias < 0 || waypointBias > 1) {
             throw std::invalid_argument(
                 "The waypoint bias must be a number between 0.0 and 1.0");
@@ -177,12 +205,12 @@ public:
     }
     void clearWaypoints() { _waypoints.clear(); }
 
-    float stepSize() const { return _stepSize; }
-    void setStepSize(float stepSize) { _stepSize = stepSize; }
+    double stepSize() const { return _stepSize; }
+    void setStepSize(double stepSize) { _stepSize = stepSize; }
 
     /// Max step size used in ASC
-    float maxStepSize() const { return _maxStepSize; }
-    void setMaxStepSize(float maxStep) { _maxStepSize = maxStep; }
+    double maxStepSize() const { return _maxStepSize; }
+    void setMaxStepSize(double maxStep) { _maxStepSize = maxStep; }
 
     /**
      * @brief How close we have to get to the goal in order to consider it
@@ -194,8 +222,8 @@ public:
      * the
      * goal state.
      */
-    float goalMaxDist() const { return _goalMaxDist; }
-    void setGoalMaxDist(float maxDist) { _goalMaxDist = maxDist; }
+    double goalMaxDist() const { return _goalMaxDist; }
+    void setGoalMaxDist(double maxDist) { _goalMaxDist = maxDist; }
 
     /**
      * Executes the RRT algorithm with the given start state.
@@ -218,14 +246,23 @@ public:
     }
 
     /**
-     * Removes all Nodes from the tree so it can be run() again.
+     * Removes nodes from _nodes and _nodemap so it can be run() again.
      */
     void reset(bool eraseRoot = false) {
+        for (int i = 1; i < _kdtree.size(); i++) {
+            _kdtree.removePoint(i);
+        }
         if (eraseRoot) {
+            _kdtree.removePoint(0);
             _nodes.clear();
+            _nodemap.clear();
         } else {
-            if (!_nodes.empty()) {
-                _nodes.erase(_nodes.begin() + 1, _nodes.end());
+            if (_nodes.size() > 1) {
+                T root = rootNode()->state();
+                _nodemap.clear();
+                _nodes.clear();
+                _nodes.emplace_back(root, nullptr, _dimensions, _TToArray);
+                _nodemap.insert(std::pair<T, Node<T>*>(root, &_nodes.back()));
             }
         }
     }
@@ -236,11 +273,21 @@ public:
      */
     Node<T>* grow() {
         //  extend towards goal, waypoint, or random state depending on the
-        //  biases
-        //  and a random number
-        float r =
+        //  biases and a random number
+        if (_nodes.size() == 1) {
+            if (_TToArray) {
+                std::vector<double> data(_dimensions);
+                _TToArray(rootNode()->state(), data.data());
+                _kdtree.buildIndex(
+                    flann::Matrix<double>(data.data(), 1, _dimensions));
+            } else {
+                _kdtree.buildIndex(flann::Matrix<double>(
+                    (double*)&(rootNode()->state()), 1, _dimensions));
+            }
+        }
+        double r =
             rand() /
-            (float)RAND_MAX;  //  r is between 0 and one since we normalize it
+            (double)RAND_MAX;  //  r is between 0 and one since we normalize it
         if (r < goalBias()) {
             return extend(goalState());
         } else if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
@@ -252,25 +299,43 @@ public:
     }
 
     /**
-     * Find the node int the tree closest to @state.  Pass in a float pointer
+     * Find the node int the tree closest to @state.  Pass in a double pointer
      * as the second argument to get the distance that the node is away from
-     * @state.
+     * @state. This method searches a k-d tree of the points to determine
      */
-    Node<T>* nearest(const T& state, float* distanceOut = nullptr) {
-        float bestDistance = -1;
+    Node<T>* nearest(const T& state, double* distanceOut = nullptr) {
         Node<T>* best = nullptr;
 
-        for (Node<T>& other : _nodes) {
-            float dist = _stateSpace->distance(other.state(), state);
-            if (bestDistance < 0 || dist < bestDistance) {
-                bestDistance = dist;
-                best = &other;
-            }
+        // k-NN search (O(log(N)))
+        flann::Matrix<double> query;
+        if (NULL == _TToArray) {
+            query = flann::Matrix<double>((double*)&state, 1,
+                                          sizeof(state) / sizeof(0.0));
+        } else {
+            std::vector<double> data(_dimensions);
+            _TToArray(state, data.data());
+            query = flann::Matrix<double>(data.data(), 1,
+                                          sizeof(state) / sizeof(0.0));
+        }
+        std::vector<int> i(query.rows);
+        flann::Matrix<int> indices(i.data(), query.rows, 1);
+        std::vector<double> d(query.rows);
+        flann::Matrix<double> dists(d.data(), query.rows, 1);
+
+        int n =
+            _kdtree.knnSearch(query, indices, dists, 1, flann::SearchParams());
+
+        if (distanceOut)
+            *distanceOut = _stateSpace->distance(state, best->state());
+
+        T point;
+        if (NULL == _arrayToT) {
+            point = (T)_kdtree.getPoint(indices[0][0]);
+        } else {
+            point = _arrayToT(_kdtree.getPoint(indices[0][0]));
         }
 
-        if (distanceOut) *distanceOut = bestDistance;
-
-        return best;
+        return _nodemap[point];
     }
 
     /**
@@ -309,7 +374,11 @@ public:
         }
 
         // Add a node to the tree for this state
-        _nodes.push_back(Node<T>(intermediateState, source));
+        _nodes.emplace_back(intermediateState, source, _dimensions, _TToArray);
+        _kdtree.addPoints(flann::Matrix<double>(
+            _nodes.back().coordinates()->data(), 1, _dimensions));
+        _nodemap.insert(
+            std::pair<T, Node<T>*>(intermediateState, &_nodes.back()));
         return &_nodes.back();
     }
 
@@ -408,7 +477,8 @@ public:
         reset(true);
 
         //  create root node from provided start state
-        _nodes.push_back(Node<T>(startState, nullptr));
+        _nodes.emplace_back(startState, nullptr, _dimensions, _TToArray);
+        _nodemap.insert(std::pair<T, Node<T>*>(startState, &_nodes.back()));
     }
 
     /**
@@ -423,23 +493,33 @@ protected:
      */
     std::deque<Node<T>> _nodes{};
 
+    std::unordered_map<T, Node<T>*, std::function<size_t(T)>> _nodemap;
+
     T _goalState;
+
+    const int _dimensions;
 
     int _maxIterations;
 
     bool _isASCEnabled;
 
-    float _goalBias;
+    double _goalBias;
 
     /// used for Extended RRTs where growth is biased towards waypoints from
     /// previously grown tree
-    float _waypointBias;
+    double _waypointBias;
     std::vector<T> _waypoints{};
 
-    float _goalMaxDist;
+    double _goalMaxDist;
 
-    float _stepSize;
-    float _maxStepSize;
+    double _stepSize;
+    double _maxStepSize;
+
+    flann::Index<flann::L2_Simple<double>> _kdtree;
+
+    std::function<T(double*)> _arrayToT;
+
+    std::function<void(T, double*)> _TToArray;
 
     std::shared_ptr<StateSpace<T>> _stateSpace{};
 };
