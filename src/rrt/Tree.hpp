@@ -249,7 +249,8 @@ public:
      * Removes nodes from _nodes and _nodemap so it can be run() again.
      */
     void reset(bool eraseRoot = false) {
-        _kdtree = flann::Index<flann::L2_Simple<double>>(flann::KDTreeSingleIndexParams());
+        _kdtree = flann::Index<flann::L2_Simple<double>>(
+            flann::KDTreeSingleIndexParams());
         if (eraseRoot) {
             _nodes.clear();
             _nodemap.clear();
