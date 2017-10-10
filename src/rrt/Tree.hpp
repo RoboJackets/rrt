@@ -249,20 +249,25 @@ public:
      * Removes nodes from _nodes and _nodemap so it can be run() again.
      */
     void reset(bool eraseRoot = false) {
-        for (int i = 1; i < _kdtree.size(); i++) {
-            _kdtree.removePoint(i);
-        }
+        _kdtree = flann::Index<flann::L2_Simple<double>>(
+            flann::KDTreeSingleIndexParams());
         if (eraseRoot) {
-            _kdtree.removePoint(0);
             _nodes.clear();
             _nodemap.clear();
-        } else {
-            if (_nodes.size() > 1) {
-                T root = rootNode()->state();
-                _nodemap.clear();
-                _nodes.clear();
-                _nodes.emplace_back(root, nullptr, _dimensions, _TToArray);
-                _nodemap.insert(std::pair<T, Node<T>*>(root, &_nodes.back()));
+        } else if (_nodes.size() > 1) {
+            T root = rootNode()->state();
+            _nodemap.clear();
+            _nodes.clear();
+            _nodes.emplace_back(root, nullptr, _dimensions, _TToArray);
+            _nodemap.insert(std::pair<T, Node<T>*>(root, &_nodes.back()));
+            if (_TToArray) {
+                std::vector<double> data(_dimensions);
+                _TToArray(root, data.data());
+                _kdtree.buildIndex(
+                    flann::Matrix<double>(data.data(), 1, _dimensions));
+            } else {
+                _kdtree.buildIndex(flann::Matrix<double>(
+                    (double*)&(rootNode()->state()), 1, _dimensions));
             }
         }
     }
@@ -274,17 +279,6 @@ public:
     Node<T>* grow() {
         //  extend towards goal, waypoint, or random state depending on the
         //  biases and a random number
-        if (_nodes.size() == 1) {
-            if (_TToArray) {
-                std::vector<double> data(_dimensions);
-                _TToArray(rootNode()->state(), data.data());
-                _kdtree.buildIndex(
-                    flann::Matrix<double>(data.data(), 1, _dimensions));
-            } else {
-                _kdtree.buildIndex(flann::Matrix<double>(
-                    (double*)&(rootNode()->state()), 1, _dimensions));
-            }
-        }
         double r =
             rand() /
             (double)RAND_MAX;  //  r is between 0 and one since we normalize it
@@ -479,6 +473,15 @@ public:
         //  create root node from provided start state
         _nodes.emplace_back(startState, nullptr, _dimensions, _TToArray);
         _nodemap.insert(std::pair<T, Node<T>*>(startState, &_nodes.back()));
+        if (_TToArray) {
+            std::vector<double> data(_dimensions);
+            _TToArray(rootNode()->state(), data.data());
+            _kdtree.buildIndex(
+                flann::Matrix<double>(data.data(), 1, _dimensions));
+        } else {
+            _kdtree.buildIndex(flann::Matrix<double>(
+                (double*)&(rootNode()->state()), 1, _dimensions));
+        }
     }
 
     /**
