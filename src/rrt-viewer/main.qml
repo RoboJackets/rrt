@@ -25,6 +25,18 @@ ApplicationWindow {
 
             ColumnLayout {
                 Button {
+                    text: "Load"
+                    onClicked: rrt.loadObstacles()
+                }
+
+                Button {
+                    text: "Save"
+                    onClicked: rrt.saveObstacles()
+                }
+            }
+
+            ColumnLayout {
+                Button {
                     onClicked: rrt.run()
                     text: "Run"
                     Rectangle {

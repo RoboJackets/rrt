@@ -1,6 +1,9 @@
+#include <fstream>
 #include "RRTWidget.hpp"
 #include <rrt/2dplane/2dplane.hpp>
+#include <rrt/2dplane/ObstacleGrid.hpp>
 #include <rrt/planning/Path.hpp>
+#include <string>
 
 using namespace RRT;
 using namespace Eigen;
@@ -56,6 +59,45 @@ void RRTWidget::reset() {
     _biRRT->setWaypoints(waypoints);
 
     Q_EMIT signal_stepped();
+
+    update();
+}
+
+void RRTWidget::saveObstacles() {
+    ofstream file;
+    file.open("rrtconfig.txt");
+    ObstacleGrid& grid = _stateSpace->obstacleGrid();
+    cout << grid.height() << " " << grid.width() << endl;
+    for (int j = 0; j < grid.discretizedHeight(); j++) {
+        for (int i = 0; i < grid.discretizedWidth(); i++) {
+            if (grid.obstacleAt(i, j)) {
+                file << "1";
+            } else {
+                file << "0";
+            }
+        }
+    }
+    file.close();
+    cout << "Obstacles saved" << endl;
+}
+
+void RRTWidget::loadObstacles() {
+    string line;
+    ifstream file("rrtconfig.txt");
+    ObstacleGrid& grid = _stateSpace->obstacleGrid();
+    char x;
+    if (file.is_open()) {
+        for (int j = 0; j < grid.discretizedHeight(); j++) {
+            for (int i = 0; i < grid.discretizedWidth(); i++) {
+                file >> x;
+                if ('1' == x) {
+                    grid.obstacleAt(i, j) = true;
+                } else if ('0' == x) {
+                    grid.obstacleAt(i, j) = false;
+                }
+            }
+        }
+    }
 
     update();
 }

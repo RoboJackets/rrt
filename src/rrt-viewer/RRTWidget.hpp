@@ -43,6 +43,8 @@ public:
     double ascEnabled() const { return _biRRT->isASCEnabled(); }
 
 public Q_SLOTS:
+    void saveObstacles();
+    void loadObstacles();
     void run();
     void stop();
     void reset();
