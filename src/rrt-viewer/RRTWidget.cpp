@@ -64,37 +64,53 @@ void RRTWidget::reset() {
 }
 
 void RRTWidget::saveObstacles() {
-    ofstream file;
-    file.open("rrtconfig.txt");
+    QString fileName = QFileDialog::getSaveFileName();
+    if (fileName.isEmpty()) {
+        return;
+    }
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        cout << "Unable to write to file" << endl;
+        return;
+    }
+    QTextStream out(&file);
     ObstacleGrid& grid = _stateSpace->obstacleGrid();
-    cout << grid.height() << " " << grid.width() << endl;
     for (int j = 0; j < grid.discretizedHeight(); j++) {
         for (int i = 0; i < grid.discretizedWidth(); i++) {
             if (grid.obstacleAt(i, j)) {
-                file << "1";
+                out << '1';
             } else {
-                file << "0";
+                out << '0';
             }
         }
     }
-    file.close();
     cout << "Obstacles saved" << endl;
 }
 
 void RRTWidget::loadObstacles() {
-    string line;
-    ifstream file("rrtconfig.txt");
+    QString fileName = QFileDialog::getOpenFileName();
+    if (fileName.isEmpty()) {
+        return;
+    }
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        cout << "Unable to open file" << endl;
+        return;
+    }
+
+    QTextStream in(&file);
+    QString str = in.readLine();
+    QString::iterator iter = str.begin();
     ObstacleGrid& grid = _stateSpace->obstacleGrid();
-    char x;
-    if (file.is_open()) {
-        for (int j = 0; j < grid.discretizedHeight(); j++) {
-            for (int i = 0; i < grid.discretizedWidth(); i++) {
-                file >> x;
-                if ('1' == x) {
-                    grid.obstacleAt(i, j) = true;
-                } else if ('0' == x) {
-                    grid.obstacleAt(i, j) = false;
-                }
+    char c;
+
+    for (int j = 0; j < grid.discretizedHeight(); j++) {
+        for (int i = 0; i < grid.discretizedWidth(); i++) {
+            c = (iter++)->toLatin1();
+            if ('1' == c) {
+                grid.obstacleAt(i, j) = true;
+            } else if ('0' == c) {
+                grid.obstacleAt(i, j) = false;
             }
         }
     }
