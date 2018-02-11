@@ -144,7 +144,7 @@ ApplicationWindow {
             Layout.maximumHeight: 600
             Layout.maximumWidth: 1200
             Layout.preferredHeight: 600
-            Layout.preferredWidth: 1100
+            Layout.preferredWidth: 900
             Layout.minimumHeight: 600
             Layout.minimumWidth: 600
 
