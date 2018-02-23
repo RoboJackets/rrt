@@ -13,7 +13,7 @@ using namespace std;
 const double VelocityDrawingMultiplier = 12;
 
 RRTWidget::RRTWidget() {
-    Vector2d size(800, 600);
+    Vector2d size(900, 600);
     _stateSpace = make_shared<GridStateSpace>(size.x(), size.y(), 40, 30);
     _biRRT = make_unique<BiRRT<Vector2d>>(_stateSpace, RRT::hash, dimensions);
 
