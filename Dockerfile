@@ -34,4 +34,4 @@ ENV LANG en_US.UTF-8
 COPY . ~/rrt
 WORKDIR ~/rrt
 
-RUN sudo ./ci/ubuntu-setup --yes
+RUN sudo ./ci/ubuntu-setup.sh --yes

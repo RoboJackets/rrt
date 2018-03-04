@@ -1,0 +1,85 @@
+defaults: &dir
+  working_directory: ~/rrt
+
+defaults: &image
+  docker:
+    - image: robojackets/rrt:master
+
+defaults: &install_deps
+  run: sudo ./ci/ubuntu-setup.sh && sudo ccache -M 100M
+defaults: &save_src_cache
+  save_cache:
+    key: source-v1-{{ .Branch }}-{{ .Revision }}
+    paths:
+      - ".git"
+
+defaults: &save_compile_cache
+  save_cache:
+    key: ccache-{{ arch }}-{{ .Branch }}-{{ .Revision }}
+    paths:
+      - ~/.ccache
+defaults: &load_compile_cache
+  restore_cache:
+    keys:
+      - ccache-{{ arch }}-{{ .Branch }}-{{ .Revision }}
+      - ccache-{{ arch }}-{{ .Branch }}
+      - ccache-{{ arch }}
+      - ccache-
+defaults: &save_workspace
+  persist_to_workspace:
+    root: build
+    paths:
+      - ./*
+defaults: &load_workspace
+  attach_workspace:
+    at: build
+
+version: 2
+jobs:
+  compile:
+    <<: *dir
+    <<: *image
+    steps:
+      - checkout
+      # Ensure latest deps are installed
+      - <<: *install_deps
+      - <<: *load_compile_cache
+      - run: make
+      - <<: *save_compile_cache
+      - <<: *save_workspace
+
+  tests:
+    <<: *dir
+    <<: *image
+    steps:
+      - checkout
+      # Ensure latest deps are installed
+      - <<: *install_deps
+      - <<: *load_workspace
+      - <<: *load_compile_cache
+      - run: make tests
+
+  style:
+    <<: *dir
+    <<: *image
+    steps:
+      - checkout
+      # Ensure latest deps are installed
+      - <<: *install_deps
+      - <<: *load_workspace
+      - <<: *load_compile_cache
+      - run: git fetch origin && STYLIZE_DIFFBASE=origin/master make checkstyle
+      - store_artifacts:
+          path: /tmp/clean.patch
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - compile
+      - tests:
+          requires:
+            - compile
+      - style:
+          requires:
+            - compile
