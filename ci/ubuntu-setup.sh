@@ -18,7 +18,7 @@ sudo apt-get -y install \
     g++ \
     ninja-build \
     cmake \
-    clang-format-3.6 \
+    clang-format \
     python3 \
     python3-pip \
     ccache \
