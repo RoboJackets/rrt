@@ -1,9 +1,16 @@
+
+# circleci has 2 cores, but advertises 32, which causes OOMs
+ifeq ($(CIRCLECI), true)
+	NINJA_FLAGS=-j2
+endif
+
+
 all:
 	mkdir -p build
-	cd build && cmake .. -DCMAKE_INSTALL_PREFIX:PATH="" -GNinja && ninja
+	cd build && cmake .. -DCMAKE_INSTALL_PREFIX:PATH="" -GNinja && ninja $(NINJA_FLAGS)
 
 install: all
-	cd build && ninja install
+	cd build && ninja $(NINJA_FLAGS) install
 
 run: all
 	build/rrt-viewer
@@ -16,7 +23,7 @@ tests: test-cpp
 
 test-cpp:
 	mkdir -p build
-	cd build && cmake --target test-cpp .. -GNinja && ninja test-cpp
+	cd build && cmake --target test-cpp .. -GNinja && ninja $(NINJA_FLAGS) test-cpp
 
 clean:
 	rm -rf build
