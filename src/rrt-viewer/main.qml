@@ -25,6 +25,18 @@ ApplicationWindow {
 
             ColumnLayout {
                 Button {
+                    text: "Load"
+                    onClicked: rrt.loadObstacles()
+                }
+
+                Button {
+                    text: "Save"
+                    onClicked: rrt.saveObstacles()
+                }
+            }
+
+            ColumnLayout {
+                Button {
                     onClicked: rrt.run()
                     text: "Run"
                     Rectangle {
@@ -130,9 +142,11 @@ ApplicationWindow {
         RRTWidget {
             // Fixed size
             Layout.maximumHeight: 600
-            Layout.maximumWidth: 800
+            Layout.maximumWidth: 1200
+            Layout.preferredHeight: 600
+            Layout.preferredWidth: 900
             Layout.minimumHeight: 600
-            Layout.minimumWidth: 800
+            Layout.minimumWidth: 600
 
             id: rrt
         }

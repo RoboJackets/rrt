@@ -1,6 +1,9 @@
+#include <fstream>
 #include "RRTWidget.hpp"
 #include <rrt/2dplane/2dplane.hpp>
+#include <rrt/2dplane/ObstacleGrid.hpp>
 #include <rrt/planning/Path.hpp>
+#include <string>
 
 using namespace RRT;
 using namespace Eigen;
@@ -10,7 +13,7 @@ using namespace std;
 const double VelocityDrawingMultiplier = 12;
 
 RRTWidget::RRTWidget() {
-    Vector2d size(800, 600);
+    Vector2d size(900, 600);
     _stateSpace = make_shared<GridStateSpace>(size.x(), size.y(), 40, 30);
     _biRRT = make_unique<BiRRT<Vector2d>>(_stateSpace, RRT::hash, dimensions);
 
@@ -56,6 +59,61 @@ void RRTWidget::reset() {
     _biRRT->setWaypoints(waypoints);
 
     Q_EMIT signal_stepped();
+
+    update();
+}
+
+void RRTWidget::saveObstacles() {
+    QString fileName = QFileDialog::getSaveFileName();
+    if (fileName.isEmpty()) {
+        return;
+    }
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        cout << "Unable to write to file" << endl;
+        return;
+    }
+    QTextStream out(&file);
+    ObstacleGrid& grid = _stateSpace->obstacleGrid();
+    for (int j = 0; j < grid.discretizedHeight(); j++) {
+        for (int i = 0; i < grid.discretizedWidth(); i++) {
+            if (grid.obstacleAt(i, j)) {
+                out << '1';
+            } else {
+                out << '0';
+            }
+        }
+    }
+    cout << "Obstacles saved" << endl;
+}
+
+void RRTWidget::loadObstacles() {
+    QString fileName = QFileDialog::getOpenFileName();
+    if (fileName.isEmpty()) {
+        return;
+    }
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        cout << "Unable to open file" << endl;
+        return;
+    }
+
+    QTextStream in(&file);
+    QString str = in.readLine();
+    QString::iterator iter = str.begin();
+    ObstacleGrid& grid = _stateSpace->obstacleGrid();
+    char c;
+
+    for (int j = 0; j < grid.discretizedHeight(); j++) {
+        for (int i = 0; i < grid.discretizedWidth(); i++) {
+            c = (iter++)->toLatin1();
+            if ('1' == c) {
+                grid.obstacleAt(i, j) = true;
+            } else if ('0' == c) {
+                grid.obstacleAt(i, j) = false;
+            }
+        }
+    }
 
     update();
 }
