@@ -54,4 +54,20 @@ TEST(BiRRT, multipleRuns) {
     }
 }
 
+TEST(BiRRT, intoObstacle) {
+    // The BiRRT should fail if the goal is in an obstacle.
+    Vector2d start = {1, 1}, goal = {30, 30};
+
+    auto state_space = make_shared<GridStateSpace>(50, 50, 50, 50);
+    state_space->obstacleGrid().obstacleAt(30, 30) = true;
+
+    BiRRT<Vector2d> biRRT(state_space, hash, dimensions);
+    biRRT.setStartState(start);
+    biRRT.setGoalState(goal);
+    biRRT.setStepSize(1);
+    biRRT.setMaxIterations(1000);
+
+    ASSERT_FALSE(biRRT.run());
+}
+
 }  // namespace RRT

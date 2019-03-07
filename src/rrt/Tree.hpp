@@ -129,12 +129,14 @@ public:
     Tree& operator=(const Tree&) = delete;
     Tree(std::shared_ptr<StateSpace<T>> stateSpace,
          std::function<size_t(T)> hashT, int dimensions,
+         bool forward = true,
          std::function<T(double*)> arrayToT = NULL,
          std::function<void(T, double*)> TToArray = NULL)
         : _kdtree(flann::KDTreeSingleIndexParams()),
           _dimensions(dimensions),
           _nodemap(20, hashT) {
         _stateSpace = stateSpace;
+        _forward = forward;
         _arrayToT = arrayToT;
         _TToArray = TToArray;
 
@@ -363,7 +365,7 @@ public:
 
         //  Make sure there's actually a direct path from @source to
         //  @intermediateState.  If not, abort
-        if (!_stateSpace->transitionValid(source->state(), intermediateState)) {
+        if (!_stateSpace->transitionValid(_forward ? source->state() : intermediateState, _forward ? intermediateState : source->state())) {
             return nullptr;
         }
 
@@ -525,5 +527,6 @@ protected:
     std::function<void(T, double*)> _TToArray;
 
     std::shared_ptr<StateSpace<T>> _stateSpace{};
+    bool _forward;
 };
 }  // namespace RRT

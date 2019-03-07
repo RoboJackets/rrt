@@ -17,8 +17,8 @@ public:
           std::function<size_t(T)> hash, int dimensions,
           std::function<T(double*)> arrayToT = NULL,
           std::function<void(T, double*)> TToArray = NULL)
-        : _startTree(stateSpace, hash, dimensions, arrayToT, TToArray),
-          _goalTree(stateSpace, hash, dimensions, arrayToT, TToArray) {
+        : _startTree(stateSpace, hash, dimensions, true, arrayToT, TToArray),
+          _goalTree(stateSpace, hash, dimensions, false, arrayToT, TToArray) {
         _minIterations = 0;
         reset();
     }
@@ -132,8 +132,8 @@ public:
         if (newGoalNode) {
             otherNode = _findBestPath(newGoalNode->state(), _startTree, &depth);
             if (otherNode && depth + newGoalNode->depth() < _solutionLength &&
-                _goalTree.stateSpace().transitionValid(newGoalNode->state(),
-                                                       otherNode->state())) {
+                _goalTree.stateSpace().transitionValid(otherNode->state(),
+                                                       newGoalNode->state())) {
                 _startSolutionNode = otherNode;
                 _goalSolutionNode = newGoalNode;
                 _solutionLength = newGoalNode->depth() + depth;
