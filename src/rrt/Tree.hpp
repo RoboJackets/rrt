@@ -1,15 +1,15 @@
 #pragma once
 
-#include <deque>
 #include <flann/algorithms/dist.h>
 #include <flann/algorithms/kdtree_single_index.h>
+#include <stdlib.h>
+#include <deque>
 #include <flann/flann.hpp>
 #include <functional>
 #include <list>
 #include <memory>
 #include <rrt/StateSpace.hpp>
 #include <stdexcept>
-#include <stdlib.h>
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
@@ -128,8 +128,7 @@ public:
     Tree(const Tree&) = delete;
     Tree& operator=(const Tree&) = delete;
     Tree(std::shared_ptr<StateSpace<T>> stateSpace,
-         std::function<size_t(T)> hashT, int dimensions,
-         bool forward = true,
+         std::function<size_t(T)> hashT, int dimensions, bool forward = true,
          std::function<T(double*)> arrayToT = NULL,
          std::function<void(T, double*)> TToArray = NULL)
         : _kdtree(flann::KDTreeSingleIndexParams()),
@@ -237,9 +236,8 @@ public:
         for (int i = 0; i < _maxIterations; i++) {
             Node<T>* newNode = grow();
 
-            if (newNode &&
-                _stateSpace->distance(newNode->state(), _goalState) <
-                    _goalMaxDist)
+            if (newNode && _stateSpace->distance(newNode->state(), _goalState) <
+                               _goalMaxDist)
                 return true;
         }
 
@@ -365,7 +363,9 @@ public:
 
         //  Make sure there's actually a direct path from @source to
         //  @intermediateState.  If not, abort
-        if (!_stateSpace->transitionValid(_forward ? source->state() : intermediateState, _forward ? intermediateState : source->state())) {
+        if (!_stateSpace->transitionValid(
+                _forward ? source->state() : intermediateState,
+                _forward ? intermediateState : source->state())) {
             return nullptr;
         }
 
