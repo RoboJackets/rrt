@@ -202,7 +202,7 @@ private:
     int _minIterations;
 
     int _solutionLength;
-    const Node<T>*_startSolutionNode, *_goalSolutionNode;
+    const Node<T> *_startSolutionNode, *_goalSolutionNode;
 };
 
 }  // namespace RRT

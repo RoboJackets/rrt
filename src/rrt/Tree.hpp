@@ -363,9 +363,9 @@ public:
 
         //  Make sure there's actually a direct path from @source to
         //  @intermediateState.  If not, abort
-        if (!_stateSpace->transitionValid(
-                _forward ? source->state() : intermediateState,
-                _forward ? intermediateState : source->state())) {
+        T from = _forward ? source->state() : intermediateState,
+          to = _forward ? intermediateState : source->state();
+        if (!_stateSpace->transitionValid(from, to)) {
             return nullptr;
         }
 
