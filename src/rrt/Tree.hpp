@@ -1,15 +1,15 @@
 #pragma once
 
-#include <deque>
 #include <flann/algorithms/dist.h>
 #include <flann/algorithms/kdtree_single_index.h>
+#include <stdlib.h>
+#include <deque>
 #include <flann/flann.hpp>
 #include <functional>
 #include <list>
 #include <memory>
 #include <rrt/StateSpace.hpp>
 #include <stdexcept>
-#include <stdlib.h>
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
@@ -128,13 +128,14 @@ public:
     Tree(const Tree&) = delete;
     Tree& operator=(const Tree&) = delete;
     Tree(std::shared_ptr<StateSpace<T>> stateSpace,
-         std::function<size_t(T)> hashT, int dimensions,
+         std::function<size_t(T)> hashT, int dimensions, bool forward = true,
          std::function<T(double*)> arrayToT = NULL,
          std::function<void(T, double*)> TToArray = NULL)
         : _kdtree(flann::KDTreeSingleIndexParams()),
           _dimensions(dimensions),
           _nodemap(20, hashT) {
         _stateSpace = stateSpace;
+        _forward = forward;
         _arrayToT = arrayToT;
         _TToArray = TToArray;
 
@@ -235,9 +236,8 @@ public:
         for (int i = 0; i < _maxIterations; i++) {
             Node<T>* newNode = grow();
 
-            if (newNode &&
-                _stateSpace->distance(newNode->state(), _goalState) <
-                    _goalMaxDist)
+            if (newNode && _stateSpace->distance(newNode->state(), _goalState) <
+                               _goalMaxDist)
                 return true;
         }
 
@@ -363,7 +363,9 @@ public:
 
         //  Make sure there's actually a direct path from @source to
         //  @intermediateState.  If not, abort
-        if (!_stateSpace->transitionValid(source->state(), intermediateState)) {
+        T from = _forward ? source->state() : intermediateState,
+          to = _forward ? intermediateState : source->state();
+        if (!_stateSpace->transitionValid(from, to)) {
             return nullptr;
         }
 
@@ -525,5 +527,6 @@ protected:
     std::function<void(T, double*)> _TToArray;
 
     std::shared_ptr<StateSpace<T>> _stateSpace{};
+    bool _forward;
 };
 }  // namespace RRT
