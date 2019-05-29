@@ -62,6 +62,7 @@ add_library("RRT" ${lib_SRC})
 add_dependencies(RRT Flann)
 # Fix 'LZ4 not found' issue on some systems
 target_link_libraries(RRT ${FLANN_LIBRARIES})
+target_link_libraries(RRT lz4)
 
 
 # copy headers to install directory
