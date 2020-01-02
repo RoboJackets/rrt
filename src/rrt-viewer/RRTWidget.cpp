@@ -130,6 +130,9 @@ void RRTWidget::setWaypointBias(double bias) { _biRRT->setWaypointBias(bias); }
 
 void RRTWidget::setASCEnabled(bool enabled) { _biRRT->setASCEnabled(enabled); }
 
+void RRTWidget::setRewiringEnabled(bool enabled) { 
+  _biRRT->setRewiringEnabled(enabled); }
+
 void RRTWidget::step() { _step(1); }
 
 void RRTWidget::stepBig() { _step(100); }

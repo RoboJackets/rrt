@@ -135,6 +135,16 @@ ApplicationWindow {
                     id: ascCheckbox
                     checked: false
                 }
+
+                Label {
+                    text: "RRT star\nRewiring"
+                }
+
+                CheckBox {
+                    id: rewiringCheckbox 
+                    checked: false
+                }
+
             }
         }
 
@@ -186,6 +196,11 @@ ApplicationWindow {
         property: "ascEnabled"
         value: ascCheckbox.checked
     }
+    Binding {
+        target: rrt
+        property: "rewiringEnabled"
+        value: rewiringCheckbox.checked
+    }
 
     // keyboard shortcuts
     Shortcut { sequence: 'r'; onActivated: rrt.run() }
@@ -193,5 +208,4 @@ ApplicationWindow {
     Shortcut { sequence: 'c'; onActivated: rrt.reset() }
     Shortcut{ sequence: 'o'; onActivated: rrt.clearObstacles() }
     Shortcut{ sequence: 't'; onActivated: rrt.step() }
-    Shortcut{ sequence: 'b'; onActivated: rrt.stepBig() }
 }

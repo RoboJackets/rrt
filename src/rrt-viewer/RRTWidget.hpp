@@ -42,6 +42,10 @@ public:
     void setASCEnabled(bool enabled);
     double ascEnabled() const { return _biRRT->isASCEnabled(); }
 
+    Q_PROPERTY(bool rewiringEnabled READ rewiringEnabled WRITE setRewiringEnabled)
+    void setRewiringEnabled(bool enabled);
+    double rewiringEnabled() const { return _biRRT->isRewiringEnabled(); }
+
 public Q_SLOTS:
     void saveObstacles();
     void loadObstacles();

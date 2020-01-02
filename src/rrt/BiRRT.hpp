@@ -43,6 +43,12 @@ public:
         _goalTree.setASCEnabled(checked);
     }
 
+    bool isRewiringEnabled() const { return _startTree.isRewiringEnabled(); }
+    void setRewiringEnabled(bool checked) {
+        _startTree.setRewiringEnabled(checked);
+        _goalTree.setRewiringEnabled(checked);
+    }
+
     double goalBias() const { return _startTree.goalBias(); }
     void setGoalBias(double goalBias) {
         _startTree.setGoalBias(goalBias);
