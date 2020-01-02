@@ -24,9 +24,12 @@ namespace RRT {
 template <typename T>
 class Node {
 public:
-    Node(const T& state, Node<T>* parent = nullptr, int dimensions = 2,
-         std::function<void(T, double*)> TToArray = NULL)
+    Node(const T& state, 
+        Node<T>* parent = nullptr, 
+        int dimensions = 2,
+        std::function<void(T, double*)> TToArray = NULL)
         : _parent(parent), _state(state), _vec(dimensions) {
+
         if (_parent) {
             _parent->_children.push_back(this);
         }
@@ -40,6 +43,7 @@ public:
     }
 
     const Node<T>* parent() const { return _parent; }
+    void setParent(Node<T>* parent) { _parent = parent; }
 
     /**
      * Gets the number of ancestors (parent, parent's parent, etc) that
@@ -63,6 +67,7 @@ public:
 
     std::vector<double>* coordinates() { return &_vec; }
 
+    double cost = 0;
 private:
     std::vector<double> _vec;
     T _state;
@@ -134,6 +139,7 @@ public:
         : _kdtree(flann::KDTreeSingleIndexParams()),
           _dimensions(dimensions),
           _nodemap(20, hashT) {
+
         _stateSpace = stateSpace;
         _forward = forward;
         _arrayToT = arrayToT;
@@ -144,6 +150,7 @@ public:
         setMaxStepSize(5);
         setMaxIterations(1000);
         setASCEnabled(false);
+        setRewiringEnabled(false);
         setGoalBias(0);
         setWaypointBias(0);
         setGoalMaxDist(0.1);
@@ -164,6 +171,12 @@ public:
      */
     bool isASCEnabled() const { return _isASCEnabled; }
     void setASCEnabled(bool checked) { _isASCEnabled = checked; }
+
+    /**
+     * Whether or not to do node rewiring (RRT*).
+     */
+    bool isRewiringEnabled() const { return _isRewiringEnabled; }
+    void setRewiringEnabled(bool checked) { _isRewiringEnabled = checked; }
 
     /**
      * @brief The chance we extend towards the goal rather than a random point.
@@ -278,13 +291,13 @@ public:
      */
     Node<T>* grow() {
         //  extend towards goal, waypoint, or random state depending on the
-        //  biases and a random number
-        double r =
-            rand() /
-            (double)RAND_MAX;  //  r is between 0 and one since we normalize it
+        //  biases and a random
+        //  r is between 0 and one since we normalize it number
+        double r = rand() / (double)RAND_MAX;  
         if (r < goalBias()) {
             return extend(goalState());
         } else if (r < goalBias() + waypointBias() && _waypoints.size() > 0) {
+            // Investigate more how the waypoint biases work
             const T& waypoint = _waypoints[rand() % _waypoints.size()];
             return extend(waypoint);
         } else {
@@ -363,8 +376,11 @@ public:
 
         //  Make sure there's actually a direct path from @source to
         //  @intermediateState.  If not, abort
-        T from = _forward ? source->state() : intermediateState,
-          to = _forward ? intermediateState : source->state();
+        T from = _forward ? source->state() 
+                          : intermediateState;
+        T to = _forward ? intermediateState 
+                        : source->state();
+
         if (!_stateSpace->transitionValid(from, to)) {
             return nullptr;
         }
@@ -375,7 +391,90 @@ public:
             _nodes.back().coordinates()->data(), 1, _dimensions));
         _nodemap.insert(
             std::pair<T, Node<T>*>(intermediateState, &_nodes.back()));
+
+        if (_isRewiringEnabled)
+          nodeRewiring(_nodes.back().state()); 
+
         return &_nodes.back();
+    }
+
+    void nodeRewiring(const T& newState) {
+
+        // k-NN search (O(log(N)))
+        flann::Matrix<double> query;
+        if (NULL == _TToArray) {
+            query = flann::Matrix<double>((double*)&newState, 1,
+                                          sizeof(newState) / sizeof(0.0));
+        } else {
+            std::vector<double> data(_dimensions);
+            _TToArray(newState, data.data());
+            query = flann::Matrix<double>(data.data(), 1,
+                                          sizeof(newState) / sizeof(0.0));
+        }
+
+        std::vector<std::vector<int>> indices;
+        std::vector<std::vector<double>> dists;
+
+        double gamma = 100;
+        double ball_size = stepSize()*stepSize()*gamma
+          *pow(log(_nodes.size())/(double)_nodes.size(), 1.0f/_dimensions);
+
+        _kdtree.radiusSearch(query, 
+            indices, dists, ball_size, flann::SearchParams());
+
+        // Rewire current new node
+
+        // Nearest Neighbor found 
+        Node<T>* minNode = nullptr;
+        double min_cost = std::numeric_limits<double>::max();
+
+        for (int i = 1; i < indices[0].size(); i++) {
+          T point;
+          if (NULL == _arrayToT) {
+              point = (T)_kdtree.getPoint(indices[0][i]);
+          } else {
+              point = _arrayToT(_kdtree.getPoint(indices[0][i]));
+          }
+
+          T from = _forward ? _nodemap[point]->state() 
+                            : _nodemap[newState]->state();
+          T to = _forward ? _nodemap[newState]->state() 
+                          : _nodemap[point]->state();
+          
+          auto currentNode = _nodemap[point];
+          double current_cost = currentNode->cost + dists[0][i];
+          if (current_cost < min_cost && _stateSpace->transitionValid(from, to)) {
+            min_cost = current_cost;
+            minNode = currentNode;
+          }
+        }
+
+        if (indices[0].size() > 0 && minNode) {
+          _nodemap[newState]->setParent(minNode);
+          _nodemap[newState]->cost = min_cost;
+        }
+
+        // Rewire all nodes in the vicinity 
+        for (int i = 1; i < indices[0].size(); i++) {
+          T point;
+          if (NULL == _arrayToT) {
+              point = (T)_kdtree.getPoint(indices[0][i]);
+          } else {
+              point = _arrayToT(_kdtree.getPoint(indices[0][i]));
+          }
+
+          T from = _forward ? _nodemap[newState]->state() 
+                            : _nodemap[point]->state();
+          T to = _forward ? _nodemap[point]->state() 
+                          : _nodemap[newState]->state();
+          
+          double probablyLowerCost = _nodemap[newState]->cost + dists[0][i];
+          if (probablyLowerCost < _nodemap[point]->cost 
+              && _stateSpace->transitionValid(from, to)) {
+            _nodemap[point]->setParent(_nodemap[newState]);
+            _nodemap[point]->cost = probablyLowerCost;
+          }
+        }
     }
 
     /**
@@ -507,6 +606,7 @@ protected:
     int _maxIterations;
 
     bool _isASCEnabled;
+    bool _isRewiringEnabled;
 
     double _goalBias;
 
