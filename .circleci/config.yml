@@ -1,36 +1,36 @@
-defaults: &dir
+dir: &dir
   working_directory: ~/rrt
 
-defaults: &image
+image: &image
   docker:
     - image: robojackets/rrt:master
 
-defaults: &install_deps
+install_deps: &install_deps
   run: sudo ./ci/ubuntu-setup.sh && sudo ccache -M 100M
-defaults: &save_src_cache
+save_src_cache: &save_src_cache
   save_cache:
     key: source-v1-{{ .Branch }}-{{ .Revision }}
     paths:
       - ".git"
 
-defaults: &save_compile_cache
+save_compile_cache: &save_compile_cache
   save_cache:
     key: ccache-{{ arch }}-{{ .Branch }}-{{ .Revision }}
     paths:
       - ~/.ccache
-defaults: &load_compile_cache
+load_compile_cache: &load_compile_cache
   restore_cache:
     keys:
       - ccache-{{ arch }}-{{ .Branch }}-{{ .Revision }}
       - ccache-{{ arch }}-{{ .Branch }}
       - ccache-{{ arch }}
       - ccache-
-defaults: &save_workspace
+save_workspace: &save_workspace
   persist_to_workspace:
     root: build
     paths:
       - ./*
-defaults: &load_workspace
+load_workspace: &load_workspace
   attach_workspace:
     at: build
 
