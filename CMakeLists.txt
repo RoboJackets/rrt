@@ -63,6 +63,13 @@ add_dependencies(RRT Flann)
 # Fix 'LZ4 not found' issue on some systems
 target_link_libraries(RRT ${FLANN_LIBRARIES})
 
+# Find LZ4 if it exists. On some platforms this is required to make Flann work,
+# while on others it appears to work fine without linking it in (Flann may have
+# previously distributed LZ4 symbols statically, but stopped in later versions?
+find_library(LZ4_LIBRARY NAMES lz4)
+if(LZ4_LIBRARY)
+    target_link_libraries(RRT ${LZ4_LIBRARY})
+endif()
 
 # copy headers to install directory
 set(lib_HEADERS
